@@ -1,65 +1,86 @@
-import Image from "next/image";
+import Navbar from "@/components/shared/Navbar";
+import Hero from "@/components/shared/Hero";
+import PricingTable from "@/components/shared/PricingTable";
+import { Tv, Smartphone, Globe, ShieldCheck } from "lucide-react";
 
-export default function Home() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="min-h-screen bg-black text-white">
+      <Navbar />
+      <Hero />
+
+      {/* Features Section */}
+      <section id="features" className="py-24 bg-black">
+        <div className="container mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <FeatureCard 
+              icon={<Tv className="w-8 h-8 text-brand-green" />}
+              title="Assista na TV"
+              description="Smart TVs, Apple TV, Chromecast e muito mais direto do seu sofá."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <FeatureCard 
+              icon={<Smartphone className="w-8 h-8 text-brand-yellow" />}
+              title="No seu Celular"
+              description="Baixe seus jogos e eventos favoritos para assistir offline onde estiver."
+            />
+            <FeatureCard 
+              icon={<Globe className="w-8 h-8 text-brand-blue" />}
+              title="Qualquer Lugar"
+              description="Acesse sua conta em computadores, tablets e consoles de videogame."
+            />
+            <FeatureCard 
+              icon={<ShieldCheck className="w-8 h-8 text-brand-green" />}
+              title="Segurança Total"
+              description="Controle parental e perfis individuais para toda a sua família."
+            />
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Divider with Brand Colors */}
+      <div className="h-1 flex">
+        <div className="flex-1 bg-brand-green" />
+        <div className="flex-1 bg-brand-yellow" />
+        <div className="flex-1 bg-brand-blue" />
+      </div>
+
+      <PricingTable />
+
+      {/* Footer */}
+      <footer className="py-12 bg-black border-t border-white/5">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="text-xl font-black">
+              SFL <span className="text-brand-yellow">STREAM</span>
+            </div>
+            
+            <div className="flex gap-8 text-sm text-gray-500">
+              <a href="#" className="hover:text-white transition-colors">Termos de Uso</a>
+              <a href="#" className="hover:text-white transition-colors">Privacidade</a>
+              <a href="#" className="hover:text-white transition-colors">Cookies</a>
+              <a href="#" className="hover:text-white transition-colors">Centro de Ajuda</a>
+            </div>
+            
+            <div className="text-sm text-gray-600">
+              © 2026 SFL Grupo. Todos os direitos reservados.
+            </div>
+          </div>
+        </div>
+      </footer>
+    </main>
+  );
+}
+
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+  return (
+    <div className="space-y-4 p-6 rounded-2xl hover:bg-white/5 transition-colors group">
+      <div className="p-3 bg-white/5 rounded-xl w-fit group-hover:scale-110 transition-transform">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold">{title}</h3>
+      <p className="text-gray-400 leading-relaxed">
+        {description}
+      </p>
     </div>
   );
 }
