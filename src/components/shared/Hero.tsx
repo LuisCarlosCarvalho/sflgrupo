@@ -1,67 +1,86 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Play, Info } from "lucide-react";
-import Link from "next/link";
+import { useState } from "react";
+import LeadModal from "./LeadModal";
 
 export default function Hero() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <section className="relative h-screen w-full flex items-center overflow-hidden">
-      {/* Video Background Placeholder */}
+    <section className="relative h-[90vh] md:h-screen w-full flex items-center justify-start overflow-hidden">
+      {/* Background Image with Netflix-style Gradient Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-black/60 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent z-10" />
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black to-transparent z-10" />
-        
-        {/* Simulating a Video Background */}
-        <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1540747913346-19e3adbb10c3?q=80&w=2000')] bg-cover bg-center animate-pulse" />
+        <img 
+          src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop" 
+          alt="SFL Stream Cinematic Background" 
+          className="w-full h-full object-cover"
+        />
+        {/* Cinematic Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#000000] via-transparent to-black/30" />
       </div>
 
-      <div className="container mx-auto px-6 relative z-20 mt-20">
-        <div className="max-w-2xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-green/20 border border-brand-green/30 text-brand-green text-xs font-bold uppercase tracking-wider">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
-            </span>
-            Ao Vivo: Final da Champions League
-          </div>
+      {/* Content */}
+      <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="max-w-3xl"
+        >
+          <motion.span 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="inline-block bg-brand-blue/20 text-brand-blue text-xs md:text-sm font-black px-4 py-1.5 rounded-full mb-6 border border-brand-blue/30 uppercase tracking-[0.2em]"
+          >
+            SFL Grupo Original
+          </motion.span>
           
-          <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter">
-            A EMOÇÃO DO ESPORTE <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-yellow via-brand-green to-brand-dark-blue">
-              EM ALTA DEFINIÇÃO.
-            </span>
+          <h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter uppercase">
+            SFL Stream: <br />
+            <span className="text-brand-yellow">O melhor do entretenimento</span> <br />
+            no seu controle.
           </h1>
           
-          <p className="text-lg md:text-xl text-gray-300 max-w-lg leading-relaxed">
-            Assista aos melhores jogos, eventos e conteúdos exclusivos em qualquer lugar. O streaming que entende o torcedor.
+          <p className="text-gray-300 text-base md:text-xl mb-10 max-w-xl leading-relaxed">
+            Filmes, canais ao vivo e séries premium em um só lugar. Ativação instantânea via WhatsApp para você não perder nenhum segundo.
           </p>
-          
-          <div className="flex flex-wrap items-center gap-4 pt-4">
-            <Link 
-              href="/register"
-              className="flex items-center gap-2 bg-brand-yellow hover:bg-brand-green text-black px-8 py-4 rounded-xl font-black text-lg transition-all transform hover:scale-105 active:scale-95 shadow-xl shadow-brand-yellow/20"
+
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsModalOpen(true)}
+              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-black px-10 py-5 rounded-2xl transition-all shadow-xl shadow-brand-yellow/20 group"
             >
-              <Play className="fill-current w-5 h-5" />
-              COMEÇAR AGORA
-            </Link>
-            
-            <button className="flex items-center gap-2 glass-panel hover:bg-white/10 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all">
+              <Play className="w-5 h-5 fill-current group-hover:scale-110 transition-transform" />
+              ASSINAR AGORA
+            </motion.button>
+
+            <motion.a 
+              href="#pricing"
+              whileHover={{ backgroundColor: "rgba(74, 144, 226, 0.1)", borderColor: "#4a90e2" }}
+              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-10 py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md"
+            >
               <Info className="w-5 h-5" />
-              Saiba Mais
-            </button>
+              VER CATÁLOGO
+            </motion.a>
           </div>
-        </div>
+        </motion.div>
       </div>
-      
-      {/* Decorative Elements */}
-      <div className="absolute right-0 bottom-0 p-10 hidden lg:block opacity-50">
-        <div className="flex gap-4">
-          <div className="w-1 h-16 bg-brand-green rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-          <div className="w-1 h-16 bg-brand-yellow rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-          <div className="w-1 h-16 bg-brand-blue rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
-        </div>
-      </div>
+
+      {/* WhatsApp Lead Modal Integration */}
+      <LeadModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        planName="Combo Premium"
+      />
+
+      {/* Decorative Glow */}
+      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-green/10 blur-[120px] rounded-full pointer-events-none" />
     </section>
   );
 }
