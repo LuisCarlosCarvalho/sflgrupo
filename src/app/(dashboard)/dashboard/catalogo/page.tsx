@@ -23,11 +23,14 @@ export default async function CatalogoPage() {
   if (!user?.isActive) redirect("/aguardando-ativacao");
 
   // Fetching dynamic content
-  const [popularMovies, popularSeries, kidsContent] = await Promise.all([
+  const [popularMovies, popularSeries, kidsContent, watchlist] = await Promise.all([
     getPopularMovies(),
     getPopularSeries(),
     getKidsContent(),
+    getWatchlist().catch(() => []),
   ]);
+
+  const watchlistIds = new Set((watchlist || []).map(item => item.mediaId));
 
   return (
     <main className="min-h-screen bg-black text-white pb-20">
@@ -47,10 +50,10 @@ export default async function CatalogoPage() {
 
       <div className="space-y-6">
         {/* Requirement: Filmes */}
-        <MovieRow title="Filmes" movies={popularMovies} glowColor="green" />
+        <MovieRow title="Filmes" movies={popularMovies} glowColor="green" watchlistIds={watchlistIds} />
 
         {/* Requirement: Séries */}
-        <MovieRow title="Séries" movies={popularSeries} glowColor="blue" />
+        <MovieRow title="Séries" movies={popularSeries} glowColor="blue" watchlistIds={watchlistIds} />
 
         {/* TV AO VIVO Grid */}
         <section className="px-6 md:px-12 py-10">
