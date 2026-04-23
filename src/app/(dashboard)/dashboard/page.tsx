@@ -40,6 +40,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const resolvedSearchParams = await searchParams;
   const category = resolvedSearchParams.category || "inicio";
 
+  // Busca os dados da TMDB e da Watchlist em paralelo, mas com tratamento de erro
   const [
     trendingMovies, 
     trendingSeries, 
@@ -47,7 +48,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     popularSeries,
     kidsContent, 
     heroMovie,
-    watchlist
+    watchlistData
   ] = await Promise.all([
     getTrendingMovies(),
     getTrendingSeries(),
@@ -55,14 +56,17 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     getPopularSeries(),
     getKidsContent(),
     getHeroMovie(),
-    getWatchlist(),
+    getWatchlist().catch(() => []), // Se o banco falhar, retorna lista vazia e não trava a página
   ]);
 
-  const watchlistIds = new Set(watchlist.map(item => item.mediaId));
+  const watchlistIds = new Set((watchlistData || []).map(item => item.mediaId));
   const isSports = category === "sports";
 
   return (
-    <main className="min-h-screen bg-black text-white pb-20 selection:bg-brand-green selection:text-black">
+    <main 
+      key={category} 
+      className="min-h-screen bg-black text-white pb-20 selection:bg-brand-green selection:text-black animate-in fade-in duration-500"
+    >
       <DashboardNavbar />
       
       {/* Hero Section */}
