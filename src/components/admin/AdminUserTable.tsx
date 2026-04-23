@@ -31,10 +31,10 @@ export default function AdminUserTable({ users }: { users: any[] }) {
       <table className="w-full text-left border-collapse">
         <thead className="bg-white/5 text-[10px] uppercase font-black tracking-widest text-gray-500">
           <tr>
-            <li className="px-8 py-5">Usuário</li>
-            <li className="px-8 py-5 text-center">Status</li>
-            <li className="px-8 py-5 text-center">Plano</li>
-            <li className="px-8 py-5 text-right">Ações</li>
+            <th className="px-8 py-5 font-black text-left">Usuário</th>
+            <th className="px-8 py-5 text-center font-black">Status</th>
+            <th className="px-8 py-5 text-center font-black">Plano</th>
+            <th className="px-8 py-5 text-right font-black">Ações</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">

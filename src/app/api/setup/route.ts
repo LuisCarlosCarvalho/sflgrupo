@@ -2,45 +2,47 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-// Força a rota a ser dinâmica para evitar que o Prisma rode no build estático
-export const dynamic = "force-dynamic";
-
 export async function GET() {
   try {
-    console.log("Iniciando setup de usuários no Supabase...");
+    const hashedPassword = await bcrypt.hash("123456", 10);
 
-    const adminPassword = await bcrypt.hash("S@l798412", 10);
-    const userPassword = await bcrypt.hash("1234", 10);
-
-    // 1. Criar Admin
-    await prisma.user.upsert({
+    // 1. Upsert ADMIN
+    const adminUser = await prisma.user.upsert({
       where: { email: "brasilviptv@gmail.com" },
       update: {
-        password: adminPassword,
+        username: "Admin",
+        password: hashedPassword,
+        role: "ADMIN",
         isActive: true,
         planType: "PREMIUM",
       },
       create: {
-        name: "Admin SFL",
+        name: "SFL Admin",
+        username: "Admin",
         email: "brasilviptv@gmail.com",
-        password: adminPassword,
+        password: hashedPassword,
+        role: "ADMIN",
         isActive: true,
         planType: "PREMIUM",
       },
     });
 
-    // 2. Criar Usuário Teste
-    await prisma.user.upsert({
-      where: { email: "user@teste.com" },
+    // 2. Upsert Usuário TESTE
+    const testUser = await prisma.user.upsert({
+      where: { email: "teste@teste.com" },
       update: {
-        password: userPassword,
-        isActive: false, 
+        username: "teste",
+        password: hashedPassword,
+        role: "USER",
+        isActive: false,
         planType: "FREE",
       },
       create: {
         name: "Usuário Teste",
-        email: "user@teste.com",
-        password: userPassword,
+        username: "teste",
+        email: "teste@teste.com",
+        password: hashedPassword,
+        role: "USER",
         isActive: false,
         planType: "FREE",
       },
@@ -48,13 +50,15 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Setup concluído! Admin e Usuário Teste criados no Supabase.",
+      message: "Setup concluído com sucesso!",
+      admin: adminUser.username,
+      test: testUser.username,
     });
   } catch (error: any) {
-    console.error("Erro no setup:", error);
-    return NextResponse.json({
-      success: false,
-      error: error.message,
-    }, { status: 500 });
+    console.error("Setup Error:", error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
   }
 }

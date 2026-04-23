@@ -15,16 +15,22 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        identifier: { label: "Usuário ou E-mail", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email e senha são obrigatórios.");
+        if (!credentials?.identifier || !credentials?.password) {
+          throw new Error("Usuário/E-mail e senha são obrigatórios.");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
+        // Busca híbrida: Username ou Email
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: credentials.identifier },
+              { username: credentials.identifier }
+            ]
+          }
         });
 
         if (!user || !user.password) {
@@ -41,8 +47,10 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
+          username: user.username,
           isActive: user.isActive,
           planType: user.planType,
+          role: user.role
         };
       }
     })
@@ -51,16 +59,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }: any) {
       if (user) {
         token.id = user.id;
+        token.username = user.username;
         token.isActive = user.isActive;
         token.planType = user.planType;
+        token.role = user.role;
       }
       return token;
     },
     async session({ session, token }: any) {
       if (token && session.user) {
         session.user.id = token.id;
+        session.user.username = token.username;
         session.user.isActive = token.isActive;
         session.user.planType = token.planType;
+        session.user.role = token.role;
       }
       return session;
     },

@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Lock, Mail, Loader2, AlertCircle } from "lucide-react";
+import { Lock, User as UserIcon, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -20,13 +20,13 @@ export default function LoginPage() {
 
     try {
       const result = await signIn("credentials", {
-        email,
+        identifier,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Email ou senha incorretos.");
+        setError("Usuário/E-mail ou senha incorretos.");
         setIsLoading(false);
       } else {
         router.push("/dashboard");
@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#000000] flex items-center justify-center p-6 selection:bg-brand-green selection:text-black">
-      <div className="max-w-md w-full glass-panel p-10 rounded-[2.5rem] border-white/5 relative">
+      <div className="max-w-md w-full glass-panel p-10 rounded-[2.5rem] border-white/5 relative overflow-hidden">
         
         {/* Logo Section */}
         <div className="text-center mb-10">
@@ -52,7 +52,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-sm animate-shake">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-3 text-red-500 text-sm">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             {error}
           </div>
@@ -60,16 +60,16 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">E-mail</label>
+            <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Usuário ou E-mail</label>
             <div className="relative group">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-brand-blue transition-colors" />
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-brand-blue transition-colors" />
               <input 
-                type="email" 
+                type="text" 
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Ex: brasilviptv@gmail.com"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-blue transition-all placeholder:text-gray-700"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                placeholder="Nome de usuário ou e-mail"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-blue transition-all placeholder:text-gray-700 text-white"
               />
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-green transition-all placeholder:text-gray-700"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-green transition-all placeholder:text-gray-700 text-white"
               />
             </div>
           </div>

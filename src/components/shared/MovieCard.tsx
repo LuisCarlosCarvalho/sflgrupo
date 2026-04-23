@@ -1,7 +1,7 @@
 "use client";
 
-import { Play, Plus, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Play, Plus, ChevronDown, Check } from "lucide-react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface MovieCardProps {
@@ -17,6 +17,30 @@ interface MovieCardProps {
 
 export default function MovieCard({ movie }: MovieCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isInList, setIsInList] = useState(false);
+
+  useEffect(() => {
+    const list = JSON.parse(localStorage.getItem("sfl-mylist") || "[]");
+    setIsInList(list.some((m: any) => m.id === movie.id));
+  }, [movie.id]);
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const list = JSON.parse(localStorage.getItem("sfl-mylist") || "[]");
+    let newList;
+    
+    if (isInList) {
+      newList = list.filter((m: any) => m.id !== movie.id);
+    } else {
+      newList = [...list, movie];
+    }
+    
+    localStorage.setItem("sfl-mylist", JSON.stringify(newList));
+    setIsInList(!isInList);
+    window.dispatchEvent(new Event("storage-update"));
+  };
 
   return (
     <Link 
@@ -37,7 +61,6 @@ export default function MovieCard({ movie }: MovieCardProps) {
         absolute top-0 left-0 z-50 transition-all duration-500 ease-out invisible opacity-0
         group-hover:visible group-hover:opacity-100 group-hover:scale-125 group-hover:-translate-y-[4vw]
         w-full bg-black rounded-xl overflow-hidden movie-shadow border border-white/10
-        group-hover:shadow-[0_0_20px_rgba(0,166,81,0.3)] /* Green glow on hover */
       `}>
         <div className="relative h-[120px] md:h-[150px] w-full">
           <img
@@ -53,8 +76,13 @@ export default function MovieCard({ movie }: MovieCardProps) {
             <button className="bg-white rounded-full p-2 hover:bg-gray-200 transition transform active:scale-90">
               <Play className="text-black fill-current w-3 h-3" />
             </button>
-            <button className="border border-white/40 rounded-full p-2 hover:border-white transition transform active:scale-90">
-              <Plus className="text-white w-3 h-3" />
+            <button 
+              onClick={toggleFavorite}
+              className={`border rounded-full p-2 transition transform active:scale-90 ${
+                isInList ? "bg-brand-green border-brand-green text-black" : "border-white/40 text-white hover:border-white"
+              }`}
+            >
+              {isInList ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
             </button>
             <div className="ml-auto border border-white/40 rounded-full p-2 hover:border-white transition">
               <ChevronDown className="text-white w-3 h-3" />

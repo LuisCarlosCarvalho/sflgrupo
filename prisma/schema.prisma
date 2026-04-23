@@ -11,10 +11,12 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   name          String?
+  username      String?   @unique
   email         String?   @unique
   emailVerified DateTime?
   image         String?
   password      String?
+  role          String    @default("USER") // ADMIN, USER
   
   // Status da Assinatura (Controle Manual)
   isActive      Boolean   @default(false) 
