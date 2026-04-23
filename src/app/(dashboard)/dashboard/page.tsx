@@ -13,6 +13,7 @@ import DashboardHero from "@/components/dashboard/DashboardHero";
 import MovieRow from "@/components/shared/MovieRow";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import MyListGrid from "@/components/dashboard/MyListGrid";
+import { getWatchlist } from "@/app/actions/watchlist";
 import { Tv, Trophy, Play } from "lucide-react";
 import { MOVIES } from "@/lib/movies";
 
