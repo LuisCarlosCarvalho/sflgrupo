@@ -1,5 +1,3 @@
-"use client"; // Note: This will be used in client components but we want server actions or just fetch?
-// Actually, I'll use API routes for easier client-side calling from buttons
 "use server";
 
 import prisma from "@/lib/prisma";
