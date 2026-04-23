@@ -6,6 +6,7 @@ import { getPopularMovies, getPopularSeries, getKidsContent } from "@/lib/tmdb";
 import { MOVIES } from "@/lib/movies";
 import MovieRow from "@/components/shared/MovieRow";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
+import { getWatchlist } from "@/app/actions/watchlist";
 import { Tv, Trophy, Flame } from "lucide-react";
 import Link from "next/link";
 
