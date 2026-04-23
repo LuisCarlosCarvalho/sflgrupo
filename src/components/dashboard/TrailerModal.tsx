@@ -1,6 +1,6 @@
 "use client";
 
-import ReactPlayer from "react-player/youtube";
+import ReactPlayer from "react-player";
 import { X, Play, Volume2, Maximize } from "lucide-react";
 import { useEffect, useState } from "react";
 
