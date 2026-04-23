@@ -108,48 +108,52 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
             </div>
           </div>
           
-          <div className="p-4 space-y-3 bg-[#141414]">
+          <div className="p-4 space-y-4 bg-[#181818]">
             <div className="flex items-center gap-2">
               <Link 
                 href={`/watch/${movie.id}`}
-                className="bg-white rounded-full p-2 hover:bg-gray-200 transition transform active:scale-90"
+                className="bg-white rounded-full p-3 hover:bg-gray-200 transition transform hover:scale-110 active:scale-95 shadow-lg flex items-center justify-center"
+                title="Assistir Agora"
               >
-                <Play className="text-black fill-current w-3 h-3" />
+                <Play className="text-black fill-current w-5 h-5" />
               </Link>
               
               <button 
                 onClick={handleOpenTrailer}
-                className="border border-white/40 rounded-full p-2 hover:border-white hover:bg-white/10 transition transform active:scale-90 text-brand-yellow"
+                className="border-2 border-white/40 rounded-full p-3 hover:border-brand-yellow hover:bg-brand-yellow/10 transition transform hover:scale-110 active:scale-95 text-brand-yellow flex items-center justify-center"
                 title="Ver Trailer"
               >
-                <Film className="w-3 h-3" />
+                <Film className="w-5 h-5" />
               </button>
 
               <button 
                 onClick={handleToggleWatchlist}
                 disabled={isLoading}
-                className={`border rounded-full p-2 transition transform active:scale-90 ${
-                  isInList ? "bg-brand-green border-brand-green text-black shadow-[0_0_10px_#00a651]" : "border-white/40 text-white hover:border-white"
+                className={`border-2 rounded-full p-3 transition transform hover:scale-110 active:scale-95 flex items-center justify-center ${
+                  isInList 
+                    ? "bg-brand-green border-brand-green text-black shadow-[0_0_15px_#00a651]" 
+                    : "border-white/40 text-white hover:border-white"
                 } ${isLoading ? "opacity-50 cursor-wait" : ""}`}
+                title={isInList ? "Remover da Lista" : "Adicionar à Minha Lista"}
               >
-                {isInList ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                {isInList ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
               </button>
               
-              <div className="ml-auto border border-white/40 rounded-full p-2 hover:border-white transition">
-                <ChevronDown className="text-white w-3 h-3" />
+              <div className="ml-auto border-2 border-white/40 rounded-full p-3 hover:border-white transition flex items-center justify-center cursor-help">
+                <ChevronDown className="text-white w-5 h-5" />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-[10px] font-bold">
-                <span className="text-brand-green">{movie.rating} de Relevância</span>
-                <span className="text-gray-400">{movie.duration}</span>
-                <span className="border border-white/40 px-1 rounded-[2px] text-[7px] text-brand-blue border-brand-blue/30">4K ULTRA</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <span className="text-brand-green font-black text-xs">{movie.rating}% Relevante</span>
+                <span className="text-white/60 text-xs font-bold">{movie.duration}</span>
+                <span className="border border-white/30 px-2 py-0.5 rounded text-[8px] font-black tracking-widest text-brand-blue border-brand-blue/40 uppercase">4K ULTRA</span>
               </div>
               
-              <div className="flex items-center gap-2 text-[10px] text-white font-medium">
+              <div className="flex items-center gap-2 text-[11px] text-white/80 font-bold uppercase tracking-tight">
                 <span>{movie.genre}</span>
-                <span className="w-1 h-1 bg-gray-500 rounded-full"></span>
+                <span className="w-1.5 h-1.5 bg-brand-green rounded-full shadow-[0_0_5px_#00a651]"></span>
                 <span className="text-brand-yellow">Exclusivo SFL</span>
               </div>
             </div>

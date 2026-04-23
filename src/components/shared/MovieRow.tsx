@@ -30,7 +30,7 @@ export default function MovieRow({ title, movies, glowColor = "green", watchlist
         {title}
       </h2>
 
-      <div className="px-6 md:px-12">
+      <div className="px-6 md:px-12 !overflow-visible">
         <Swiper
           modules={[Navigation]}
           navigation
