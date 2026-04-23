@@ -37,7 +37,7 @@ export async function addToWatchlist(media: {
     },
   });
 
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { success: true };
 }
 
@@ -60,7 +60,7 @@ export async function removeFromWatchlist(mediaId: string) {
     },
   });
 
-  revalidatePath("/dashboard");
+  revalidatePath("/dashboard", "layout");
   return { success: true };
 }
 

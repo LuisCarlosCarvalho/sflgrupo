@@ -27,6 +27,10 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState("");
 
+  useEffect(() => {
+    setIsInList(initialInList);
+  }, [initialInList]);
+
   const handleToggleWatchlist = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
