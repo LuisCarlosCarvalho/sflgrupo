@@ -22,6 +22,14 @@ model User {
   isActive      Boolean   @default(false) 
   planType      String?   @default("FREE") // FREE, BASIC, STANDARD, PREMIUM
   
+  // Stripe integration
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripePriceId          String?
+  stripeCurrentPeriodEnd DateTime?
+
+  watchlist     Watchlist[]
+  
   accounts      Account[]
   sessions      Session[]
   
@@ -88,4 +96,17 @@ model Category {
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Watchlist {
+  id        String @id @default(cuid())
+  userId    String
+  mediaId   String
+  title     String
+  posterPath String
+  type      String @default("movie") // movie ou tv
+  
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaId])
 }

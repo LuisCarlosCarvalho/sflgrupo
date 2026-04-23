@@ -2,21 +2,44 @@
 
 import { useState, useEffect } from "react";
 import MovieCard from "@/components/shared/MovieCard";
-import { Play } from "lucide-react";
+import { Play, Share2, MessageCircle } from "lucide-react";
+import { getWatchlist } from "@/app/actions/watchlist";
 
 export default function MyListGrid() {
   const [list, setList] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const loadList = () => {
-    const saved = JSON.parse(localStorage.getItem("sfl-mylist") || "[]");
-    setList(saved);
+  const loadList = async () => {
+    setIsLoading(true);
+    const saved = await getWatchlist();
+    // Transforma o formato do banco para o formato do MovieCard
+    const formatted = saved.map(item => ({
+      id: item.mediaId,
+      title: item.title,
+      thumbnailUrl: item.posterPath,
+      duration: "HD", // Placeholder ou buscar real
+      genre: item.type === "movie" ? "Filme" : "Série",
+      rating: "98",
+      type: item.type
+    }));
+    setList(formatted);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     loadList();
-    window.addEventListener("storage-update", loadList);
-    return () => window.removeEventListener("storage-update", loadList);
   }, []);
+
+  const handleExportWhatsApp = () => {
+    const names = list.map(m => `• ${m.title}`).join('\n');
+    const text = `🍿 *Minha Lista SFL Stream*:\n\n${names}\n\nAssista agora em: sflstream.com`;
+    const encodedText = encodeURIComponent(text);
+    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+  };
+
+  if (isLoading) {
+    return <div className="px-6 md:px-12 py-20 text-center text-gray-500 font-bold uppercase tracking-widest animate-pulse">Carregando sua lista...</div>;
+  }
 
   if (list.length === 0) {
     return (
@@ -37,11 +60,25 @@ export default function MyListGrid() {
   }
 
   return (
-    <div className="px-6 md:px-12 pb-20">
+    <div className="px-6 md:px-12 pb-20 space-y-10">
+      <div className="flex items-center justify-between border-b border-white/5 pb-6">
+        <div>
+          <p className="text-[10px] font-black text-brand-green uppercase tracking-[0.3em] mb-1">Backup Sincronizado</p>
+          <h3 className="text-sm font-bold text-gray-400">{list.length} Títulos salvos</h3>
+        </div>
+        <button 
+          onClick={handleExportWhatsApp}
+          className="flex items-center gap-2 bg-brand-green/10 text-brand-green hover:bg-brand-green hover:text-black font-black px-6 py-3 rounded-2xl transition-all border border-brand-green/20 group"
+        >
+          <MessageCircle className="w-4 h-4" />
+          ENVIAR PARA WHATSAPP
+        </button>
+      </div>
+
       <div className="flex flex-wrap gap-x-4 gap-y-10 md:gap-y-16">
         {list.map((movie) => (
           <div key={movie.id} className="w-[calc(50%-1rem)] md:w-[calc(33.33%-1rem)] lg:w-[calc(20%-1rem)]">
-             <MovieCard movie={movie} />
+             <MovieCard movie={movie} initialInList={true} />
           </div>
         ))}
       </div>

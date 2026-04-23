@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Search, Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trophy } from "lucide-react";
+import { Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trophy } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import SearchBar from "./SearchBar";
 
 export default function DashboardNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -48,7 +49,7 @@ export default function DashboardNavbar() {
               alt="SFL Logo" 
               className="h-8 md:h-9 w-auto transition-transform group-hover:scale-105" 
             />
-            <span className="text-xl font-black tracking-tighter hidden md:block">
+            <span className="text-xl font-black tracking-tighter hidden md:block text-white">
               SFL <span className="text-brand-yellow">STREAM</span>
             </span>
           </Link>
@@ -73,7 +74,7 @@ export default function DashboardNavbar() {
         {/* Right Actions */}
         <div className="flex items-center gap-6">
           <div className="hidden md:flex items-center gap-6 text-white/70">
-            <button className="hover:text-white transition-colors"><Search className="w-5 h-5" /></button>
+            <SearchBar />
             <button className="hover:text-white transition-colors relative">
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-brand-green rounded-full shadow-[0_0_10px_#00a651]"></span>

@@ -47,3 +47,26 @@ export const getMovieDetails = async (id: string, type: "movie" | "tv" = "movie"
     return null;
   }
 };
+
+export const searchMulti = async (query: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(query)}`, { next: { revalidate: 3600 } });
+    const data = await res.json();
+    return data.results ? data.results.map(formatData) : [];
+  } catch (error) {
+    console.error("TMDB Search Error:", error);
+    return [];
+  }
+};
+
+export const getMovieVideos = async (id: string, type: "movie" | "tv" = "movie") => {
+  try {
+    const res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 3600 } });
+    const data = await res.json();
+    // Prioritiza trailers do YouTube
+    return data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
+  } catch (error) {
+    console.error("TMDB Videos Error:", error);
+    return [];
+  }
+};
