@@ -2,6 +2,7 @@ const TMDB_API_KEY = "bef325d5616036e502edb3cdc104e7fd";
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const formatData = (item: any, type?: string) => ({
   id: item.id.toString(),
   title: item.title || item.name,
@@ -19,6 +20,7 @@ async function fetchTMDB(endpoint: string, params: string = "", type?: string) {
     const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&language=pt-BR${params}`;
     const res = await fetch(url, { next: { revalidate: 3600 } });
     const data = await res.json();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.results ? data.results.map((item: any) => formatData(item, type)) : [];
   } catch (error) {
     console.error("TMDB Fetch Error:", error);
@@ -67,6 +69,7 @@ export const getMovieVideos = async (id: string, type: "movie" | "tv" = "movie")
     const res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 3600 } });
     const data = await res.json();
     // Prioritiza trailers do YouTube
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
   } catch (error) {
     console.error("TMDB Videos Error:", error);

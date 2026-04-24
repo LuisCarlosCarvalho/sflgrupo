@@ -25,6 +25,7 @@ export default function VideoPlayer({ url, title }: VideoPlayerProps) {
 
   const togglePlay = () => setPlaying(!playing);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Player = ReactPlayer as any;
 
   return (
@@ -40,8 +41,10 @@ export default function VideoPlayer({ url, title }: VideoPlayerProps) {
           width="100%"
           height="100%"
           playing={playing}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onProgress={(progress: any) => setPlayed(progress.played)}
           config={{
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             youtube: { playerVars: { showinfo: 0, controls: 0, disablekb: 1 } } as any
           }}
         />

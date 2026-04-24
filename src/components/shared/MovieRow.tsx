@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
 import MovieCard from "./MovieCard";
 
 // Import Swiper styles
@@ -12,6 +12,7 @@ import "swiper/css/pagination";
 
 interface MovieRowProps {
   title: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   movies: any[];
   glowColor?: "yellow" | "green" | "blue";
   watchlistIds?: Set<string>;

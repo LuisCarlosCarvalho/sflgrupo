@@ -27,10 +27,12 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
   const [isInList, setIsInList] = useState(initialInList);
   const [isLoading, setIsLoading] = useState(false);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState("");
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsInList(initialInList);
   }, [initialInList]);
 

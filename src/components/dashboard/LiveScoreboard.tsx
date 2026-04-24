@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Trophy, Clock, Tv } from "lucide-react";
+import { Play, Trophy, Clock } from "lucide-react";
 
 interface SerpApiEvent {
   matchId: string;
@@ -111,6 +111,7 @@ export default function LiveScoreboard() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchScores();
     // AVISO: Não usar setInterval com a SerpApi pois consome créditos imediatamente.
   }, []);
