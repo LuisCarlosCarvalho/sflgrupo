@@ -1,77 +1,71 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { revalidatePath } from "next/cache";
 
-export async function addToWatchlist(media: {
+export async function toggleWatchlist(media: {
   id: string;
   title: string;
   posterPath: string;
   type: string;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
+  // First check if it exists
+  const { data: existing, error: fetchError } = await supabase
+    .from('Watchlist')
+    .select('userId')
+    .match({ userId: session.user.id, mediaId: media.id })
+    .maybeSingle();
 
-  if (!user) throw new Error("User not found");
-
-  await prisma.watchlist.upsert({
-    where: {
-      userId_mediaId: {
-        userId: user.id,
+  if (existing) {
+    // Exists, so remove it
+    const { error: deleteError } = await supabase
+      .from('Watchlist')
+      .delete()
+      .match({ userId: session.user.id, mediaId: media.id });
+      
+    if (deleteError) throw deleteError;
+    revalidatePath("/dashboard", "layout");
+    return { success: true, added: false };
+  } else {
+    // Doesn't exist, so add it
+    const { error: insertError } = await supabase
+      .from('Watchlist')
+      .insert({
+        id: crypto.randomUUID(),
+        userId: session.user.id,
         mediaId: media.id,
-      },
-    },
-    update: {},
-    create: {
-      userId: user.id,
-      mediaId: media.id,
-      title: media.title,
-      posterPath: media.posterPath,
-      type: media.type,
-    },
-  });
+        title: media.title,
+        posterPath: media.posterPath,
+        type: media.type,
+      });
 
-  revalidatePath("/dashboard", "layout");
-  return { success: true };
-}
-
-export async function removeFromWatchlist(mediaId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) throw new Error("Unauthorized");
-
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-  });
-
-  if (!user) throw new Error("User not found");
-
-  await prisma.watchlist.delete({
-    where: {
-      userId_mediaId: {
-        userId: user.id,
-        mediaId: mediaId,
-      },
-    },
-  });
-
-  revalidatePath("/dashboard", "layout");
-  return { success: true };
+    if (insertError) {
+      console.error("Watchlist Insert Error:", insertError);
+      throw insertError;
+    }
+    revalidatePath("/dashboard", "layout");
+    return { success: true, added: true };
+  }
 }
 
 export async function getWatchlist() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) return [];
+  if (!session?.user?.id) return [];
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: { watchlist: true },
-  });
+  const { data, error } = await supabase
+    .from('Watchlist')
+    .select('*')
+    .eq('userId', session.user.id);
 
-  return user?.watchlist || [];
+  if (error) {
+    console.error("GetWatchlist Error:", error);
+    return [];
+  }
+
+  return data || [];
 }

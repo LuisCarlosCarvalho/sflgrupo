@@ -1,14 +1,16 @@
 "use server";
 
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { revalidatePath } from "next/cache";
 
 export async function activateUser(userId: string) {
   try {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isActive: true, planType: "PREMIUM" }, // Ativa com Premium por padrão na manual
-    });
+    const { error } = await supabase
+      .from('User')
+      .update({ isActive: true, planType: "PREMIUM" })
+      .eq('id', userId);
+
+    if (error) throw error;
     
     revalidatePath("/sfl-admin");
     return { success: true };
@@ -19,10 +21,12 @@ export async function activateUser(userId: string) {
 
 export async function deactivateUser(userId: string) {
   try {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isActive: false },
-    });
+    const { error } = await supabase
+      .from('User')
+      .update({ isActive: false })
+      .eq('id', userId);
+
+    if (error) throw error;
     
     revalidatePath("/sfl-admin");
     return { success: true };

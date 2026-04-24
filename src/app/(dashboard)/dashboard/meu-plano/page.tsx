@@ -1,20 +1,22 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import { CreditCard, CheckCircle, ShieldCheck, Zap } from "lucide-react";
 
 export default async function MyPlanPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) redirect("/login");
+  if (!session?.user?.id) redirect("/login");
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user?.email || "" },
-  });
+  const { data: user, error } = await supabase
+    .from('User')
+    .select('*')
+    .eq('id', session.user.id)
+    .single();
 
-  if (!user) redirect("/login");
+  if (error || !user) redirect("/login");
 
   const planDetails = {
     FREE: { name: "Gratuito", price: "R$ 0,00", features: ["Acesso Limitado", "Resolução SD", "Com anúncios"] },

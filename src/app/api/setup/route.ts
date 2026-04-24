@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
@@ -7,46 +7,38 @@ export async function GET() {
     const hashedPassword = await bcrypt.hash("123456", 10);
 
     // 1. Upsert ADMIN
-    const adminUser = await prisma.user.upsert({
-      where: { email: "brasilviptv@gmail.com" },
-      update: {
-        username: "Admin",
-        password: hashedPassword,
-        role: "ADMIN",
-        isActive: true,
-        planType: "PREMIUM",
-      },
-      create: {
-        name: "SFL Admin",
-        username: "Admin",
+    const { data: adminUser, error: adminError } = await supabase
+      .from('User')
+      .upsert({
         email: "brasilviptv@gmail.com",
+        username: "Admin",
         password: hashedPassword,
         role: "ADMIN",
         isActive: true,
         planType: "PREMIUM",
-      },
-    });
+        name: "SFL Admin"
+      }, { onConflict: 'email' })
+      .select()
+      .single();
+
+    if (adminError) throw adminError;
 
     // 2. Upsert Usuário TESTE
-    const testUser = await prisma.user.upsert({
-      where: { email: "teste@teste.com" },
-      update: {
-        username: "teste",
-        password: hashedPassword,
-        role: "USER",
-        isActive: false,
-        planType: "FREE",
-      },
-      create: {
-        name: "Usuário Teste",
-        username: "teste",
+    const { data: testUser, error: testError } = await supabase
+      .from('User')
+      .upsert({
         email: "teste@teste.com",
+        username: "teste",
         password: hashedPassword,
         role: "USER",
         isActive: false,
         planType: "FREE",
-      },
-    });
+        name: "Usuário Teste"
+      }, { onConflict: 'email' })
+      .select()
+      .single();
+
+    if (testError) throw testError;
 
     return NextResponse.json({
       success: true,

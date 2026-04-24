@@ -7,12 +7,15 @@ import {
   getKidsContent, 
   getHeroMovie,
   getPopularMovies,
-  getPopularSeries
+  getPopularSeries,
+  getAnimes,
+  getDocumentaries
 } from "@/lib/tmdb";
 import DashboardHero from "@/components/dashboard/DashboardHero";
 import MovieRow from "@/components/shared/MovieRow";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import MyListGrid from "@/components/dashboard/MyListGrid";
+import LiveScoreboard from "@/components/dashboard/LiveScoreboard";
 import { getWatchlist } from "@/app/actions/watchlist";
 import { Tv, Trophy, Play } from "lucide-react";
 import { MOVIES } from "@/lib/movies";
@@ -47,7 +50,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     popularMovies,
     popularSeries,
     kidsContent, 
-    heroMovie,
+    animes,
+    documentaries,
     watchlistData
   ] = await Promise.all([
     getTrendingMovies(),
@@ -55,12 +59,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     getPopularMovies(),
     getPopularSeries(),
     getKidsContent(),
-    getHeroMovie(),
+    getAnimes(),
+    getDocumentaries(),
     getWatchlist().catch(() => []), // Se o banco falhar, retorna lista vazia e não trava a página
   ]);
 
   const watchlistIds = new Set((watchlistData || []).map(item => item.mediaId));
   const isSports = category === "sports";
+
+  // Escolher o Hero dinamicamente baseado na categoria (top 5 para o carrossel)
+  let currentHeroArray = trendingMovies.slice(0, 5);
+  if (category === "series") currentHeroArray = trendingSeries.slice(0, 5);
+  if (category === "movies") currentHeroArray = trendingMovies.slice(0, 5);
+  if (category === "trending") currentHeroArray = trendingMovies.slice(0, 5);
 
   return (
     <main 
@@ -70,15 +81,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <DashboardNavbar />
       
       {/* Hero Section */}
-      {!isSports && <DashboardHero movie={heroMovie as any} />}
+      {!isSports && category !== "mylist" && <DashboardHero movies={currentHeroArray as any} />}
 
-      <div className={`relative z-20 space-y-8 ${!isSports ? "-mt-20" : "pt-24"}`}>
+      <div className={`relative z-20 space-y-8 ${(!isSports && category !== "mylist") ? "-mt-20" : "pt-32"}`}>
         
         {/* Lógica de Renderização Baseada na Categoria */}
         {category === "inicio" && (
           <>
-            <MovieRow title="Filmes em Destaque" movies={trendingMovies} glowColor="green" watchlistIds={watchlistIds} />
-            <MovieRow title="Séries Populares" movies={trendingSeries} glowColor="blue" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Filmes em Destaque" movies={trendingMovies} glowColor="green" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Séries Populares" movies={trendingSeries} glowColor="blue" watchlistIds={watchlistIds} />
             
             {/* Live TV & Sports Highlight Row */}
             <section className="px-6 md:px-12 py-10">
@@ -110,7 +121,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               </div>
             </section>
 
-            <MovieRow title="Conteúdo Kids" movies={kidsContent} glowColor="yellow" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Animes" movies={animes} glowColor="yellow" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Documentários" movies={documentaries} glowColor="blue" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Conteúdo Kids" movies={kidsContent} glowColor="green" watchlistIds={watchlistIds} />
           </>
         )}
 
@@ -119,8 +132,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <div className="px-6 md:px-12 mb-8">
               <h1 className="text-4xl font-black uppercase italic tracking-tighter text-brand-blue">Séries</h1>
             </div>
-            <MovieRow title="Populares na SFL" movies={popularSeries} glowColor="blue" watchlistIds={watchlistIds} />
-            <MovieRow title="Tendências da Semana" movies={trendingSeries} glowColor="green" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Populares" movies={popularSeries} glowColor="blue" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Tendências da Semana" movies={trendingSeries} glowColor="green" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Animes" movies={animes} glowColor="yellow" watchlistIds={watchlistIds} />
           </>
         )}
 
@@ -129,8 +143,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <div className="px-6 md:px-12 mb-8">
               <h1 className="text-4xl font-black uppercase italic tracking-tighter text-brand-green">Filmes</h1>
             </div>
-            <MovieRow title="Populares na SFL" movies={popularMovies} glowColor="green" watchlistIds={watchlistIds} />
-            <MovieRow title="Tendências da Semana" movies={trendingMovies} glowColor="yellow" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Populares" movies={popularMovies} glowColor="green" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Tendências da Semana" movies={trendingMovies} glowColor="yellow" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Documentários" movies={documentaries} glowColor="blue" watchlistIds={watchlistIds} />
           </>
         )}
 
@@ -140,24 +155,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <h1 className="text-5xl font-black uppercase italic tracking-tighter mb-4">
                 SFL <span className="text-brand-green">SPORT'S</span>
               </h1>
-              <p className="text-gray-400 max-w-xl font-bold">Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em alta definição.</p>
+              <p className="text-gray-400 max-w-xl font-bold">Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em tempo real.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {MOVIES.filter(m => m.genre === "Esporte" || m.genre === "Basquete").map(match => (
-                <div key={match.id} className="group relative aspect-video rounded-3xl overflow-hidden border border-white/10 bg-white/5 hover:border-brand-green transition-all">
-                   <img src={match.thumbnailUrl} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-500" />
-                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                   <div className="absolute bottom-0 p-6 w-full">
-                      <span className="bg-red-600 text-[10px] font-black px-2 py-0.5 rounded-sm mb-2 inline-block">AO VIVO</span>
-                      <h4 className="text-lg font-black uppercase tracking-tighter">{match.title}</h4>
-                      <button className="mt-4 flex items-center gap-2 text-[10px] font-black text-brand-green hover:text-white transition-colors">
-                        <Play className="w-3 h-3 fill-current" /> ASSISTIR AGORA
-                      </button>
-                   </div>
-                </div>
-              ))}
-            </div>
+            <LiveScoreboard />
           </div>
         )}
 
@@ -166,8 +167,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <div className="px-6 md:px-12 mb-8">
               <h1 className="text-4xl font-black uppercase italic tracking-tighter text-brand-yellow">Bombando</h1>
             </div>
-            <MovieRow title="Filmes em Alta" movies={trendingMovies} glowColor="yellow" watchlistIds={watchlistIds} />
-            <MovieRow title="Séries em Alta" movies={trendingSeries} glowColor="blue" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Top 10 Filmes Hoje" movies={trendingMovies.slice(0, 10)} glowColor="yellow" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Top 10 Séries Hoje" movies={trendingSeries.slice(0, 10)} glowColor="blue" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Top 10 Animes Hoje" movies={animes.slice(0, 10)} glowColor="green" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Top 10 Documentários Hoje" movies={documentaries.slice(0, 10)} glowColor="yellow" watchlistIds={watchlistIds} />
+            <MovieRow title="SFL Top 10 Kids Hoje" movies={kidsContent.slice(0, 10)} glowColor="blue" watchlistIds={watchlistIds} />
           </>
         )}
 

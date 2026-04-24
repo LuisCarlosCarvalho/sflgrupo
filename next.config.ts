@@ -22,6 +22,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  serverExternalPackages: ["@prisma/client"],
   /* Outras opções do Next.js 16 podem ser adicionadas aqui */
 };
 

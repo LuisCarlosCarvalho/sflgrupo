@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import Navbar from "@/components/shared/Navbar";
 import { Users, CheckCircle, Shield, AlertTriangle } from "lucide-react";
 import AdminUserTable from "@/components/admin/AdminUserTable";
@@ -19,10 +19,13 @@ export default async function AdminPage() {
       redirect("/");
     }
 
-    // Tenta buscar os usuários
-    const users = await prisma.user.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    // Tenta buscar os usuários usando Supabase
+    const { data: users, error } = await supabase
+      .from('User')
+      .select('*')
+      .order('createdAt', { ascending: false });
+
+    if (error) throw error;
 
     return (
       <div className="min-h-screen bg-black text-white selection:bg-brand-green selection:text-black">

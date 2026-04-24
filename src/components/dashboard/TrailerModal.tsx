@@ -1,17 +1,19 @@
 "use client";
 
-import ReactPlayer from "react-player";
-import { X, Play, Volume2, Maximize } from "lucide-react";
+import { X, Play } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import Link from "next/link";
 
 interface TrailerModalProps {
   isOpen: boolean;
   onClose: () => void;
   videoKey: string;
   title: string;
+  movieId?: string;
 }
 
-export default function TrailerModal({ isOpen, onClose, videoKey, title }: TrailerModalProps) {
+export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId }: TrailerModalProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -28,52 +30,49 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title }: Trail
 
   if (!mounted || !isOpen || !videoKey) return null;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8">
       {/* Overlay */}
       <div 
-        className="absolute inset-0 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-500"
         onClick={onClose}
       />
       
       {/* Content */}
-      <div className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(0,166,81,0.2)] border border-white/10 glass-panel animate-in zoom-in-95 duration-300">
+      <div className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(255,215,0,0.15)] border border-white/5 bg-black animate-in zoom-in-95 duration-500">
         
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-10 bg-gradient-to-b from-black/80 to-transparent">
+        <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between z-10 bg-gradient-to-b from-black/90 to-transparent">
           <div className="flex items-center gap-3">
-            <div className="w-1 h-6 bg-brand-green rounded-full shadow-[0_0_10px_#00a651]" />
-            <h2 className="text-sm md:text-lg font-black uppercase italic tracking-tighter text-white drop-shadow-md">
-              Trailer: <span className="text-brand-yellow">{title}</span>
+            <h2 className="text-base md:text-lg font-black uppercase italic tracking-tighter text-white drop-shadow-lg">
+              <span className="text-brand-yellow">TRAILER:</span> {title}
             </h2>
           </div>
+          
           <button 
             onClick={onClose}
-            className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-all transform active:scale-95"
+            className="w-10 h-10 rounded-full bg-black/50 hover:bg-brand-yellow hover:text-black flex items-center justify-center text-white transition-all transform hover:scale-110 active:scale-95 border border-white/20"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Video Player */}
-        <div className="w-full h-full bg-black">
-          <ReactPlayer
-            url={`https://www.youtube.com/watch?v=${videoKey}`}
-            width="100%"
-            height="100%"
-            playing={true}
-            controls={true}
-            config={{
-              youtube: {
-                playerVars: { showinfo: 0, rel: 0, modestbranding: 1 }
-              }
-            }}
+        <div className="w-full h-full bg-black relative">
+          <iframe 
+            src={`https://www.youtube.com/embed/${videoKey}?autoplay=1&modestbranding=1&rel=0`} 
+            title={title}
+            className="w-full h-full border-0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
           />
         </div>
 
         {/* Footer Decoration */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-green via-brand-yellow to-brand-blue opacity-50" />
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-yellow to-transparent opacity-50" />
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

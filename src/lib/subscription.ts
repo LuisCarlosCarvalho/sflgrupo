@@ -1,15 +1,13 @@
-import prisma from "./prisma";
+import { supabase } from "./supabase";
 
 export async function getSubscription(userId: string) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      isActive: true,
-      planType: true,
-    },
-  });
+  const { data: user, error } = await supabase
+    .from('User')
+    .select('isActive, planType')
+    .eq('id', userId)
+    .single();
 
-  if (!user) return null;
+  if (error || !user) return null;
 
   return {
     isActive: user.isActive,

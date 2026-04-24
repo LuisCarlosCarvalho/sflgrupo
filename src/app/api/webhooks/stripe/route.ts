@@ -1,5 +1,5 @@
 import { stripe } from "@/lib/stripe";
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -27,45 +27,50 @@ export async function POST(req: Request) {
     // Garantimos a tipagem da assinatura para evitar erro de build
     const subscription = (await stripe.subscriptions.retrieve(
       session.subscription as string
-    )) as Stripe.Subscription;
+    )) as any;
 
     if (!session?.metadata?.userId) {
       return new NextResponse("User id is required", { status: 400 });
     }
 
-    await prisma.user.update({
-      where: {
-        id: session.metadata.userId,
-      },
-      data: {
+    const { error } = await supabase
+      .from('User')
+      .update({
         stripeSubscriptionId: subscription.id,
         stripeCustomerId: subscription.customer as string,
         stripePriceId: subscription.items.data[0].price.id,
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000
-        ),
+        ).toISOString(),
         isActive: true, // Ativa o usuário automaticamente no pagamento
         planType: "PREMIUM", // Ajuste conforme seu plano
-      },
-    });
+      })
+      .eq('id', session.metadata.userId);
+
+    if (error) {
+      console.error("Stripe Webhook Update Error:", error);
+      return new NextResponse(`Database Error: ${error.message}`, { status: 500 });
+    }
   }
 
   if (event.type === "invoice.payment_succeeded") {
     const subscription = (await stripe.subscriptions.retrieve(
       session.subscription as string
-    )) as Stripe.Subscription;
+    )) as any;
 
-    await prisma.user.update({
-      where: {
-        stripeSubscriptionId: subscription.id,
-      },
-      data: {
+    const { error } = await supabase
+      .from('User')
+      .update({
         stripePriceId: subscription.items.data[0].price.id,
         stripeCurrentPeriodEnd: new Date(
           subscription.current_period_end * 1000
-        ),
-      },
-    });
+        ).toISOString(),
+      })
+      .eq('stripeSubscriptionId', subscription.id);
+
+    if (error) {
+      console.error("Stripe Webhook Success Error:", error);
+    }
   }
 
   return new NextResponse(null, { status: 200 });

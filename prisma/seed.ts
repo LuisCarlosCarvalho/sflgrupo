@@ -100,6 +100,7 @@ async function main() {
     await prisma.movie.create({
       data: {
         ...movieData,
+        category: "Video", // Preenchendo o campo String obrigatório
         categories: {
           connect: { id: categoryId },
         },

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import { getPopularMovies, getPopularSeries, getKidsContent } from "@/lib/tmdb";
 import { MOVIES } from "@/lib/movies";
 import MovieRow from "@/components/shared/MovieRow";
@@ -14,14 +14,16 @@ export const dynamic = "force-dynamic";
 
 export default async function CatalogoPage() {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
+  if (!session?.user?.id) redirect("/login");
 
-  // Verificação de usuário ativo via Prisma Singleton
-  const user = await prisma.user.findUnique({
-    where: { email: session.user?.email || "" }
-  });
+  // Verificação de usuário ativo via Supabase
+  const { data: user, error: userError } = await supabase
+    .from('User')
+    .select('isActive')
+    .eq('id', session.user.id)
+    .single();
 
-  if (!user?.isActive) redirect("/aguardando-ativacao");
+  if (userError || !user?.isActive) redirect("/aguardando-ativacao");
 
   // Fetching dynamic content
   const [popularMovies, popularSeries, kidsContent, watchlist] = await Promise.all([

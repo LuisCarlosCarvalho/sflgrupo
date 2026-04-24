@@ -1,12 +1,10 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "@/lib/prisma";
+import { supabase } from "@/lib/supabase";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -23,18 +21,20 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Usuário/E-mail e senha são obrigatórios.");
         }
 
-        // Busca híbrida: Username ou Email
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { email: credentials.identifier },
-              { username: credentials.identifier }
-            ]
-          }
-        });
+        // Busca híbrida usando Supabase SDK
+        const { data: user, error } = await supabase
+          .from('User')
+          .select('*')
+          .or(`email.eq.${credentials.identifier},username.eq.${credentials.identifier}`)
+          .single();
 
-        if (!user || !user.password) {
+        if (error || !user) {
+          console.error("Auth Error:", error);
           throw new Error("Usuário não encontrado.");
+        }
+
+        if (!user.password) {
+          throw new Error("Usuário não possui senha cadastrada.");
         }
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);

@@ -31,6 +31,8 @@ export const getPopularSeries = () => fetchTMDB("/tv/popular", "", "tv");
 export const getTrendingMovies = () => fetchTMDB("/trending/movie/week", "", "movie");
 export const getTrendingSeries = () => fetchTMDB("/trending/tv/week", "", "tv");
 export const getKidsContent = () => fetchTMDB("/discover/movie", "&with_genres=10751&sort_by=popularity.desc", "movie");
+export const getAnimes = () => fetchTMDB("/discover/tv", "&with_genres=16&with_original_language=ja&sort_by=popularity.desc", "tv");
+export const getDocumentaries = () => fetchTMDB("/discover/movie", "&with_genres=99&sort_by=popularity.desc", "movie");
 
 export const getHeroMovie = async () => {
   const movies = await getTrendingMovies();

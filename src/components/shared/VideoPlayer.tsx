@@ -25,6 +25,8 @@ export default function VideoPlayer({ url, title }: VideoPlayerProps) {
 
   const togglePlay = () => setPlaying(!playing);
 
+  const Player = ReactPlayer as any;
+
   return (
     <div 
       className="relative w-full h-screen bg-black overflow-hidden cursor-none group"
@@ -33,14 +35,14 @@ export default function VideoPlayer({ url, title }: VideoPlayerProps) {
     >
       {/* React Player Wrapper */}
       <div className="absolute inset-0 z-0">
-        <ReactPlayer
+        <Player
           url={url}
           width="100%"
           height="100%"
           playing={playing}
-          onProgress={(progress) => setPlayed(progress.played)}
+          onProgress={(progress: any) => setPlayed(progress.played)}
           config={{
-            youtube: { playerVars: { showinfo: 0, controls: 0, disablekb: 1 } }
+            youtube: { playerVars: { showinfo: 0, controls: 0, disablekb: 1 } } as any
           }}
         />
       </div>
