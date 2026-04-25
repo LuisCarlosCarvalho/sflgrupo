@@ -99,7 +99,7 @@ export default function DashboardHero({ movies }: DashboardHeroProps) {
                   <span className="text-sm font-black uppercase tracking-[0.2em] text-white/80">EM DESTAQUE</span>
                 </div>
 
-                <h1 className="text-5xl md:text-7xl font-black text-white mb-4 uppercase tracking-tighter drop-shadow-lg leading-none">
+                <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-4 uppercase tracking-tighter drop-shadow-lg leading-none">
                   {movie.title}
                 </h1>
                 

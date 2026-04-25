@@ -129,8 +129,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {category === "series" && (
           <>
-            <div className="px-6 md:px-12 mb-8">
-              <h1 className="text-4xl font-black uppercase italic tracking-tighter text-brand-blue">Séries</h1>
+            <div className="px-4 md:px-12 mb-8 mt-6 md:mt-0">
+              <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-brand-blue">Séries</h1>
             </div>
             <MovieRow title="SFL Populares" movies={popularSeries} glowColor="blue" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Tendências da Semana" movies={trendingSeries} glowColor="green" watchlistIds={watchlistIds} />
@@ -140,8 +140,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {category === "movies" && (
           <>
-            <div className="px-6 md:px-12 mb-8">
-              <h1 className="text-4xl font-black uppercase italic tracking-tighter text-brand-green">Filmes</h1>
+            <div className="px-4 md:px-12 mb-8 mt-6 md:mt-0">
+              <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-brand-green">Filmes</h1>
             </div>
             <MovieRow title="SFL Populares" movies={popularMovies} glowColor="green" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Tendências da Semana" movies={trendingMovies} glowColor="yellow" watchlistIds={watchlistIds} />
@@ -150,12 +150,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         )}
 
         {category === "sports" && (
-          <div className="px-6 md:px-12 space-y-12">
-            <div>
-              <h1 className="text-5xl font-black uppercase italic tracking-tighter mb-4">
+          <div className="px-2 sm:px-4 md:px-12 space-y-8 md:space-y-12 mt-6 md:mt-0">
+            <div className="px-2">
+              <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-2 md:mb-4">
                 SFL <span className="text-brand-green">SPORT'S</span>
               </h1>
-              <p className="text-gray-400 max-w-xl font-bold">Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em tempo real.</p>
+              <p className="text-gray-400 text-sm md:text-base max-w-xl font-bold">Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em tempo real.</p>
             </div>
 
             <LiveScoreboard />
@@ -164,8 +164,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {category === "trending" && (
           <>
-            <div className="px-6 md:px-12 mb-8">
-              <h1 className="text-4xl font-black uppercase italic tracking-tighter text-brand-yellow">Bombando</h1>
+            <div className="px-4 md:px-12 mb-8 mt-6 md:mt-0">
+              <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-brand-yellow">Bombando</h1>
             </div>
             <MovieRow title="SFL Top 10 Filmes Hoje" movies={trendingMovies.slice(0, 10)} glowColor="yellow" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Top 10 Séries Hoje" movies={trendingSeries.slice(0, 10)} glowColor="blue" watchlistIds={watchlistIds} />
@@ -177,8 +177,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {category === "mylist" && (
            <>
-            <div className="px-6 md:px-12 mb-8">
-              <h1 className="text-4xl font-black uppercase italic tracking-tighter text-white">Minha <span className="text-brand-green">Lista</span></h1>
+            <div className="px-4 md:px-12 mb-8 mt-6 md:mt-0">
+              <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-white">Minha <span className="text-brand-green">Lista</span></h1>
             </div>
             <MyListGrid />
            </>
