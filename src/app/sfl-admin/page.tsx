@@ -12,12 +12,12 @@ export default async function AdminPage() {
   try {
     const session = await getServerSession(authOptions);
     
-    // PROTEÇÃO DE ADMIN
-    const ADMIN_EMAIL = "brasilviptv@gmail.com"; 
-
-    if (!session || session.user?.email !== ADMIN_EMAIL) {
+    if (!session || session.user?.role !== "ADMIN") {
       redirect("/");
     }
+
+    // REDIRECIONAR PARA O NOVO PAINEL
+    redirect("/admin");
 
     // Tenta buscar os usuários usando Supabase
     const { data: users, error } = await supabase

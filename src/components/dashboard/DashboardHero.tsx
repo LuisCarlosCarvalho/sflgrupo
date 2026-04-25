@@ -84,7 +84,7 @@ export default function DashboardHero({ movies }: DashboardHeroProps) {
             <div className="relative w-full h-full flex items-center justify-start overflow-hidden">
               {/* Background Image */}
               <div 
-                className="absolute inset-0 bg-cover bg-top transform scale-105"
+                className="absolute inset-0 bg-cover bg-center transform scale-105"
                 style={{ backgroundImage: `url(${movie.backdropUrl})` }}
               />
               
@@ -99,7 +99,7 @@ export default function DashboardHero({ movies }: DashboardHeroProps) {
                   <span className="text-sm font-black uppercase tracking-[0.2em] text-white/80">EM DESTAQUE</span>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-white mb-4 uppercase tracking-tighter drop-shadow-lg leading-none">
+                <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-4 uppercase tracking-tighter drop-shadow-lg leading-tight md:leading-none">
                   {movie.title}
                 </h1>
                 

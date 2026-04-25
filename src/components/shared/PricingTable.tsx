@@ -1,44 +1,29 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PricingCard from "./PricingCard";
 import LeadModal from "./LeadModal";
-
-const plans = [
-  {
-    name: "Basic",
-    price: "R$ 29,90",
-    description: "Para quem quer o essencial no celular ou tablet.",
-    features: ["Resolução 720p", "1 Tela", "Acesso Imediato", "Suporte via Chat"],
-    buttonColor: "blue" as const,
-    highlight: false,
-  },
-  {
-    name: "Standard",
-    price: "R$ 49,90",
-    description: "A melhor experiência para você e sua família em Full HD.",
-    features: ["Resolução 1080p", "2 Telas Simultâneas", "Catálogo Completo", "Downloads Liberados"],
-    buttonColor: "green" as const,
-    highlight: true,
-  },
-  {
-    name: "Premium",
-    price: "R$ 79,90",
-    description: "O máximo do entretenimento com 4K, HDR e áudio espacial.",
-    features: ["Resolução 4K + HDR", "4 Telas Simultâneas", "Qualidade Máxima", "Eventos Exclusivos"],
-    buttonColor: "yellow" as const,
-    highlight: false,
-  },
-];
+import { supabase } from "@/lib/supabase/client";
 
 export default function PricingTable() {
+  const [plans, setPlans] = useState<any[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPlans() {
+      const { data } = await supabase.from("pricing_plans").select("*").order("price");
+      if (data) setPlans(data);
+      setLoading(false);
+    }
+    fetchPlans();
+  }, []);
 
   const handleSubscribe = (planName: string) => {
     setSelectedPlan(planName);
     setIsModalOpen(true);
   };
+
+  if (loading) return null;
 
   return (
     <section id="pricing" className="py-24 bg-black relative">
@@ -55,8 +40,13 @@ export default function PricingTable() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan) => (
             <PricingCard
-              key={plan.name}
-              {...plan}
+              key={plan.id}
+              name={plan.name}
+              price={`${plan.currency === 'BRL' ? 'R$' : plan.currency === 'EUR' ? '€' : '$'} ${plan.price}`}
+              description={plan.name === 'BASIC' ? 'Para quem quer o essencial.' : plan.name === 'STANDARD' ? 'A melhor experiência HD.' : 'O máximo do entretenimento.'}
+              features={plan.features}
+              buttonColor={plan.color_theme as any}
+              highlight={plan.is_popular}
               onSubscribe={handleSubscribe}
             />
           ))}

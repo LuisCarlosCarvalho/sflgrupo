@@ -1,9 +1,32 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Navbar from "@/components/shared/Navbar";
 import Hero from "@/components/shared/Hero";
 import PricingTable from "@/components/shared/PricingTable";
-import { Tv, Smartphone, Globe, ShieldCheck } from "lucide-react";
+import { Tv, Smartphone, Globe, ShieldCheck, Loader2 } from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
+
+const iconMap: any = {
+  Tv: Tv,
+  Smartphone: Smartphone,
+  Globe: Globe,
+  ShieldCheck: ShieldCheck
+};
 
 export default function LandingPage() {
+  const [features, setFeatures] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchFeatures() {
+      const { data } = await supabase.from("site_features").select("*");
+      if (data) setFeatures(data);
+      setLoading(false);
+    }
+    fetchFeatures();
+  }, []);
+
   return (
     <main className="min-h-screen bg-black text-white selection:bg-brand-green selection:text-black">
       <Navbar />
@@ -12,28 +35,28 @@ export default function LandingPage() {
       {/* Features Section */}
       <section id="features" className="py-24 bg-black relative">
         <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <FeatureCard 
-              icon={<Tv className="w-8 h-8 text-brand-green" />}
-              title="Assista na TV"
-              description="Smart TVs, Apple TV, Chromecast e muito mais direto do seu sofá."
-            />
-            <FeatureCard 
-              icon={<Smartphone className="w-8 h-8 text-brand-yellow" />}
-              title="No seu Celular"
-              description="Baixe seus jogos e eventos favoritos para assistir offline onde estiver."
-            />
-            <FeatureCard 
-              icon={<Globe className="w-8 h-8 text-brand-blue" />}
-              title="Qualquer Lugar"
-              description="Acesse sua conta em computadores, tablets e consoles de videogame."
-            />
-            <FeatureCard 
-              icon={<ShieldCheck className="w-8 h-8 text-brand-green" />}
-              title="Segurança Total"
-              description="Controle de acesso manual garantindo a integridade da sua conta."
-            />
-          </div>
+          {loading ? (
+            <div className="flex justify-center py-20"><Loader2 className="animate-spin text-brand-yellow w-10 h-10" /></div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+              {features.map((feature) => {
+                const Icon = iconMap[feature.icon_name] || Tv;
+                const colorClass = 
+                  feature.color_theme === 'green' ? 'text-brand-green' :
+                  feature.color_theme === 'yellow' ? 'text-brand-yellow' :
+                  'text-brand-blue';
+                
+                return (
+                  <FeatureCard 
+                    key={feature.id}
+                    icon={<Icon className={`w-8 h-8 ${colorClass}`} />}
+                    title={feature.title}
+                    description={feature.description}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
         
         {/* Decorative Background Glow */}
@@ -66,13 +89,24 @@ export default function LandingPage() {
             </div>
           </div>
           
-          <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-gray-600 uppercase tracking-widest">
-            <span>© 2026 SFL GRUPO. TODOS OS DIREITOS RESERVADOS.</span>
-            <span className="flex gap-4">
-              <span className="w-2 h-2 bg-brand-green rounded-full"></span>
-              <span className="w-2 h-2 bg-brand-yellow rounded-full"></span>
-              <span className="w-2 h-2 bg-brand-blue rounded-full"></span>
-            </span>
+          <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <span className="text-[10px] text-gray-600 uppercase tracking-[0.2em] font-medium">
+                Desenvolvido por <a href="https://fslsolution.com" target="_blank" className="text-brand-green hover:text-brand-yellow transition-colors font-black">fslsolution.com</a>
+              </span>
+              <span className="text-[10px] text-gray-500 uppercase tracking-widest">
+                © 2026 Todos os direitos reservados a SFL GRUPO
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <img src="https://i.imgur.com/2ex0N3R.png" alt="SFL Logo" className="h-6 w-auto opacity-50 grayscale hover:grayscale-0 hover:opacity-100 transition-all" />
+              <div className="flex gap-2">
+                <span className="w-1.5 h-1.5 bg-brand-green rounded-full"></span>
+                <span className="w-1.5 h-1.5 bg-brand-yellow rounded-full"></span>
+                <span className="w-1.5 h-1.5 bg-brand-blue rounded-full"></span>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
