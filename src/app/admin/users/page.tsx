@@ -17,10 +17,10 @@ export default function AdminUsersPage() {
     <div className="space-y-10">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter text-brand-yellow">
+          <h1 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-brand-yellow">
             Gestão de <span className="text-white">Usuários</span>
           </h1>
-          <p className="text-gray-500 mt-2 font-medium">Controle de acessos, bloqueios e novos cadastros.</p>
+          <p className="text-[10px] md:text-sm text-gray-500 mt-2 font-medium uppercase tracking-widest">Controle de acessos e novos cadastros.</p>
         </div>
 
         <button 

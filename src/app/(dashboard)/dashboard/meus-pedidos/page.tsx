@@ -72,7 +72,8 @@ export default function MyOrdersPage() {
           </div>
 
           <div className="glass-panel rounded-[2rem] border-white/5 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-white/[0.02] text-[10px] uppercase font-black tracking-widest text-gray-500 border-b border-white/5">
                   <tr>
@@ -94,12 +95,6 @@ export default function MyOrdersPage() {
                     <tr>
                       <td colSpan={5} className="py-20 text-center">
                         <p className="text-gray-500 font-black uppercase tracking-widest">Nenhum pedido encontrado.</p>
-                        <button 
-                          onClick={() => setIsModalOpen(true)}
-                          className="mt-4 text-brand-blue hover:underline text-xs font-bold uppercase"
-                        >
-                          Fazer meu primeiro pedido
-                        </button>
                       </td>
                     </tr>
                   ) : requests.map((req) => (
@@ -119,7 +114,7 @@ export default function MyOrdersPage() {
                             : "bg-brand-green/10 text-brand-green border-brand-green/20"
                         }`}>
                           <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${req.status === 'PENDING' ? 'bg-brand-yellow' : 'bg-brand-green'}`} />
-                          {req.status === 'PENDING' ? 'LANÇADO / AGUARDANDO' : 'CONCLUÍDO'}
+                          {req.status === 'PENDING' ? 'LANÇADO' : 'CONCLUÍDO'}
                         </div>
                       </td>
                       <td className="px-8 py-6 text-right">
@@ -137,12 +132,55 @@ export default function MyOrdersPage() {
               </table>
             </div>
 
-            <div className="bg-brand-blue/5 p-8 flex items-start gap-4 border-t border-white/5">
-              <Clock className="text-brand-blue w-6 h-6 flex-shrink-0" />
+            {/* Mobile Card View */}
+            <div className="lg:hidden divide-y divide-white/5">
+              {loading ? (
+                <div className="py-12 text-center">
+                  <Loader2 className="animate-spin text-brand-blue mx-auto" size={32} />
+                </div>
+              ) : requests.length === 0 ? (
+                <div className="py-20 text-center">
+                   <p className="text-gray-500 font-black uppercase tracking-widest text-xs">Nenhum pedido encontrado.</p>
+                </div>
+              ) : requests.map((req) => (
+                <div key={req.id} className="p-6 space-y-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-[9px] font-mono text-brand-blue uppercase mb-1">#{req.id.slice(0,8)}</p>
+                      <h3 className="text-sm font-black uppercase tracking-tight text-white">{req.service_type}</h3>
+                      <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">{formatDate(req.created_at)}</p>
+                    </div>
+                    <div className={`inline-flex items-center gap-2 text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest border ${
+                      req.status === 'PENDING' 
+                        ? "bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20" 
+                        : "bg-brand-green/10 text-brand-green border-brand-green/20"
+                    }`}>
+                      {req.status === 'PENDING' ? 'LANÇADO' : 'CONCLUÍDO'}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                    <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">"{req.description}"</p>
+                  </div>
+
+                  <a 
+                    href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || '5511928485483'}`}
+                    target="_blank"
+                    className="flex items-center justify-center gap-2 w-full bg-brand-blue/10 text-brand-blue font-black py-4 rounded-xl uppercase text-[10px] tracking-widest border border-brand-blue/20 active:scale-95 transition-all"
+                  >
+                    <MessageSquare size={14} />
+                    Acompanhar no WhatsApp
+                  </a>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-brand-blue/5 p-6 md:p-8 flex items-start gap-4 border-t border-white/5">
+              <Clock className="text-brand-blue w-5 h-5 md:w-6 md:h-6 flex-shrink-0" />
               <div>
-                <p className="text-xs font-black uppercase text-brand-blue mb-1">Processamento em Tempo Real</p>
-                <p className="text-[10px] text-gray-400 font-bold max-w-2xl leading-relaxed uppercase tracking-wider">
-                  Seus pedidos são processados manualmente pela nossa equipe. O status mudará para <span className="text-brand-green">VERDE</span> assim que for concluído.
+                <p className="text-[10px] md:text-xs font-black uppercase text-brand-blue mb-1">Processamento em Tempo Real</p>
+                <p className="text-[9px] md:text-[10px] text-gray-400 font-bold max-w-2xl leading-relaxed uppercase tracking-wider">
+                  Seus pedidos são processados manualmente. O status mudará para <span className="text-brand-green">VERDE</span> assim que for concluído.
                 </p>
               </div>
             </div>

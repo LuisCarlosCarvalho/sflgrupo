@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trophy } from "lucide-react";
+import { Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trophy, Tv } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import SearchBar from "./SearchBar";
@@ -197,55 +197,100 @@ export default function DashboardNavbar() {
             className="lg:hidden text-white"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? <X /> : <Menu />}
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
-
-      {/* Mobile Menu */}
+      {/* Mobile Menu (Sidebar Style) */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-[60] bg-black/98 backdrop-blur-3xl animate-in slide-in-from-top duration-300">
-          <div className="flex flex-col h-full pt-32 px-10 gap-8">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-2xl font-black uppercase tracking-tighter flex items-center gap-4 transition-all active:scale-95 ${
-                  currentCategory === link.category ? "text-brand-green" : "text-white/60"
-                }`}
-              >
-                <div className={`w-1 h-8 rounded-full ${currentCategory === link.category ? "bg-brand-green shadow-[0_0_15px_#00a651]" : "bg-transparent"}`} />
-                {link.name}
-              </Link>
-            ))}
-            
-            <div className="mt-auto pb-20 border-t border-white/5 pt-10 space-y-6">
-              <a 
-                href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || '5511928485483'}`}
-                target="_blank"
-                className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-brand-green"
-              >
-                <div className="w-10 h-10 rounded-full bg-brand-green/20 flex items-center justify-center">
-                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.445 0 .081 5.363.079 11.969c0 2.112.551 4.173 1.595 5.987L0 24l6.191-1.622a11.851 11.851 0 005.854 1.536h.005c6.603 0 11.967-5.363 11.97-11.97a11.815 11.815 0 00-3.407-8.457z" />
-                  </svg>
+        <>
+          {/* Backdrop */}
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/95 backdrop-blur-md z-[55] animate-in fade-in duration-300"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          
+          <div className="lg:hidden fixed inset-y-0 left-0 w-[300px] z-[60] bg-black border-r border-white/5 animate-in slide-in-from-left duration-300 flex flex-col">
+            {/* Header */}
+            <div className="p-8 flex items-center justify-between border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <img src="https://i.imgur.com/2ex0N3R.png" alt="Logo" className="h-8 w-auto" />
+                <span className="text-lg font-black text-white tracking-tighter uppercase">SFL STREAM</span>
+              </div>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="text-gray-500">
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Search (Integrated) */}
+            <div className="px-6 py-4">
+              <SearchBar fullWidth />
+            </div>
+
+            {/* Navigation */}
+            <div className="flex-1 overflow-y-auto px-4 py-2 space-y-1">
+              <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest px-4 mb-4">Navegação</p>
+              {navLinks.map((link) => (
+                <Link 
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                    currentCategory === link.category 
+                      ? "bg-brand-blue/10 text-brand-blue border border-brand-blue/20" 
+                      : "text-gray-400 hover:bg-white/5"
+                  }`}
+                >
+                  <div className={`${currentCategory === link.category ? "text-brand-blue" : "text-gray-600"}`}>
+                    {link.icon || <Tv size={14} />}
+                  </div>
+                  {link.name}
+                </Link>
+              ))}
+
+              <div className="pt-8 mt-4 border-t border-white/5">
+                <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest px-4 mb-4">Central de Ajuda</p>
+                <a 
+                  href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || '5511928485483'}`}
+                  target="_blank"
+                  className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-brand-green hover:bg-brand-green/5 transition-all"
+                >
+                  <div className="p-2 rounded-lg bg-brand-green/10">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.445 0 .081 5.363.079 11.969c0 2.112.551 4.173 1.595 5.987L0 24l6.191-1.622a11.851 11.851 0 005.854 1.536h.005c6.603 0 11.967-5.363 11.97-11.97a11.815 11.815 0 00-3.407-8.457z" />
+                    </svg>
+                  </div>
+                  Suporte WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Footer / User Profile Card */}
+            <div className="p-6 mt-auto border-t border-white/5 bg-white/[0.02]">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-brand-blue/20 border border-brand-blue/30 flex items-center justify-center text-brand-blue overflow-hidden">
+                  {session?.user?.image ? (
+                    <img src={session.user.image} alt="User" />
+                  ) : (
+                    <User size={20} />
+                  )}
                 </div>
-                Suporte WhatsApp
-              </a>
-              
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-black text-white truncate uppercase tracking-tighter">{session?.user?.name || "Assinante"}</p>
+                  <p className="text-[9px] text-gray-500 truncate uppercase font-bold tracking-widest">{session?.user?.role || "CLIENTE"}</p>
+                </div>
+              </div>
+
               <button 
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="flex items-center gap-4 text-xs font-black uppercase tracking-widest text-red-500"
+                className="w-full flex items-center justify-center gap-3 bg-red-500/10 text-red-500 font-black py-4 rounded-xl text-[10px] uppercase tracking-widest border border-red-500/20 active:scale-95 transition-all"
               >
-                <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                  <LogOut className="w-5 h-5" />
-                </div>
+                <LogOut size={14} />
                 Sair da Conta
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </nav>
   );

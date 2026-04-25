@@ -5,7 +5,11 @@ import { Search as SearchIcon, X, Loader2 } from "lucide-react";
 import { searchMulti } from "@/lib/tmdb";
 import Link from "next/link";
 
-export default function SearchBar() {
+interface SearchBarProps {
+  fullWidth?: boolean;
+}
+
+export default function SearchBar({ fullWidth }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,9 +44,11 @@ export default function SearchBar() {
   }, [query]);
 
   return (
-    <div className="relative" ref={searchRef}>
-      <div className={`flex items-center gap-3 px-4 py-2 rounded-full transition-all duration-300 border ${
-        isOpen ? "bg-black/80 border-brand-green w-64 md:w-80 shadow-[0_0_15px_rgba(0,166,81,0.2)]" : "bg-white/5 border-white/10 w-48 md:w-64"
+    <div className={`${fullWidth ? 'w-full' : 'relative'}`} ref={searchRef}>
+      <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 border ${
+        fullWidth 
+          ? "w-full bg-white/5 border-white/10 focus-within:border-brand-green/50 focus-within:bg-white/10" 
+          : (isOpen ? "bg-black/80 border-brand-green w-64 md:w-80 shadow-[0_0_15px_rgba(0,166,81,0.2)]" : "bg-white/5 border-white/10 w-48 md:w-64")
       }`}>
         <SearchIcon className={`w-4 h-4 ${isOpen ? "text-brand-green" : "text-gray-400"}`} />
         <input 

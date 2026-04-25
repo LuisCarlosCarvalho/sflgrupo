@@ -51,10 +51,10 @@ export default function AdminSupportPage() {
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="text-4xl font-black uppercase tracking-tighter text-brand-yellow">
+        <h1 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-brand-yellow">
           Suporte & <span className="text-white">Pedidos</span>
         </h1>
-        <p className="text-gray-500 mt-2 font-medium">Gerencie solicitações de serviços, filmes e suporte.</p>
+        <p className="text-[10px] md:text-sm text-gray-500 mt-2 font-medium uppercase tracking-widest">Gerencie solicitações de serviços e suporte.</p>
       </header>
 
       <section>

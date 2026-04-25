@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 // src/app/(dashboard)/layout.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -39,7 +40,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <DashboardNavbar />
+      <Suspense fallback={<div className="h-20 bg-black/50" />}>
+        <DashboardNavbar />
+      </Suspense>
       
       {/* Sistema de Alarme Visual */}
       {planData?.expires_at && (
