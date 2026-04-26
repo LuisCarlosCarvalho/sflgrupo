@@ -28,15 +28,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .single();
 
   // 2. Verificações de Acesso
+  
+  // Se for ADMIN, redirecionar para o painel admin
+  if (userData?.role === "ADMIN") {
+    redirect("/admin");
+  }
+
   const isExpired = planData?.expires_at ? new Date(planData.expires_at) < new Date() : false;
   const isBlocked = userData?.isActive === false;
-
-  // Se o usuário não for ADMIN e estiver expirado ou bloqueado
-  if (userData?.role !== "ADMIN") {
-    if (isBlocked || isExpired) {
-      redirect("/conta-suspensa");
-    }
-  }
 
   return (
     <div className="min-h-screen bg-black flex flex-col">

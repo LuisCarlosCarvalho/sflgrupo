@@ -29,15 +29,7 @@ export default function LoginPage() {
         setError("Usuário/E-mail ou senha incorretos.");
         setIsLoading(false);
       } else {
-        // Obter a sessão para verificar o cargo
-        const { getSession } = await import("next-auth/react");
-        const session = await getSession();
-        
-        if (session?.user?.role === "ADMIN") {
-          router.push("/admin");
-        } else {
-          router.push("/dashboard");
-        }
+        router.push("/dashboard");
         router.refresh();
       }
     } catch (err) {
