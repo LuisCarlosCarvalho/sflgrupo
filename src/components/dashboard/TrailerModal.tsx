@@ -4,6 +4,7 @@ import { X, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import ReactPlayer from "react-player/lazy";
 
 interface TrailerModalProps {
   isOpen: boolean;
@@ -39,7 +40,7 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId
       />
       
       {/* Content */}
-      <div className="relative w-[95vw] md:w-full md:max-w-5xl flex flex-col rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(255,215,0,0.15)] border border-white/10 bg-black animate-in zoom-in-95 duration-500">
+      <div className="relative w-full md:max-w-5xl flex flex-col rounded-2xl md:rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(255,215,0,0.15)] border border-white/10 bg-black animate-in zoom-in-95 duration-500">
         
         {/* Header - Always overlay on top */}
         <div className="absolute top-0 left-0 right-0 p-3 md:p-4 flex items-center justify-between z-20 bg-gradient-to-b from-black/95 via-black/50 to-transparent">
@@ -51,20 +52,25 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId
           
           <button 
             onClick={onClose}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-black/60 hover:bg-brand-yellow hover:text-black flex items-center justify-center text-white transition-all transform hover:scale-110 active:scale-90 border border-white/20"
+            className="w-10 h-10 rounded-full bg-black/60 hover:bg-brand-yellow hover:text-black flex items-center justify-center text-white transition-all transform hover:scale-110 active:scale-90 border border-white/20"
           >
-            <X className="w-4 h-4 md:w-5 md:h-5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Video Player Container */}
         <div className="w-full relative bg-black aspect-video flex items-center justify-center">
-          <iframe 
-            src={`https://www.youtube.com/embed/${videoKey}?autoplay=1&modestbranding=1&rel=0`} 
-            title={title}
-            className="absolute inset-0 w-full h-full border-0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
+          <ReactPlayer 
+            url={`https://www.youtube.com/watch?v=${videoKey}`}
+            width="100%"
+            height="100%"
+            playing={true}
+            controls={true}
+            config={{
+              youtube: {
+                playerVars: { showinfo: 0, modestbranding: 1, rel: 0 }
+              }
+            }}
           />
         </div>
 

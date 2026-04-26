@@ -51,7 +51,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        className={`fixed top-0 w-full z-[100] transition-all duration-300 ${
           isScrolled ? "glass-navbar py-4" : "bg-transparent py-6"
         }`}
       >
@@ -147,7 +147,7 @@ export default function Navbar() {
 
             {/* Mobile Menu Button */}
             <button 
-              className="md:hidden text-white p-2"
+              className="md:hidden text-white p-2 relative z-[110]"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -157,7 +157,7 @@ export default function Navbar() {
 
         {/* Mobile Sidebar Overlay */}
         {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-[60] flex justify-end">
+          <div className="md:hidden fixed inset-0 z-[105] flex justify-end">
             <div 
               className="fixed inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsMobileMenuOpen(false)}
