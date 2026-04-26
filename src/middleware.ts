@@ -21,7 +21,7 @@ export default withAuth(
     pages: {
       signIn: "/login",
     },
-    cookieName: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
+    cookieName: "__Secure-next-auth.session-token"
   }
 );
 
