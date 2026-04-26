@@ -4,18 +4,10 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
+    const { pathname } = req.nextUrl;
 
-    // Log para debug no servidor (você verá isso no console onde roda o npm run dev)
-    if (isAdminRoute) {
-      console.log("🛡️ Middleware Admin Check:", {
-        path: req.nextUrl.pathname,
-        hasToken: !!token,
-        role: token?.role
-      });
-    }
-
-    if (isAdminRoute && token?.role?.toString().toUpperCase() !== "ADMIN") {
+    // Se for rota de admin, EXIGE o cargo ADMIN
+    if (pathname.startsWith("/admin") && token?.role?.toString().toUpperCase() !== "ADMIN") {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
@@ -23,14 +15,12 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-    pages: {
-      signIn: "/login",
+      // Deixa passar pelo "porteiro" inicial, a lógica acima decide se barra ou não
+      authorized: () => true,
     },
   }
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*"],
+  matcher: ["/admin/:path*"],
 };
