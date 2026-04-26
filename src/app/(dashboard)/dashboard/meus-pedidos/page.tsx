@@ -2,19 +2,29 @@
 
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
-import { ShoppingBag, Clock, CheckCircle, HelpCircle, MessageSquare, Plus, Loader2, Eye, CheckCircle2 } from "lucide-react";
+import { ShoppingBag, Clock, Plus, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import SupportModal from "@/components/dashboard/SupportModal";
 import OrderResponseModal from "@/components/dashboard/OrderResponseModal";
 
+interface SupportRequest {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  service_type: string;
+  description: string;
+  status: string;
+  admin_response?: string;
+  user_id: string;
+}
+
 export default function MyOrdersPage() {
   const { data: session } = useSession();
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<SupportRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<SupportRequest | null>(null);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
 
   async function fetchRequests() {
@@ -50,7 +60,7 @@ export default function MyOrdersPage() {
     }
   };
 
-  const handleOpenResponse = (req: any) => {
+  const handleOpenResponse = (req: SupportRequest) => {
     setSelectedOrder(req);
     setIsResponseModalOpen(true);
   };
