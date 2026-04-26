@@ -26,14 +26,16 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
+        console.error("Login Result Error:", result.error);
         setError("Usuário/E-mail ou senha incorretos.");
         setIsLoading(false);
       } else {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err) {
-      setError("Ocorreu um erro inesperado.");
+    } catch (err: any) {
+      console.error("Login Exception:", err);
+      setError("Erro ao tentar logar. Verifique sua conexão ou variáveis de ambiente.");
       setIsLoading(false);
     }
   };
