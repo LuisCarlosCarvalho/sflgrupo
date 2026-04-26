@@ -32,7 +32,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
         </button>
       </div>
       
-      <ul className="space-y-3 flex-1">
+      <ul className="space-y-3 flex-1 overflow-y-auto custom-scrollbar pr-2">
         {navItems.map((item) => (
           <li key={item.href}>
             <Link
@@ -47,11 +47,33 @@ export default function Sidebar({ onClose }: SidebarProps) {
             </Link>
           </li>
         ))}
+
+        <div className="pt-8 pb-4">
+          <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-5 mb-4">Streaming</p>
+          {[
+            { name: "Início", href: "/dashboard" },
+            { name: "Séries", href: "/dashboard?category=series" },
+            { name: "Filmes", href: "/dashboard?category=movies" },
+            { name: "Bombando", href: "/dashboard?category=trending" },
+            { name: "Minha Lista", href: "/dashboard?category=mylist" },
+            { name: "Sport's", href: "/dashboard?category=sports", color: "text-brand-yellow" },
+          ].map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                onClick={onClose}
+                className={`flex items-center gap-4 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] text-gray-500 hover:text-white hover:bg-white/5 transition-all ${link.color || ''}`}
+              >
+                <span>{link.name}</span>
+              </Link>
+            </li>
+          ))}
+        </div>
       </ul>
 
       <button 
         onClick={() => signOut({ callbackUrl: '/' })}
-        className="mt-auto flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+        className="mt-6 flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
       >
         <LogOut className="w-5 h-5" />
         <span>Sair do Painel</span>
