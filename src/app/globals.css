@@ -33,6 +33,15 @@ body {
   overflow-x: hidden;
 }
 
+/* Allow horizontal scroll in specific containers while preventing page overflow */
+body {
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
 * {
   box-sizing: border-box;
 }
