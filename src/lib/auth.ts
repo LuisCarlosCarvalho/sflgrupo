@@ -77,9 +77,16 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      // Permite redirecionamentos relativos ou para a mesma origem
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
   },
   session: {
     strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 dias de persistência
   },
   pages: {
     signIn: "/login",
