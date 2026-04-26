@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { MOVIES } from "@/lib/movies";
 import { getMovieDetails } from "@/lib/tmdb";
 import VideoPlayer from "@/components/shared/VideoPlayer";

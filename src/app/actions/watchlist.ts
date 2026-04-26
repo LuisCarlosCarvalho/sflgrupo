@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/supabase";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function toggleWatchlist(media: {

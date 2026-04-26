@@ -1,6 +1,6 @@
 // src/app/(dashboard)/dashboard/perfil/page.tsx
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import UserProfile from "@/components/dashboard/UserProfile";
 

@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { getPopularMovies, getPopularSeries, getKidsContent } from "@/lib/tmdb";
 import { MOVIES } from "@/lib/movies";
