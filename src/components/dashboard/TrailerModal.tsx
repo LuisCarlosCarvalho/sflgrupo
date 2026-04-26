@@ -32,7 +32,7 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId
   if (!mounted || !isOpen || !videoKey) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-8">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 md:p-8">
       {/* Overlay */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in duration-500"
