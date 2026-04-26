@@ -4,11 +4,11 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
-    const { pathname } = req.nextUrl;
+    const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
 
-    // Se for rota de admin, EXIGE o cargo ADMIN
-    if (pathname.startsWith("/admin") && token?.role?.toString().toUpperCase() !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+    // Se tentar acessar admin e não for admin, manda pra home ou login
+    if (isAdminPage && token?.role?.toString().toLowerCase() !== "admin") {
+      return NextResponse.redirect(new URL("/", req.url));
     }
 
     return NextResponse.next();
@@ -18,10 +18,6 @@ export default withAuth(
       authorized: ({ token }) => !!token,
     },
     secret: process.env.NEXTAUTH_SECRET,
-    pages: {
-      signIn: "/login",
-    },
-    cookieName: "__Secure-next-auth.session-token"
   }
 );
 
