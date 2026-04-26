@@ -4,7 +4,9 @@ import { X, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import ReactPlayer from "react-player";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as any;
 
 interface TrailerModalProps {
   isOpen: boolean;
@@ -66,11 +68,6 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId
             height="100%"
             playing={true}
             controls={true}
-            config={{
-              youtube: {
-                playerVars: { showinfo: 0, modestbranding: 1, rel: 0 }
-              }
-            }}
           />
         </div>
 

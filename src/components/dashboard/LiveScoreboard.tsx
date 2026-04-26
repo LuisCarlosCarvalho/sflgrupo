@@ -302,7 +302,8 @@ export default function LiveScoreboard() {
                 );
               })}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>
