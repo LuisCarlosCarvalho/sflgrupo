@@ -121,7 +121,7 @@ export default function DashboardNavbar() {
         isScrolled ? "bg-black/95 backdrop-blur-2xl border-b border-white/5 py-3" : "bg-gradient-to-b from-black/90 to-transparent py-5"
       }`}
     >
-      <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
+      <div className="w-full max-w-full px-4 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-10">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 group">
@@ -329,28 +329,52 @@ export default function DashboardNavbar() {
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
           {session?.user?.role === "ADMIN" ? (
-            /* ADMIN MOBILE LINKS */
-            <div className="space-y-2">
-              <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] px-4 mb-4">Módulos Administrativos</p>
-              {[
-                { href: "/admin", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
-                { href: "/admin/users", label: "Usuários", icon: <Users className="w-5 h-5" /> },
-                { href: "/admin/finance", label: "Finanças", icon: <CreditCard className="w-5 h-5" /> },
-                { href: "/admin/alerts", label: "Alertas", icon: <Bell className="w-5 h-5" /> },
-                { href: "/admin/content", label: "Conteúdo", icon: <Film className="w-5 h-5" /> },
-                { href: "/admin/support", label: "Suporte", icon: <HelpCircle className="w-5 h-5" /> },
-                { href: "/admin/settings", label: "Ajustes Site", icon: <Home className="w-5 h-5" /> },
-              ].map((item, idx) => (
-                <Link
-                  key={idx}
-                  href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent hover:border-white/5"
-                >
-                  <div className="text-gray-500">{item.icon}</div>
-                  {item.label}
-                </Link>
-              ))}
+            <div className="space-y-6">
+              {/* ADMIN SECTION */}
+              <div className="space-y-2">
+                <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] px-4 mb-4">Módulos Administrativos</p>
+                {[
+                  { href: "/admin", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
+                  { href: "/admin/users", label: "Usuários", icon: <Users className="w-5 h-5" /> },
+                  { href: "/admin/finance", label: "Finanças", icon: <CreditCard className="w-5 h-5" /> },
+                  { href: "/admin/alerts", label: "Alertas", icon: <Bell className="w-5 h-5" /> },
+                  { href: "/admin/content", label: "Conteúdo", icon: <Film className="w-5 h-5" /> },
+                  { href: "/admin/support", label: "Suporte", icon: <HelpCircle className="w-5 h-5" /> },
+                ].map((item, idx) => (
+                  <Link
+                    key={idx}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:bg-white/5 hover:text-white transition-all border border-transparent hover:border-white/5"
+                  >
+                    <div className="text-gray-500">{item.icon}</div>
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+
+              {/* STREAMING SECTION FOR ADMIN */}
+              <div className="space-y-2 pt-6 border-t border-white/5">
+                <p className="text-[9px] font-black text-brand-green uppercase tracking-[0.2em] px-4 mb-4">Área de Streaming</p>
+                {[
+                  { name: "Início", href: "/dashboard", category: "inicio", icon: <Home size={16} /> },
+                  { name: "Séries", href: "/dashboard?category=series", category: "series", icon: <Tv size={16} /> },
+                  { name: "Filmes", href: "/dashboard?category=movies", category: "movies", icon: <Film size={16} /> },
+                  { name: "Bombando", href: "/dashboard?category=trending", category: "trending", icon: <Bell size={16} /> },
+                  { name: "Minha Lista", href: "/dashboard?category=mylist", category: "mylist", icon: <Menu size={16} /> },
+                  { name: "Sport's", href: "/dashboard?category=sports", category: "sports", icon: <Trophy size={16} className="text-brand-yellow" /> },
+                ].map((link, idx) => (
+                  <Link
+                    key={idx}
+                    href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-4 px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:bg-white/5 hover:text-white transition-all"
+                  >
+                    <div className="text-gray-500">{link.icon}</div>
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
             </div>
           ) : (
             /* CLIENT MOBILE LINKS */
