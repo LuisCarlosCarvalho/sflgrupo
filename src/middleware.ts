@@ -15,12 +15,16 @@ export default withAuth(
   },
   {
     callbacks: {
-      authorized: () => true,
+      authorized: ({ token }) => !!token,
     },
     secret: process.env.NEXTAUTH_SECRET,
+    pages: {
+      signIn: "/login",
+    },
+    cookieName: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
   }
 );
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*"],
 };
