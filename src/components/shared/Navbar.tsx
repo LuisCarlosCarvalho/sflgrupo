@@ -37,6 +37,17 @@ export default function Navbar() {
     { name: "Suporte", href: "/#faq" },
   ];
 
+  const authLinks = [
+    { name: "Início", href: "/dashboard" },
+    { name: "Séries", href: "/dashboard?category=series" },
+    { name: "Filmes", href: "/dashboard?category=movies" },
+    { name: "Bombando", href: "/dashboard?category=trending" },
+    { name: "Minha Lista", href: "/dashboard?category=mylist" },
+    { name: "Sport's", href: "/dashboard?category=sports" },
+  ];
+
+  const displayLinks = session ? authLinks : menuLinks;
+
   return (
     <>
       <nav
@@ -54,9 +65,15 @@ export default function Navbar() {
               />
             </Link>
             
-            <div className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-300">
-              {menuLinks.map((link) => (
-                <Link key={link.name} href={link.href} className="hover:text-white transition-colors">
+            <div className="hidden md:flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-gray-400">
+              {displayLinks.map((link) => (
+                <Link 
+                  key={link.name} 
+                  href={link.href} 
+                  className={`hover:text-brand-green transition-colors ${
+                    link.name === "Sport's" ? "text-brand-yellow" : ""
+                  }`}
+                >
                   {link.name}
                 </Link>
               ))}
@@ -159,7 +176,7 @@ export default function Navbar() {
               </div>
 
               <div className="flex flex-col gap-8">
-                {menuLinks.map((link) => (
+                {displayLinks.map((link) => (
                   <Link 
                     key={link.name} 
                     href={link.href}
