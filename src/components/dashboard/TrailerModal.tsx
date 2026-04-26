@@ -4,7 +4,7 @@ import { X, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import ReactPlayer from "react-player/lazy";
+import ReactPlayer from "react-player";
 
 interface TrailerModalProps {
   isOpen: boolean;
