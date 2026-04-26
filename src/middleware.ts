@@ -1,27 +1,28 @@
-import { getToken } from "next-auth/jwt";
+import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
-  const token = await getToken({ 
-    req, 
-    secret: process.env.NEXTAUTH_SECRET 
-  });
-  
-  const { pathname } = req.nextUrl;
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const isAuth = !!token;
+    const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 
-  // Proteção das rotas /admin
-  if (pathname.startsWith("/admin")) {
-    if (!token || token.role !== "ADMIN") {
-      console.log('Middleware: Acesso negado. Token:', !!token, 'Role:', token?.role);
+    if (isAdminRoute && token?.role !== "ADMIN") {
       return NextResponse.redirect(new URL("/login", req.url));
     }
+
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+    pages: {
+      signIn: "/login",
+    },
   }
+);
 
-  return NextResponse.next();
-}
-
-// Configurações do middleware: aplicar apenas ao caminho /admin/*
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ["/admin/:path*", "/dashboard/:path*"],
 };
