@@ -63,7 +63,7 @@ export default function DashboardHero({ movies }: DashboardHeroProps) {
   };
 
   return (
-    <div className="relative h-[80vh] md:h-[95vh] w-full">
+    <div className="relative h-[80vh] md:h-[95vh] w-full overflow-hidden">
       <Swiper
         modules={[Autoplay, EffectFade, Pagination]}
         effect="fade"

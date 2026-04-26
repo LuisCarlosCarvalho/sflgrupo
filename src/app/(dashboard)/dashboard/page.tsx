@@ -76,7 +76,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <main 
       key={category} 
-      className="min-h-screen bg-black text-white pb-20 selection:bg-brand-green selection:text-black animate-in fade-in duration-500"
+      className="min-h-screen bg-black text-white pb-20 selection:bg-brand-green selection:text-black animate-in fade-in duration-500 overflow-x-hidden w-full"
     >
       <DashboardNavbar />
       

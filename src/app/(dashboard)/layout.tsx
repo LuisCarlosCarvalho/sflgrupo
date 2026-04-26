@@ -38,7 +38,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const isBlocked = userData?.isActive === false;
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col w-full overflow-x-hidden">
       <Suspense fallback={<div className="h-20 bg-black/50" />}>
         <DashboardNavbar />
       </Suspense>

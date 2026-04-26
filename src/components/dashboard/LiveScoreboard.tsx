@@ -167,8 +167,8 @@ export default function LiveScoreboard() {
 
       {/* Table Section */}
       {!isLoading && filteredEvents.length > 0 && (
-        <div className="w-full overflow-x-auto -mx-4 px-4 md:-mx-6 md:px-6">
-          <table className="w-full text-left border-collapse min-w-[600px] md:min-w-[800px] lg:min-w-[900px]">
+        <div className="w-full overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[550px]">
             <thead>
               {/* Green thick borders imitating the mockup */}
               <tr className="border-y-[3px] border-brand-green bg-black/40">
