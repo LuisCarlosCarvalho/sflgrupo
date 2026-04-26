@@ -2,34 +2,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-import { Check, X, Loader2 } from "lucide-react";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { Check, X, Loader2, Edit } from "lucide-react";
+import { supabase } from "@/lib/supabase/client";
 
 export interface User {
   id: string;
   email: string;
   name: string | null;
+  username: string | null;
+  whatsapp: string | null;
+  planType: string | null;
   role: string;
   isActive: boolean;
   createdAt: string;
+  expires_at?: string;
+  notification_active?: boolean;
+  plan_price?: number;
 }
 
-export default function UserTable() {
+export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User) => void; refreshKey?: number }) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   async function fetchUsers() {
     setLoading(true);
-    // Nota: usando "User" (maiúsculo) que é a tabela do NextAuth/Prisma
     const { data, error } = await supabase
       .from("User")
-      .select("id, email, name, role, isActive, createdAt")
+      .select("id, email, name, username, whatsapp, planType, role, isActive, createdAt, expires_at, notification_active, plan_price")
       .order("createdAt", { ascending: false });
 
     if (error) {
@@ -42,7 +42,49 @@ export default function UserTable() {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [refreshKey]);
+
+  async function activateAndRenew(userId: string) {
+    setActionLoading(userId);
+    const nextExpiry = new Date();
+    nextExpiry.setDate(nextExpiry.getDate() + 30);
+
+    // Pegar o preço do plano do usuário atual
+    const user = users.find(u => u.id === userId);
+    const amount = user?.plan_price || 0;
+
+    // 1. Atualizar Usuário
+    const { error: userError } = await supabase
+      .from("User")
+      .update({ 
+        isActive: true, 
+        expires_at: nextExpiry.toISOString(),
+        notification_active: false 
+      })
+      .eq("id", userId);
+
+    if (userError) {
+      console.error("Erro ao renovar usuário:", userError);
+      setActionLoading(null);
+      return;
+    }
+
+    // 2. Registrar Receita
+    if (amount > 0) {
+      await supabase
+        .from("transactions")
+        .insert({
+          type: 'INCOME',
+          category: 'PLAN_RENEWAL',
+          amount: amount,
+          description: `Renovação: ${user?.email}`,
+          user_id: userId
+        });
+    }
+
+    await fetchUsers();
+    setActionLoading(null);
+  }
 
   async function toggleStatus(userId: string, currentIsActive: boolean) {
     setActionLoading(userId);
@@ -68,7 +110,7 @@ export default function UserTable() {
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Nome</th>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Cargo</th>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Status</th>
-            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Criado em</th>
+            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Expira em</th>
             <th className="px-6 py-4 text-center text-xs font-black uppercase tracking-widest text-gray-500">Ações</th>
           </tr>
         </thead>
@@ -80,47 +122,71 @@ export default function UserTable() {
               </td>
             </tr>
           ) : (
-            users.map((u) => (
-              <tr key={u.id} className="hover:bg-white/[0.02] transition-colors group">
-                <td className="px-6 py-4 font-medium text-gray-300">{u.email}</td>
-                <td className="px-6 py-4 text-gray-400">{u.name || "-"}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter ${u.role === 'ADMIN' ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-brand-blue/10 text-brand-blue'}`}>
-                    {u.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`flex items-center gap-2 text-xs font-bold ${u.isActive ? "text-brand-green" : "text-red-500"}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${u.isActive ? "bg-brand-green animate-pulse" : "bg-red-500"}`} />
-                    {u.isActive ? "ATIVO" : "BLOQUEADO"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-gray-500 text-xs">
-                  {new Date(u.createdAt).toLocaleDateString('pt-BR')}
-                </td>
-                <td className="px-6 py-4 text-center">
-                  {u.role !== "ADMIN" && (
-                    <button
-                      onClick={() => toggleStatus(u.id, u.isActive)}
-                      disabled={actionLoading === u.id}
-                      className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
-                        u.isActive 
-                          ? "bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white" 
-                          : "bg-brand-green/10 text-brand-green hover:bg-brand-green hover:text-black"
-                      } disabled:opacity-50`}
-                    >
-                      {actionLoading === u.id ? (
-                        <Loader2 className="animate-spin h-3 w-3" />
-                      ) : u.isActive ? (
-                        "BLOQUEAR"
-                      ) : (
-                        "ATIVAR"
+            users.map((u) => {
+              const isExpired = u.expires_at ? new Date(u.expires_at) < new Date() : false;
+              
+              return (
+                <tr key={u.id} className="hover:bg-white/[0.02] transition-colors group">
+                  <td className="px-6 py-4 font-medium text-gray-300">{u.email}</td>
+                  <td className="px-6 py-4 text-gray-400">{u.name || "-"}</td>
+                  <td className="px-6 py-4">
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter ${u.role === 'ADMIN' ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-brand-blue/10 text-brand-blue'}`}>
+                      {u.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {!u.isActive ? (
+                      <span className="flex items-center gap-2 text-xs font-bold text-red-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        BLOQUEADO
+                      </span>
+                    ) : isExpired ? (
+                      <span className="flex items-center gap-2 text-xs font-bold text-orange-500">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+                        VENCIDO
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2 text-xs font-bold text-brand-green">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
+                        ATIVO
+                      </span>
+                    )}
+                  </td>
+                  <td className={`px-6 py-4 text-xs font-bold ${isExpired ? 'text-red-500' : 'text-gray-500'}`}>
+                    {u.expires_at ? new Date(u.expires_at).toLocaleDateString('pt-BR') : "-"}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => onEdit(u)}
+                        className="px-4 py-2 rounded-lg text-xs font-black bg-white/5 text-white hover:bg-white/10 transition-all"
+                      >
+                        EDITAR
+                      </button>
+                      {u.role !== "ADMIN" && (
+                        <button
+                          onClick={() => (!u.isActive || isExpired) ? activateAndRenew(u.id) : toggleStatus(u.id, u.isActive)}
+                          disabled={actionLoading === u.id}
+                          className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${
+                            (!u.isActive || isExpired)
+                              ? "bg-brand-green/10 text-brand-green hover:bg-brand-green hover:text-black"
+                              : "bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"
+                          } disabled:opacity-50`}
+                        >
+                          {actionLoading === u.id ? (
+                            <Loader2 className="animate-spin h-3 w-3" />
+                          ) : (!u.isActive || isExpired) ? (
+                            "ATIVAR"
+                          ) : (
+                            "BLOQUEAR"
+                          )}
+                        </button>
                       )}
-                    </button>
-                  )}
-                </td>
-              </tr>
-            ))
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>

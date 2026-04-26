@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Play, Tv } from "lucide-react";
+import { Play, Tv, Plus, Check, Loader2 } from "lucide-react";
 import { SportsEvent } from "@/lib/scrapers/types";
+import { toggleWatchlist, getWatchlist } from "@/app/actions/watchlist";
 
 // Categorias disponíveis no topo com ícones
 const CATEGORIES = [
@@ -43,6 +44,8 @@ export default function LiveScoreboard() {
   const [events, setEvents] = useState<SportsEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const fetchScores = async () => {
     setIsLoading(true);
@@ -50,6 +53,9 @@ export default function LiveScoreboard() {
       const response = await fetch('/api/games/upcoming');
       const data = await response.json();
       setEvents(data || []);
+      
+      const watchlistData = await getWatchlist();
+      setWatchlistIds(new Set(watchlistData.map(item => item.mediaId)));
     } catch (error) {
       console.error("Erro ao carregar os eventos esportivos:", error);
     } finally {
@@ -60,6 +66,38 @@ export default function LiveScoreboard() {
   useEffect(() => {
     fetchScores();
   }, []);
+
+  const handleToggleWatchlist = async (match: SportsEvent, matchId: string) => {
+    if (actionLoading) return;
+    setActionLoading(matchId);
+    
+    const metadata = JSON.stringify({
+      date: match.date,
+      time: match.time,
+      broadcast: match.broadcast || []
+    });
+
+    try {
+      const result = await toggleWatchlist({
+        id: matchId,
+        title: `${match.home} ${match.away ? 'vs ' + match.away : ''}`,
+        posterPath: match.homeLogo || getAvatarUrl(match.home),
+        type: "sports",
+        metadata: metadata
+      });
+      
+      setWatchlistIds(prev => {
+        const next = new Set(prev);
+        if (result.added) next.add(matchId);
+        else next.delete(matchId);
+        return next;
+      });
+    } catch (error) {
+      console.error("Erro ao alternar watchlist:", error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   // Filtro de Categorias
   const filteredEvents = events.filter(e => {
@@ -130,21 +168,24 @@ export default function LiveScoreboard() {
       {/* Table Section */}
       {!isLoading && filteredEvents.length > 0 && (
         <div className="w-full overflow-x-auto pb-4">
-          <table className="w-full text-left border-collapse min-w-[650px] md:min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-[750px] md:min-w-[900px]">
             <thead>
               {/* Green thick borders imitating the mockup */}
               <tr className="border-y-[3px] border-brand-green bg-black/40">
-                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-white w-1/5">Leagues</th>
-                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-[10%]">Countries</th>
+                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-white w-[15%]">Leagues</th>
+                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-[5%]">Countries</th>
                 <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-[35%]">Campeonato</th>
                 <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-[15%]">Data/Horário</th>
-                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-1/5">Canal Transmissão</th>
+                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-[20%]">Canal Transmissão</th>
+                <th className="py-4 px-4 font-black uppercase tracking-wider text-sm text-center text-white w-[10%]">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 bg-[#050505]">
               {filteredEvents.map((match, idx) => {
                 const countryCode = match.countryCode || getCountryCode(match.league);
                 const isToday = new Date().toISOString().split('T')[0] === match.date;
+                const matchId = `sport-${match.sport}-${match.league}-${match.home}-${match.away || 'solo'}-${match.date}`.replace(/\s+/g, '-').toLowerCase();
+                const inWatchlist = watchlistIds.has(matchId);
 
                 return (
                   <tr key={idx} className="hover:bg-white/5 transition-colors group">
@@ -234,6 +275,27 @@ export default function LiveScoreboard() {
                           <span className="text-[10px] text-gray-600 font-bold uppercase">A DEFINIR</span>
                         )}
                       </div>
+                    </td>
+
+                    {/* AÇÕES */}
+                    <td className="py-4 px-4 align-middle text-center">
+                      <button
+                        onClick={() => handleToggleWatchlist(match, matchId)}
+                        disabled={actionLoading === matchId}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border-2 ${
+                          inWatchlist 
+                            ? "bg-brand-yellow/20 border-brand-yellow text-brand-yellow" 
+                            : "bg-white/5 border-white/10 text-gray-400 hover:border-brand-green hover:text-brand-green"
+                        } disabled:opacity-50`}
+                      >
+                        {actionLoading === matchId ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : inWatchlist ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                      </button>
                     </td>
                   </tr>
                 );

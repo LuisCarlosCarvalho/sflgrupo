@@ -3,10 +3,13 @@
 import { useState } from "react";
 import UserTable from "@/components/admin/UserTable";
 import CreateUserModal from "@/components/admin/CreateUserModal";
+import EditUserModal from "@/components/admin/EditUserModal";
+import { User } from "@/components/admin/UserTable";
 import { UserPlus } from "lucide-react";
 
 export default function AdminUsersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleSuccess = () => {
@@ -33,7 +36,7 @@ export default function AdminUsersPage() {
       </header>
 
       <section>
-        <UserTable key={refreshKey} />
+        <UserTable onEdit={(user) => setEditingUser(user)} refreshKey={refreshKey} />
       </section>
 
       <CreateUserModal 
@@ -41,6 +44,15 @@ export default function AdminUsersPage() {
         onClose={() => setIsModalOpen(false)} 
         onSuccess={handleSuccess} 
       />
+
+      {editingUser && (
+        <EditUserModal 
+          user={editingUser} 
+          isOpen={!!editingUser} 
+          onClose={() => setEditingUser(null)} 
+          onSuccess={handleSuccess} 
+        />
+      )}
     </div>
   );
 }

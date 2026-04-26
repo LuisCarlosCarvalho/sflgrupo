@@ -50,7 +50,8 @@ export const authOptions: NextAuthOptions = {
           username: user.username,
           isActive: user.isActive,
           planType: user.planType,
-          role: user.role
+          role: user.role,
+          whatsapp: user.whatsapp
         };
       }
     })
@@ -63,6 +64,7 @@ export const authOptions: NextAuthOptions = {
         token.isActive = user.isActive;
         token.planType = user.planType;
         token.role = user.role;
+        token.whatsapp = user.whatsapp;
       }
       return token;
     },
@@ -73,6 +75,7 @@ export const authOptions: NextAuthOptions = {
         session.user.isActive = token.isActive;
         session.user.planType = token.planType;
         session.user.role = token.role;
+        session.user.whatsapp = token.whatsapp;
       }
       return session;
     },

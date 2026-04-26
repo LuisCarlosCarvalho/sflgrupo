@@ -1,14 +1,16 @@
-// src/app/admin/support/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { Loader2, MessageCircle, CheckCircle2, Ticket, Clock, User as UserIcon, MessageSquare } from "lucide-react";
+import { Loader2, MessageCircle, CheckCircle2, Ticket, Clock, User as UserIcon, MessageSquare, Reply, CheckCircle } from "lucide-react";
+import AdminReplyModal from "@/components/admin/AdminReplyModal";
 
 export default function AdminSupportPage() {
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
 
   const whatsappNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "5511928485483";
 
@@ -17,7 +19,7 @@ export default function AdminSupportPage() {
     const { data, error } = await supabase
       .from("support_requests")
       .select("*, User(email, name, username, whatsapp)")
-      .order("created_at", { ascending: false });
+      .order("updated_at", { ascending: false });
 
     if (error) console.error("Erro ao buscar pedidos:", error);
     else setRequests(data || []);
@@ -25,28 +27,43 @@ export default function AdminSupportPage() {
   }
 
   async function completeRequest(id: string, user: any, serviceType: string) {
+    if (!confirm("Deseja finalizar este pedido? O cliente não poderá mais responder.")) return;
+    
     setUpdating(id);
     const { error } = await supabase
       .from("support_requests")
-      .update({ status: 'COMPLETED', updated_at: new Date().toISOString() })
+      .update({ status: 'FINISHED', updated_at: new Date().toISOString() })
       .eq("id", id);
 
     if (error) {
       console.error("Erro ao concluir pedido:", error);
     } else {
-      // Abrir WhatsApp com mensagem pronta
-      const userPhone = user?.whatsapp || whatsappNumber;
-      const message = `Olá ${user?.name || user?.username || 'Cliente'}! Aqui é do suporte SFL STREAM. Referente ao seu pedido de *${serviceType}*, informamos que ele foi concluído com sucesso. ✅`;
-      const url = `https://wa.me/${userPhone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
-      window.open(url, '_blank');
       await fetchRequests();
     }
     setUpdating(null);
   }
 
+  const handleOpenReply = (req: any) => {
+    setSelectedRequest(req);
+    setIsReplyModalOpen(true);
+  };
+
   useEffect(() => {
     fetchRequests();
   }, []);
+
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20';
+      case 'RESPONDED':
+        return 'bg-brand-green/10 text-brand-green border-brand-green/20';
+      case 'FINISHED':
+        return 'bg-white/5 text-gray-500 border-white/10';
+      default:
+        return 'bg-brand-blue/10 text-brand-blue border-brand-blue/20';
+    }
+  };
 
   return (
     <div className="space-y-10">
@@ -70,17 +87,17 @@ export default function AdminSupportPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {requests.map((r) => (
-              <div key={r.id} className={`p-6 rounded-[2rem] border transition-all ${r.status === 'PENDING' ? 'bg-[#15192A]/50 border-brand-yellow/20' : 'bg-black/20 border-white/[0.02] opacity-60'}`}>
+              <div key={r.id} className={`p-6 rounded-[2rem] border transition-all ${r.status === 'PENDING' ? 'bg-[#15192A]/50 border-brand-yellow/20 shadow-[0_0_20px_rgba(255,193,7,0.05)]' : 'bg-black/20 border-white/[0.02]'} ${r.status === 'FINISHED' ? 'opacity-50' : ''}`}>
                 <div className="flex justify-between items-start mb-6">
-                  <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${r.status === 'PENDING' ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-brand-green/10 text-brand-green'}`}>
+                  <div className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyle(r.status)}`}>
                     {r.service_type}
                   </div>
-                  <div className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ${r.status === 'PENDING' ? 'text-brand-yellow' : 'text-brand-green'}`}>
-                    {r.status === 'PENDING' ? (
-                      <><span className="w-1.5 h-1.5 rounded-full bg-brand-yellow animate-pulse" /> PENDENTE</>
-                    ) : (
-                      'CONCLUÍDO'
-                    )}
+                  <div className={`flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ${
+                    r.status === 'PENDING' ? 'text-brand-yellow' : r.status === 'RESPONDED' ? 'text-brand-green' : 'text-gray-500'
+                  }`}>
+                    {r.status === 'PENDING' && <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow animate-pulse" />}
+                    {r.status === 'RESPONDED' && <span className="w-1.5 h-1.5 rounded-full bg-brand-green" />}
+                    {r.status === 'PENDING' ? 'PENDENTE' : r.status === 'RESPONDED' ? 'RESPONDIDO' : 'FINALIZADO'}
                   </div>
                 </div>
 
@@ -95,38 +112,61 @@ export default function AdminSupportPage() {
                     </div>
                   </div>
                   
-                  <div className="bg-black/40 p-4 rounded-2xl border border-white/5">
-                    <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-2">Descrição:</p>
-                    <p className="text-xs text-gray-300 leading-relaxed italic">"{r.description}"</p>
+                  <div className="space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                    {r.messages?.map((msg: any, i: number) => (
+                      <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-start' : 'items-end'} gap-1.5`}>
+                        <div className={`text-[9px] font-black uppercase ${msg.role === 'user' ? 'text-brand-blue' : 'text-brand-green'}`}>
+                          {msg.role === 'user' ? 'Cliente' : 'Você'} • {new Date(msg.date).toLocaleString('pt-BR')}
+                        </div>
+                        <div className={`p-4 rounded-2xl text-xs border ${
+                          msg.role === 'user' 
+                            ? 'bg-black/40 border-white/5 rounded-tl-none' 
+                            : 'bg-brand-green/5 border-brand-green/10 rounded-tr-none italic'
+                        }`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   <div className="flex items-center gap-2 text-[9px] text-gray-600 font-black uppercase tracking-widest">
                     <Clock className="w-3 h-3" />
-                    Enviado em: {new Date(r.created_at).toLocaleString('pt-BR')}
+                    Atualizado em: {new Date(r.updated_at || r.created_at).toLocaleString('pt-BR')}
                   </div>
                 </div>
 
-                {r.status === 'PENDING' && (
-                  <button
-                    onClick={() => completeRequest(r.id, r.User, r.service_type)}
-                    disabled={updating === r.id}
-                    className="w-full bg-brand-green hover:bg-white text-black font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 uppercase text-xs tracking-widest shadow-lg shadow-brand-green/10"
-                  >
-                    {updating === r.id ? (
-                      <Loader2 className="animate-spin w-5 h-5" />
-                    ) : (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        CONCLUIR E CHAMAR ZAP
-                      </>
-                    )}
-                  </button>
+                {r.status !== 'FINISHED' && (
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => handleOpenReply(r)}
+                      className="w-full bg-brand-yellow hover:bg-white text-black font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 uppercase text-xs tracking-widest shadow-lg shadow-brand-yellow/10"
+                    >
+                      <Reply className="w-4 h-4" />
+                      {r.admin_response ? 'ALTERAR RESPOSTA' : 'RESPONDER'}
+                    </button>
+                    
+                    <button
+                      onClick={() => completeRequest(r.id, r.User, r.service_type)}
+                      disabled={updating === r.id}
+                      className="w-full bg-white/5 hover:bg-brand-green text-gray-400 hover:text-black font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest border border-white/5"
+                    >
+                      {updating === r.id ? <Loader2 className="animate-spin w-4 h-4" /> : <CheckCircle className="w-3 h-3" />}
+                      FINALIZAR PEDIDO
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
           </div>
         )}
       </section>
+
+      <AdminReplyModal
+        isOpen={isReplyModalOpen}
+        onClose={() => setIsReplyModalOpen(false)}
+        request={selectedRequest}
+        onSuccess={fetchRequests}
+      />
     </div>
   );
 }

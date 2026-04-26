@@ -29,9 +29,11 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
       // 1. Hash the password
       const hashedPassword = await bcrypt.hash(formData.password, 10);
 
-      // 2. Create the user in the User table
-      // Note: We generate a simple CUID-like ID or let the DB handle it if it was uuid, 
-      // but the User table uses text IDs. We'll generate a random string for now or use crypto.randomUUID()
+      // 2. Definir vencimento inicial (+30 dias)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      // 3. Create the user in the User table
       const userId = crypto.randomUUID();
 
       const { error: userError } = await supabase.from("User").insert({
@@ -42,28 +44,28 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
         password: hashedPassword,
         whatsapp: formData.whatsapp,
         planType: formData.planType,
+        plan_price: parseFloat(formData.amount) || 0,
         lastPaymentAmount: parseFloat(formData.amount) || 0,
         lastPaymentCurrency: formData.currency,
         isActive: true,
         role: "USER",
+        expires_at: expiresAt.toISOString(),
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
 
       if (userError) throw userError;
 
-      // 3. Create initial plan record in "plans" table
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
-
-      const { error: planError } = await supabase.from("plans").insert({
-        user_id: userId,
-        plan_name: formData.planType,
-        activated_at: new Date().toISOString(),
-        expires_at: expiresAt.toISOString()
-      });
-
-      if (planError) throw planError;
+      // 3. Registrar Transação Financeira Inicial (Se houver valor)
+      if (parseFloat(formData.amount) > 0) {
+        await supabase.from("transactions").insert({
+          type: 'INCOME',
+          category: 'PLAN_RENEWAL',
+          amount: parseFloat(formData.amount),
+          description: `Primeiro pagamento: ${formData.email}`,
+          user_id: userId
+        });
+      }
 
       onSuccess();
       onClose();

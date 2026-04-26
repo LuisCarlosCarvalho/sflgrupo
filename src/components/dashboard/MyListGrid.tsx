@@ -3,25 +3,56 @@
 import { useState, useEffect } from "react";
 import MovieCard from "@/components/shared/MovieCard";
 import { Play, Share2, MessageCircle } from "lucide-react";
-import { getWatchlist } from "@/app/actions/watchlist";
+import { getWatchlist, clearWatchlist } from "@/app/actions/watchlist";
+import { useSession } from "next-auth/react";
 
 export default function MyListGrid() {
+  const { data: session } = useSession();
   const [list, setList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadList = async () => {
     setIsLoading(true);
     const saved = await getWatchlist();
-    // Transforma o formato do banco para o formato do MovieCard
-    const formatted = saved.map(item => ({
-      id: item.mediaId,
-      title: item.title,
-      thumbnailUrl: item.posterPath,
-      duration: "HD", // Placeholder ou buscar real
-      genre: item.type === "movie" ? "Filme" : "Série",
-      rating: "98",
-      type: item.type
-    }));
+    const formatted = saved.map(item => {
+      let grade = "Série";
+      let extra = "";
+      
+      if (item.type === "movie") grade = "Filme";
+      if (item.type === "sports") {
+        grade = "Sport's";
+        try {
+          const meta = JSON.parse(item.metadata || "{}");
+          if (meta.date) {
+            const dateStr = meta.date.split('-').reverse().join('/');
+            extra = `\n• Data: ${dateStr} às ${meta.time || '--:--'}\n• Transmissão: ${meta.broadcast?.join(', ') || 'A definir'}`;
+          }
+        } catch (e) {
+          console.error("Erro ao parsear metadata de sports", e);
+        }
+      }
+      
+      // Lógica para detectar Anime ou Kids com base no metadata (que salva o gênero)
+      const genreLower = (item.metadata || "").toLowerCase();
+      if (item.type !== "sports") {
+        if (genreLower.includes("anime") || item.title.toLowerCase().includes("bleach") || item.title.toLowerCase().includes("naruto")) {
+          grade = "Anime";
+        } else if (genreLower.includes("kids") || genreLower.includes("infantil") || genreLower.includes("animação")) {
+          grade = "Kids";
+        }
+      }
+
+      return {
+        id: item.mediaId,
+        title: item.title,
+        thumbnailUrl: item.posterPath,
+        duration: "HD", 
+        genre: grade,
+        extra: extra, // Campo novo para o WhatsApp
+        rating: "98",
+        type: item.type
+      };
+    });
     setList(formatted);
     setIsLoading(false);
   };
@@ -30,11 +61,46 @@ export default function MyListGrid() {
     loadList();
   }, []);
 
-  const handleExportWhatsApp = () => {
-    const names = list.map(m => `• ${m.title}`).join('\n');
-    const text = `🍿 *Minha Lista SFL Stream*:\n\n${names}\n\nAssista agora em: sflstream.com`;
+  const handleExportWhatsApp = async () => {
+    // @ts-ignore
+    const userWhatsapp = session?.user?.whatsapp;
+
+    if (!userWhatsapp) {
+      alert("Seu número de WhatsApp não está cadastrado. Por favor, entre em contato com o suporte.");
+      return;
+    }
+
+    if (list.length === 0) return;
+
+    // @ts-ignore
+    const userName = session?.user?.name || "Cliente";
+    const itemsList = list.map((m, index) => {
+      let itemText = `${index + 1}. ${m.title} – Grade: ${m.genre}`;
+      if (m.extra) {
+        itemText += m.extra;
+      }
+      return itemText;
+    }).join('\n\n');
+    
+    const text = `*--- MINHA LISTA SFL STREAM ---*\n*Play Lista SFL (${userName}):*\n\n${itemsList}\n\nAssista agora em sua aplicação: *SFL* miTV`;
     const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+    
+    // Limpa o número (remove tudo que não for dígito)
+    let cleanNumber = userWhatsapp.replace(/\D/g, '');
+    if (cleanNumber.startsWith('00')) cleanNumber = cleanNumber.substring(2);
+
+    // Abre o WhatsApp
+    window.open(`https://wa.me/${cleanNumber}?text=${encodedText}`, '_blank');
+
+    // Limpa a lista no banco e na tela após um pequeno delay para não atrapalhar o redirecionamento
+    setTimeout(async () => {
+      try {
+        await clearWatchlist();
+        setList([]);
+      } catch (err) {
+        console.error("Erro ao limpar lista:", err);
+      }
+    }, 1000);
   };
 
   if (isLoading) {

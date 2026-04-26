@@ -10,6 +10,7 @@ export async function toggleWatchlist(media: {
   title: string;
   posterPath: string;
   type: string;
+  metadata?: string;
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -42,6 +43,7 @@ export async function toggleWatchlist(media: {
         title: media.title,
         posterPath: media.posterPath,
         type: media.type,
+        metadata: media.metadata
       });
 
     if (insertError) {
@@ -68,4 +70,22 @@ export async function getWatchlist() {
   }
 
   return data || [];
+}
+
+export async function clearWatchlist() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const { error } = await supabase
+    .from('Watchlist')
+    .delete()
+    .eq('userId', session.user.id);
+
+  if (error) {
+    console.error("ClearWatchlist Error:", error);
+    throw error;
+  }
+
+  revalidatePath("/dashboard", "layout");
+  return { success: true };
 }

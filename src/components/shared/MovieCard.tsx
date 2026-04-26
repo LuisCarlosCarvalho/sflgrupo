@@ -49,6 +49,7 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
         title: movie.title,
         posterPath: movie.thumbnailUrl,
         type: movie.type || "movie",
+        metadata: movie.genre
       });
       setIsInList(result.added);
     } catch (error) {

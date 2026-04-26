@@ -11,14 +11,8 @@ export default async function PerfilPage() {
 
   const { data: user } = await supabase
     .from("User")
-    .select("name, email, role, planType")
+    .select("name, email, role, planType, expires_at, notification_active")
     .eq("id", session.user.id)
-    .single();
-
-  const { data: plan } = await supabase
-    .from("plans")
-    .select("expires_at, plan_name")
-    .eq("user_id", session.user.id)
     .single();
 
   return (
@@ -28,9 +22,10 @@ export default async function PerfilPage() {
           name: user?.name || session.user.name || "Usuário",
           email: user?.email || session.user.email || "",
           role: user?.role || "USER",
-          planType: user?.planType
+          planType: user?.planType || "FREE",
+          expires_at: user?.expires_at,
+          notification_active: user?.notification_active
         }} 
-        plan={plan || undefined}
       />
     </div>
   );

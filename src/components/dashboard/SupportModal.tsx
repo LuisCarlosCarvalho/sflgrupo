@@ -46,7 +46,14 @@ export default function SupportModal({ isOpen, onClose, onSuccess }: SupportModa
           user_id: session?.user?.id,
           service_type: selectedService,
           description: description,
-          status: 'PENDING'
+          status: 'PENDING',
+          messages: [
+            {
+              role: 'user',
+              text: description,
+              date: new Date().toISOString()
+            }
+          ]
         }
       ]);
 

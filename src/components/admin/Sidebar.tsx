@@ -18,7 +18,7 @@ const navItems = [
 
 export default function Sidebar({ onClose }: SidebarProps) {
   return (
-    <nav className="flex flex-col p-8 h-full">
+    <nav className="flex flex-col p-8 h-full bg-admin-sidebar">
       <div className="flex items-center justify-between mb-12">
         <div className="flex items-center gap-3">
           <img src="https://i.imgur.com/2ex0N3R.png" alt="Logo" className="h-9 w-auto" />
