@@ -50,7 +50,7 @@ export default function InfoModal({ isOpen, onClose, movie, onPlayTrailer }: Inf
   };
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9998] flex items-center justify-center p-4 md:p-8">
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center p-2 md:p-8">
       {/* Overlay */}
       <div 
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in duration-500"
@@ -58,7 +58,7 @@ export default function InfoModal({ isOpen, onClose, movie, onPlayTrailer }: Inf
       />
       
       {/* Content */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-[0_0_80px_rgba(255,215,0,0.1)] border border-white/10 bg-[#141414] animate-in zoom-in-95 duration-500 custom-scrollbar">
+      <div className="relative w-[95vw] md:w-full md:max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-[0_0_80px_rgba(255,215,0,0.1)] border border-white/10 bg-[#141414] animate-in zoom-in-95 duration-500 custom-scrollbar">
         
         {/* Close Button */}
         <button 
