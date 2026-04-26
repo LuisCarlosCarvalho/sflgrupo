@@ -55,7 +55,7 @@ export default function Navbar() {
           isScrolled ? "glass-navbar py-4" : "bg-transparent py-6"
         }`}
       >
-        <div className="container mx-auto px-6 flex items-center justify-between">
+        <div className="w-full px-4 md:px-12 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-3 group">
               <img 
