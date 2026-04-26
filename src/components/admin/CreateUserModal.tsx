@@ -85,7 +85,11 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
         password: "",
         planType: "PREMIUM",
         amount: "",
-        currency: "BRL"
+        currency: "BRL",
+        connections: 1,
+        app_name: "",
+        device_type: "SMART TV",
+        location: ""
       });
     } catch (err: any) {
       alert("Erro ao cadastrar usuário: " + err.message);

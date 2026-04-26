@@ -19,6 +19,9 @@ export interface User {
   notification_active?: boolean;
   plan_price?: number;
   location?: string;
+  connections?: number;
+  app_name?: string;
+  device_type?: string;
 }
 
 export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User) => void; refreshKey?: number }) {
@@ -30,7 +33,7 @@ export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User)
     setLoading(true);
     const { data, error } = await supabase
       .from("User")
-      .select("id, email, name, username, whatsapp, planType, role, isActive, createdAt, expires_at, notification_active, plan_price")
+      .select("id, email, name, username, whatsapp, planType, role, isActive, createdAt, expires_at, notification_active, plan_price, connections, app_name, device_type, location")
       .order("createdAt", { ascending: false });
 
     if (error) {

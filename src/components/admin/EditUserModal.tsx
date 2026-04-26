@@ -14,14 +14,32 @@ interface EditUserModalProps {
   onSuccess: () => void;
 }
 
+interface EditUserFormData {
+  name: string;
+  username: string;
+  email: string;
+  whatsapp: string;
+  password: string;
+  planType: string;
+  role: string;
+  isActive: boolean;
+  expires_at: string;
+  notification_active: boolean;
+  plan_price: number;
+  connections: number;
+  app_name: string;
+  device_type: string;
+  location: string;
+}
+
 export default function EditUserModal({ user, isOpen, onClose, onSuccess }: EditUserModalProps) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<EditUserFormData>({
     name: user.name || "",
     username: user.username || "",
     email: user.email || "",
     whatsapp: user.whatsapp || "",
-    password: "", // Only update if provided
+    password: "", 
     planType: user.planType || "PREMIUM",
     role: user.role || "USER",
     isActive: user.isActive,
@@ -35,23 +53,25 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
   });
 
   useEffect(() => {
-    setFormData({
-      name: user.name || "",
-      username: user.username || "",
-      email: user.email || "",
-      whatsapp: user.whatsapp || "",
-      password: "",
-      planType: user.planType || "PREMIUM",
-      role: user.role || "USER",
-      isActive: user.isActive,
-      expires_at: user.expires_at || new Date().toISOString(),
-      notification_active: user.notification_active || false,
-      plan_price: user.plan_price || 0,
-      connections: user.connections || 1,
-      app_name: user.app_name || "",
-      device_type: user.device_type || "SMART TV",
-      location: user.location || ""
-    });
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        username: user.username || "",
+        email: user.email || "",
+        whatsapp: user.whatsapp || "",
+        password: "",
+        planType: user.planType || "PREMIUM",
+        role: user.role || "USER",
+        isActive: user.isActive,
+        expires_at: user.expires_at || new Date().toISOString(),
+        notification_active: user.notification_active || false,
+        plan_price: user.plan_price || 0,
+        connections: user.connections || 1,
+        app_name: user.app_name || "",
+        device_type: user.device_type || "SMART TV",
+        location: user.location || ""
+      });
+    }
   }, [user]);
 
   if (!isOpen) return null;
@@ -61,7 +81,7 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
     setLoading(true);
 
     try {
-      const updateData: any = {
+      const updateData: Partial<UserType> & { password?: string; updatedAt: string } = {
         name: formData.name,
         username: formData.username,
         email: formData.email,
@@ -79,7 +99,6 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
         updatedAt: new Date().toISOString()
       };
 
-      // Only hash and update password if it's not empty
       if (formData.password.trim() !== "") {
         updateData.password = await bcrypt.hash(formData.password, 10);
       }
@@ -103,11 +122,11 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
   const addDays = (days: number) => {
     const current = new Date(formData.expires_at);
     current.setDate(current.getDate() + days);
-    setFormData({ ...formData, expires_at: current.toISOString() });
+    setFormData(prev => ({ ...prev, expires_at: current.toISOString() }));
   };
 
   const triggerAlert = () => {
-    setFormData({ ...formData, notification_active: true });
+    setFormData(prev => ({ ...prev, notification_active: true }));
     alert("Alerta configurado! Salve as alterações para disparar no painel do cliente.");
   };
 
