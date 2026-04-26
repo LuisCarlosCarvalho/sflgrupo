@@ -1,7 +1,7 @@
 // src/components/dashboard/UserProfile.tsx
 "use client";
 
-import { User, Mail, CreditCard, Calendar, MessageCircle, ShieldCheck } from "lucide-react";
+import { User, Mail, CreditCard, Calendar, MessageCircle, ShieldCheck, Monitor, Tv, LayoutGrid, Globe } from "lucide-react";
 
 interface UserProfileProps {
   user: {
@@ -11,6 +11,10 @@ interface UserProfileProps {
     planType?: string;
     expires_at?: string;
     notification_active?: boolean;
+    connections?: number;
+    app_name?: string;
+    device_type?: string;
+    location?: string;
   };
   plan?: {
     expires_at: string;
@@ -107,6 +111,33 @@ export default function UserProfile({ user, plan }: UserProfileProps) {
                 <Calendar className="w-3 h-3" /> Vencimento
               </label>
               <p className={`text-lg font-bold ${isExpired ? 'text-red-500' : 'text-white'}`}>{expirationDate}</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                <Globe className="w-3 h-3" /> Localidade
+              </label>
+              <p className="text-lg font-bold text-white">{user.location || "Brasil"}</p>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-8">
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                <LayoutGrid className="w-3 h-3" /> Pontos (Telas)
+              </label>
+              <p className="text-lg font-bold text-white">{user.connections || 1} PONTO(S)</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                <Monitor className="w-3 h-3" /> Aplicativo
+              </label>
+              <p className="text-lg font-bold text-white uppercase">{user.app_name || "SFL Stream"}</p>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                <Tv className="w-3 h-3" /> Aparelho
+              </label>
+              <p className="text-lg font-bold text-white uppercase">{user.device_type || "Smart TV"}</p>
             </div>
           </div>
 

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2 } from "lucide-react";
+import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe } from "lucide-react";
 import bcrypt from "bcryptjs";
 import { User as UserType } from "./UserTable";
 
@@ -27,7 +27,11 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
     isActive: user.isActive,
     expires_at: user.expires_at || new Date().toISOString(),
     notification_active: user.notification_active || false,
-    plan_price: user.plan_price || 0
+    plan_price: user.plan_price || 0,
+    connections: user.connections || 1,
+    app_name: user.app_name || "",
+    device_type: user.device_type || "SMART TV",
+    location: user.location || ""
   });
 
   useEffect(() => {
@@ -42,7 +46,11 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
       isActive: user.isActive,
       expires_at: user.expires_at || new Date().toISOString(),
       notification_active: user.notification_active || false,
-      plan_price: user.plan_price || 0
+      plan_price: user.plan_price || 0,
+      connections: user.connections || 1,
+      app_name: user.app_name || "",
+      device_type: user.device_type || "SMART TV",
+      location: user.location || ""
     });
   }, [user]);
 
@@ -64,6 +72,10 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
         expires_at: formData.expires_at,
         notification_active: formData.notification_active,
         plan_price: Number(formData.plan_price),
+        connections: Number(formData.connections),
+        app_name: formData.app_name,
+        device_type: formData.device_type,
+        location: formData.location,
         updatedAt: new Date().toISOString()
       };
 
@@ -164,7 +176,21 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
                 type="text" required value={formData.whatsapp}
                 onChange={e => setFormData({...formData, whatsapp: e.target.value})}
                 className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
-                placeholder="Ex: 5511999999999"
+                placeholder="Ex: +55 11 99999-9999"
+              />
+            </div>
+          </div>
+
+          {/* Localidade */}
+          <div className="space-y-1">
+            <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Localidade (País/Cidade)</label>
+            <div className="relative">
+              <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+              <input 
+                type="text" value={formData.location}
+                onChange={e => setFormData({...formData, location: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
+                placeholder="Ex: Portugal"
               />
             </div>
           </div>
@@ -243,6 +269,55 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
                 <option value="true" className="bg-[#15192A]">ATIVO</option>
                 <option value="false" className="bg-[#15192A]">BLOQUEADO</option>
               </select>
+            </div>
+          </div>
+          
+          {/* DADOS TÉCNICOS */}
+          <div className="md:col-span-2 p-6 bg-white/5 rounded-[2rem] border border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <div className="md:col-span-3 mb-2 flex items-center gap-2">
+              <Shield className="text-brand-yellow w-5 h-5" />
+              <h3 className="text-xs font-black text-white uppercase tracking-widest">Dados Técnicos & Dispositivos</h3>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Pontos (Telas)</label>
+              <input 
+                type="number" min="1" required 
+                value={formData.connections}
+                onChange={e => setFormData({...formData, connections: Number(e.target.value)})}
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-6 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm text-white"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Nome do Aplicativo</label>
+              <input 
+                type="text" 
+                value={formData.app_name}
+                onChange={e => setFormData({...formData, app_name: e.target.value})}
+                className="w-full bg-black/20 border border-white/10 rounded-2xl px-6 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm text-white"
+                placeholder="Ex: XCIPTV"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Aparelho / Dispositivo</label>
+              <div className="relative">
+                <select 
+                  value={formData.device_type}
+                  onChange={e => setFormData({...formData, device_type: e.target.value})}
+                  className="w-full bg-black/20 border border-white/10 rounded-2xl px-6 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm text-white appearance-none"
+                >
+                  <option value="TV BOX" className="bg-[#15192A]">TV BOX</option>
+                  <option value="SMART TV" className="bg-[#15192A]">SMART TV</option>
+                  <option value="ANDROID TV" className="bg-[#15192A]">ANDROID TV</option>
+                  <option value="ROKU" className="bg-[#15192A]">ROKU</option>
+                  <option value="SAMSUNG" className="bg-[#15192A]">SAMSUNG</option>
+                  <option value="LG" className="bg-[#15192A]">LG</option>
+                  <option value="CELULAR" className="bg-[#15192A]">CELULAR</option>
+                  <option value="OUTROS" className="bg-[#15192A]">OUTROS</option>
+                </select>
+              </div>
             </div>
           </div>
 

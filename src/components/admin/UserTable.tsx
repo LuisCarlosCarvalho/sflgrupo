@@ -18,6 +18,7 @@ export interface User {
   expires_at?: string;
   notification_active?: boolean;
   plan_price?: number;
+  location?: string;
 }
 
 export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User) => void; refreshKey?: number }) {
@@ -108,6 +109,7 @@ export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User)
           <tr>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Email</th>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Nome</th>
+            <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Pontos</th>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Cargo</th>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Status</th>
             <th className="px-6 py-4 text-left text-xs font-black uppercase tracking-widest text-gray-500">Expira em</th>
@@ -115,13 +117,19 @@ export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User)
           </tr>
         </thead>
         <tbody className="divide-y divide-white/5">
-          {loading ? (
-            <tr>
-              <td colSpan={6} className="py-12 text-center">
-                <Loader2 className="animate-spin text-brand-yellow mx-auto" size={32} />
-              </td>
-            </tr>
-          ) : (
+            {loading ? (
+              <tr>
+                <td colSpan={7} className="py-12 text-center">
+                  <Loader2 className="animate-spin text-brand-yellow mx-auto" size={32} />
+                </td>
+              </tr>
+            ) : users.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-12 text-center">
+                  <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">Nenhum usuário encontrado</p>
+                </td>
+              </tr>
+            ) : (
             users.map((u) => {
               const isExpired = u.expires_at ? new Date(u.expires_at) < new Date() : false;
               
@@ -129,6 +137,7 @@ export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User)
                 <tr key={u.id} className="hover:bg-white/[0.02] transition-colors group">
                   <td className="px-6 py-4 font-medium text-gray-300">{u.email}</td>
                   <td className="px-6 py-4 text-gray-400">{u.name || "-"}</td>
+                  <td className="px-6 py-4 font-bold text-gray-300 text-xs italic">{u.connections || 1} PTS</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-tighter ${u.role === 'ADMIN' ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-brand-blue/10 text-brand-blue'}`}>
                       {u.role}
