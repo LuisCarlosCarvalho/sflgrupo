@@ -15,9 +15,9 @@ export default withAuth(
   },
   {
     callbacks: {
-      // Deixa passar pelo "porteiro" inicial, a lógica acima decide se barra ou não
       authorized: () => true,
     },
+    secret: process.env.NEXTAUTH_SECRET,
   }
 );
 
