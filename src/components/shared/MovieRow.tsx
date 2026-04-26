@@ -25,7 +25,7 @@ export default function MovieRow({ title, movies, watchlistIds = new Set() }: Mo
         {title}
       </h2>
 
-      <div className="px-6 md:px-12 !overflow-visible">
+      <div className="px-6 md:px-12 overflow-hidden lg:overflow-visible">
         <Swiper
           modules={[Navigation]}
           navigation
@@ -37,7 +37,7 @@ export default function MovieRow({ title, movies, watchlistIds = new Set() }: Mo
             1024: { slidesPerView: 5.5 },
             1280: { slidesPerView: 7.5 },
           }}
-          className="movie-swiper !overflow-visible"
+          className="movie-swiper"
         >
           {movies.map((movie) => (
             <SwiperSlide key={movie.id} className="!h-auto pb-4 pt-2">

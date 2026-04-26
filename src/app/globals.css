@@ -26,20 +26,20 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  width: 100%;
   max-width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-/* Allow horizontal scroll in specific containers while preventing page overflow */
-body {
-  overflow-x: hidden;
+  overflow-x: hidden !important;
 }
 
 html {
-  overflow-x: hidden;
+  /* overflow-x: clip é mais forte que hidden — não cria contexto de scroll */
+  overflow-x: clip !important;
+}
+
+body {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 * {
@@ -79,4 +79,16 @@ html {
 
 .gradient-overlay {
   background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
+}
+
+/* Força Swiper a não extrapolar o viewport em mobile */
+.movie-swiper {
+  overflow: hidden !important;
+}
+
+/* Apenas nos breakpoints desktop deixa overflow visível (hover scale) */
+@media (min-width: 1024px) {
+  .movie-swiper {
+    overflow: visible !important;
+  }
 }
