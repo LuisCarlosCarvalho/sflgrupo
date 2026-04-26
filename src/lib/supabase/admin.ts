@@ -1,6 +1,6 @@
 // src/lib/supabase/admin.ts
 import { supabase } from "@/lib/supabase/client";
-import { Database } from "@/types/supabase"; // assume you have generated types, else ignore
+// import { Database } from "@/types/supabase"; // assume you have generated types, else ignore
 
 /**
  * Busca todos os planos com informações de usuário.

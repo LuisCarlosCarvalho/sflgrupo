@@ -76,7 +76,7 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
   return (
     <>
       <div 
-        className="relative group min-w-[140px] md:min-w-[180px] w-[140px] md:w-[180px] flex flex-col gap-3 transition-all duration-300 ease-out cursor-pointer"
+        className="relative group w-full flex flex-col gap-3 transition-all duration-300 ease-out cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

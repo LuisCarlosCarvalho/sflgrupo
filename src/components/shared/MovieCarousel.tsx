@@ -77,14 +77,14 @@ export default function MovieCarousel({ title, movies, glowColor = "blue" }: Mov
         <div 
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2 py-4"
+          className="flex gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory px-2 py-4"
         >
           {movies.map((movie) => (
             <motion.div
               key={movie.id}
               whileHover={{ scale: 1.1, zIndex: 50 }}
               className={`
-                relative flex-none w-[180px] md:w-[300px] h-[110px] md:h-[170px] 
+                relative flex-none w-[45vw] sm:w-[30vw] md:w-[25vw] lg:w-[20vw] max-w-[320px] aspect-video
                 rounded-xl overflow-hidden cursor-pointer snap-start
                 border-2 transition-all duration-300 ${glowStyles[glowColor]}
               `}
@@ -94,6 +94,7 @@ export default function MovieCarousel({ title, movies, glowColor = "blue" }: Mov
                 alt={movie.title}
                 className="w-full h-full object-cover"
               />
+
               
               {/* Card Overlay on Hover */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-end">

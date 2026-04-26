@@ -44,11 +44,11 @@ export default function SearchBar({ fullWidth }: SearchBarProps) {
   }, [query]);
 
   return (
-    <div className={`${fullWidth ? 'w-full' : 'relative'}`} ref={searchRef}>
+    <div className={`${fullWidth ? 'w-full' : 'relative w-full max-w-sm'}`} ref={searchRef}>
       <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl transition-all duration-300 border ${
         fullWidth 
           ? "w-full bg-white/5 border-white/10 focus-within:border-brand-green/50 focus-within:bg-white/10" 
-          : (isOpen ? "bg-black/80 border-brand-green w-64 md:w-80 shadow-[0_0_15px_rgba(0,166,81,0.2)]" : "bg-white/5 border-white/10 w-48 md:w-64")
+          : (isOpen ? "bg-black/80 border-brand-green w-full shadow-[0_0_15px_rgba(0,166,81,0.2)]" : "bg-white/5 border-white/10 w-full")
       }`}>
         <SearchIcon className={`w-4 h-4 ${isOpen ? "text-brand-green" : "text-gray-400"}`} />
         <input 
@@ -68,13 +68,13 @@ export default function SearchBar({ fullWidth }: SearchBarProps) {
 
       {/* Results Dropdown */}
       {isOpen && (results.length > 0 || isLoading) && (
-        <div className="absolute top-full right-0 mt-4 w-72 md:w-96 glass-panel rounded-3xl border border-white/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="absolute top-full left-0 right-0 md:left-auto md:w-96 mt-4 glass-panel rounded-3xl border border-white/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-4 duration-300 z-50">
           <div className="p-4 border-b border-white/5 bg-white/5 flex items-center justify-between">
             <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Resultados da Busca</span>
             {isLoading && <Loader2 className="w-3 h-3 text-brand-green animate-spin" />}
           </div>
           
-          <div className="max-h-[400px] overflow-y-auto scrollbar-hide">
+          <div className="max-h-[60vh] md:max-h-[400px] overflow-y-auto no-scrollbar">
             {results.map((item) => (
               <Link 
                 key={item.id}
@@ -106,3 +106,4 @@ export default function SearchBar({ fullWidth }: SearchBarProps) {
     </div>
   );
 }
+

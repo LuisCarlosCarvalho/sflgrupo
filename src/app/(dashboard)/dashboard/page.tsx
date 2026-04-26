@@ -83,7 +83,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       {/* Hero Section */}
       {!isSports && category !== "mylist" && <DashboardHero movies={currentHeroArray as any} />}
 
-      <div className={`relative z-20 space-y-8 ${(!isSports && category !== "mylist") ? "-mt-20" : "pt-32"}`}>
+      <div className={`relative z-20 space-y-8 ${(!isSports && category !== "mylist") ? "-mt-12 md:-mt-20" : "pt-24 md:pt-32"}`}>
         
         {/* Lógica de Renderização Baseada na Categoria */}
         {category === "inicio" && (
@@ -94,28 +94,28 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             {/* Live TV & Sports Highlight Row */}
             <section className="px-6 md:px-12 py-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="group relative h-48 rounded-3xl overflow-hidden border border-white/5 bg-gradient-to-br from-brand-blue/20 to-black hover:border-brand-blue/40 transition-all cursor-pointer">
+                <div className="group relative aspect-video md:h-48 rounded-3xl overflow-hidden border border-white/5 bg-gradient-to-br from-brand-blue/20 to-black hover:border-brand-blue/40 transition-all cursor-pointer">
                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1957')] bg-cover opacity-30 group-hover:scale-110 transition-transform duration-700" />
-                  <div className="relative h-full flex flex-col justify-end p-8">
+                  <div className="relative h-full flex flex-col justify-end p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 rounded-full bg-brand-blue/20 flex items-center justify-center">
                         <Tv className="w-4 h-4 text-brand-blue" />
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-widest text-brand-blue">Ao Vivo agora</span>
                     </div>
-                    <h3 className="text-2xl font-black uppercase italic tracking-tighter">TV AO VIVO</h3>
+                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">TV AO VIVO</h3>
                   </div>
                 </div>
-                <div className="group relative h-48 rounded-3xl overflow-hidden border border-white/5 bg-gradient-to-br from-brand-green/20 to-black hover:border-brand-green/40 transition-all cursor-pointer">
+                <div className="group relative aspect-video md:h-48 rounded-3xl overflow-hidden border border-white/5 bg-gradient-to-br from-brand-green/20 to-black hover:border-brand-green/40 transition-all cursor-pointer">
                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=2070')] bg-cover opacity-30 group-hover:scale-110 transition-transform duration-700" />
-                  <div className="relative h-full flex flex-col justify-end p-8">
+                  <div className="relative h-full flex flex-col justify-end p-6 md:p-8">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 rounded-full bg-brand-green/20 flex items-center justify-center">
                         <Trophy className="w-4 h-4 text-brand-green" />
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-widest text-brand-green">Esportes SFL</span>
                     </div>
-                    <h3 className="text-2xl font-black uppercase italic tracking-tighter">ARENA SPORTS</h3>
+                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">ARENA SPORTS</h3>
                   </div>
                 </div>
               </div>
@@ -126,6 +126,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <MovieRow title="SFL Conteúdo Kids" movies={kidsContent} glowColor="green" watchlistIds={watchlistIds} />
           </>
         )}
+
 
         {category === "series" && (
           <>
@@ -186,8 +187,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </div>
 
       {/* Decorative Glows */}
-      <div className="fixed top-1/2 left-0 w-96 h-96 bg-brand-green/5 blur-[150px] -z-10 rounded-full" />
-      <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-brand-blue/5 blur-[150px] -z-10 rounded-full" />
+      <div className="fixed top-1/2 left-0 w-[30vw] h-[30vw] bg-brand-green/5 blur-[150px] -z-10 rounded-full pointer-events-none" />
+      <div className="fixed bottom-0 right-0 w-[40vw] h-[40vw] bg-brand-blue/5 blur-[150px] -z-10 rounded-full pointer-events-none" />
     </main>
+
   );
 }

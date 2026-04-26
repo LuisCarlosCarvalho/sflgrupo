@@ -39,22 +39,22 @@ export default function Hero() {
             SFL Grupo Original
           </motion.span>
           
-          <h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter uppercase">
-            SFL Stream: <br />
-            <span className="text-brand-yellow">O melhor do entretenimento</span> <br />
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter uppercase">
+            SFL Stream: <br className="hidden sm:block" />
+            <span className="text-brand-yellow">O melhor do entretenimento</span> <br className="hidden sm:block" />
             no seu controle.
           </h1>
           
-          <p className="text-gray-300 text-base md:text-xl mb-10 max-w-xl leading-relaxed">
+          <p className="text-gray-300 text-sm sm:text-base md:text-xl mb-10 max-w-xl leading-relaxed">
             Filmes, canais ao vivo e séries premium em um só lugar. Ativação instantânea via WhatsApp para você não perder nenhum segundo.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="flex flex-col sm:flex-row gap-4 items-center w-full sm:w-auto">
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsModalOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-black px-10 py-5 rounded-2xl transition-all shadow-xl shadow-brand-yellow/20 group"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-black px-6 sm:px-10 py-4 sm:py-5 rounded-2xl transition-all shadow-xl shadow-brand-yellow/20 group"
             >
               <Play className="w-5 h-5 fill-current group-hover:scale-110 transition-transform" />
               ASSINAR AGORA
@@ -63,7 +63,7 @@ export default function Hero() {
             <motion.a 
               href="/dashboard/catalogo"
               whileHover={{ backgroundColor: "rgba(74, 144, 226, 0.1)", borderColor: "#4a90e2" }}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-10 py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md"
             >
               <Info className="w-5 h-5" />
               VER CATÁLOGO
@@ -80,7 +80,8 @@ export default function Hero() {
       />
 
       {/* Decorative Glow */}
-      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-brand-green/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute -bottom-24 -left-24 w-[30vw] h-[30vw] max-w-[400px] max-h-[400px] bg-brand-green/10 blur-[120px] rounded-full pointer-events-none" />
     </section>
+
   );
 }

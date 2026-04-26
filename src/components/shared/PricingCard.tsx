@@ -36,7 +36,7 @@ export default function PricingCard({
 
   return (
     <div
-      className={`relative flex flex-col p-8 rounded-3xl transition-all duration-500 hover:scale-105 border ${
+      className={`relative flex flex-col p-6 sm:p-8 rounded-3xl transition-all duration-500 md:hover:scale-105 border ${
         highlight
           ? "bg-gradient-to-b from-white/10 to-black border-white/20 shadow-2xl"
           : "bg-black/40 border-white/10 backdrop-blur-md"

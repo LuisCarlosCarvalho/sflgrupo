@@ -20,10 +20,13 @@ export default async function AdminPage() {
     redirect("/admin");
 
     // Tenta buscar os usuários usando Supabase
-    const { data: users, error } = await supabase
+    const { data, error } = await supabase
       .from('User')
       .select('*')
       .order('createdAt', { ascending: false });
+
+    const users = data || [];
+
 
     if (error) throw error;
 
