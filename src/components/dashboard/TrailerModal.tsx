@@ -112,7 +112,7 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
               height="100%"
               playing={true}
               controls={true}
-              muted={false}
+              muted={true}
               playsinline={true}
               config={{
                 youtube: {
@@ -120,7 +120,8 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
                     autoplay: 1,
                     modestbranding: 1,
                     rel: 0,
-                    showinfo: 1
+                    showinfo: 1,
+                    mute: 1
                   }
                 }
               }}

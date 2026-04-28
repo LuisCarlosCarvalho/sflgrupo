@@ -19,61 +19,70 @@ export async function scrapeFutebol(): Promise<SportsEvent[]> {
     const $ = cheerio.load(data);
     const events: SportsEvent[] = [];
 
-    // O ESPN possui tabelas de jogos (.Table__TR)
-    $('.Table__TR--sm').each((i, el) => {
-      if (i > 15) return; // limit to some events
-      const teams = $(el).find('.Table__Team').toArray();
-      if (teams.length < 2) return;
-
-      const homeElement = $(teams[0]);
-      const awayElement = $(teams[1]);
-
-      const home = homeElement.text().trim();
-      const away = awayElement.text().trim();
+    let currentDate = new Date().toISOString().split('T')[0];
+    
+    $('.Table__Title, .Table__TR--sm').each((_, el) => {
+      const $el = $(el);
       
-      let homeLogo, awayLogo;
-      const homeLink = homeElement.find('a').attr('href');
-      const awayLink = awayElement.find('a').attr('href');
-      
-      if (homeLink) {
-        const match = homeLink.match(/\/id\/(\d+)\//);
-        if (match) homeLogo = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/${match[1]}.png`;
-      }
-      if (awayLink) {
-        const match = awayLink.match(/\/id\/(\d+)\//);
-        if (match) awayLogo = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/${match[1]}.png`;
-      }
-
-      let time = $(el).find('.date__col').text().trim() || '20:00'; // Fallback
-      
-      if (!home || !away) return;
-
-      // Extract typical time 16:00
-      const timeMatch = time.match(/\d{2}:\d{2}/);
-      if (timeMatch) {
-          time = timeMatch[0];
-      } else {
-          return; // Pula se for jogo já finalizado (ex: 2 - 1)
+      // Se for um header de data
+      if ($el.hasClass('Table__Title')) {
+        const dateText = $el.text().trim(); // Ex: "segunda-feira, 28 de abril"
+        // Tentar extrair dia e mês
+        const matchDate = dateText.match(/(\d{1,2}) de (\w+)/);
+        if (matchDate) {
+          const day = parseInt(matchDate[1]);
+          const monthStr = matchDate[2].toLowerCase();
+          const months: Record<string, number> = {
+            'janeiro': 0, 'fevereiro': 1, 'março': 2, 'abril': 3, 'maio': 4, 'junho': 5,
+            'julho': 6, 'agosto': 7, 'setembro': 8, 'outubro': 9, 'novembro': 10, 'dezembro': 11
+          };
+          const month = months[monthStr] ?? new Date().getMonth();
+          const d = new Date();
+          d.setMonth(month);
+          d.setDate(day);
+          currentDate = d.toISOString().split('T')[0];
+        }
+        return;
       }
 
-      // Date from the closest header (usually previous sibling with date)
-      // Since it's a bit complex in ESPN, let's just use "hoje" + offset
-      const d = new Date();
-      d.setDate(d.getDate() + Math.floor(i / 5)); // just a spread for upcoming
+      // Se for uma linha de jogo
+      if ($el.hasClass('Table__TR--sm')) {
+        const teams = $el.find('.Table__Team').toArray();
+        if (teams.length < 2) return;
 
-      const date = d.toISOString().split('T')[0];
+        const home = $(teams[0]).text().trim();
+        const away = $(teams[1]).text().trim();
+        
+        let homeLogo, awayLogo;
+        const homeLink = $(teams[0]).find('a').attr('href');
+        const awayLink = $(teams[1]).find('a').attr('href');
+        
+        if (homeLink) {
+          const m = homeLink.match(/\/id\/(\d+)\//);
+          if (m) homeLogo = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/${m[1]}.png`;
+        }
+        if (awayLink) {
+          const m = awayLink.match(/\/id\/(\d+)\//);
+          if (m) awayLogo = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/soccer/500/${m[1]}.png`;
+        }
 
-      events.push({
-        sport: 'futebol',
-        league: 'Brasileirão Série A',
-        home,
-        away,
-        homeLogo,
-        awayLogo,
-        date,
-        time,
-        broadcast: ['Premiere', 'Globo', 'SporTV'],
-      });
+        const timeText = $el.find('.date__col').text().trim();
+        const timeMatch = timeText.match(/\d{2}:\d{2}/);
+        
+        if (!timeMatch || !home || !away) return; // Pula se não tiver horário (jogo já rolou ou cancelado)
+
+        events.push({
+          sport: 'futebol',
+          league: 'Brasileirão Série A',
+          home,
+          away,
+          homeLogo,
+          awayLogo,
+          date: currentDate,
+          time: timeMatch[0],
+          broadcast: ['Premiere', 'Globo', 'SporTV'],
+        });
+      }
     });
 
     return events;
