@@ -19,30 +19,55 @@ const ReactPlayer = dynamic(() => import("./ReactPlayerWrapper"), {
   )
 });
 
+import { getMovieVideos } from "@/lib/tmdb";
+
 interface TrailerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  videoKey: string;
+  videoKey?: string;
   title: string;
   movieId?: string;
+  type?: "movie" | "tv";
 }
 
-export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId }: TrailerModalProps) {
+export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKey, title, movieId, type = "movie" }: TrailerModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [videoKey, setVideoKey] = useState(initialVideoKey || "");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      // Se não temos a key, buscamos agora
+      if (!initialVideoKey && movieId) {
+        const fetchVideo = async () => {
+          setIsLoading(true);
+          try {
+            const videos = await getMovieVideos(movieId, type);
+            if (videos && videos.length > 0) {
+              setVideoKey(videos[0].key);
+            }
+          } catch (err) {
+            console.error("Erro ao buscar trailer no modal:", err);
+          } finally {
+            setIsLoading(false);
+          }
+        };
+        fetchVideo();
+      } else {
+        setVideoKey(initialVideoKey || "");
+      }
     } else {
       document.body.style.overflow = "unset";
     }
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isOpen]);
+  }, [isOpen, initialVideoKey, movieId, type]);
 
-  if (!mounted || !isOpen || !videoKey) return null;
+  if (!mounted || !isOpen) return null;
+  if (!videoKey && !isLoading) return null; // Só fecha se não estiver carregando
 
   const modalContent = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 md:p-8">
@@ -73,25 +98,36 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId
 
         {/* Video Player Container */}
         <div className="w-full relative bg-black aspect-video flex items-center justify-center">
-          <ReactPlayer 
-            url={`https://www.youtube.com/watch?v=${videoKey}`}
-            width="100%"
-            height="100%"
-            playing={true}
-            controls={true}
-            muted={false}
-            playsinline={true}
-            config={{
-              youtube: {
-                playerVars: { 
-                  autoplay: 1,
-                  modestbranding: 1,
-                  rel: 0,
-                  showinfo: 1
+          {isLoading ? (
+            <div className="flex flex-col items-center gap-4 text-gray-500">
+              <div className="w-12 h-12 border-4 border-brand-yellow/30 border-t-brand-yellow rounded-full animate-spin" />
+              <p className="text-[10px] font-black uppercase tracking-widest">Buscando Trailer...</p>
+            </div>
+          ) : videoKey ? (
+            <ReactPlayer 
+              url={`https://www.youtube.com/embed/${videoKey}`}
+              width="100%"
+              height="100%"
+              playing={true}
+              controls={true}
+              muted={false}
+              playsinline={true}
+              config={{
+                youtube: {
+                  playerVars: { 
+                    autoplay: 1,
+                    modestbranding: 1,
+                    rel: 0,
+                    showinfo: 1
+                  }
                 }
-              }
-            }}
-          />
+              }}
+            />
+          ) : (
+            <div className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
+              Trailer indisponível
+            </div>
+          )}
         </div>
 
         {/* Footer Decoration */}

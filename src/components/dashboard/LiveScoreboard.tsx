@@ -65,6 +65,10 @@ export default function LiveScoreboard() {
 
   useEffect(() => {
     fetchScores();
+    
+    // Auto-refresh a cada 5 minutos
+    const interval = setInterval(fetchScores, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleToggleWatchlist = async (match: SportsEvent, matchId: string) => {
@@ -99,8 +103,17 @@ export default function LiveScoreboard() {
     }
   };
 
-  // Filtro de Categorias
+  // Filtro de Categorias e Horário
   const filteredEvents = events.filter(e => {
+    // 1. Filtro de Tempo (Ocultar eventos passados - tolerância de 2h)
+    const now = new Date();
+    // match.date é YYYY-MM-DD, match.time é HH:MM
+    const eventDate = new Date(`${e.date}T${e.time}:00`);
+    const twoHoursAfter = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000);
+    
+    if (now > twoHoursAfter) return false;
+
+    // 2. Filtro de Categoria
     if (selectedCategory === "All") return true;
     const cat = selectedCategory.toLowerCase();
     const sport = e.sport.toLowerCase();

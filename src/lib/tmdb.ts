@@ -1,4 +1,4 @@
-const TMDB_API_KEY = "bef325d5616036e502edb3cdc104e7fd";
+const TMDB_API_KEY = process.env.TMDB_API_KEY || "bef325d5616036e502edb3cdc104e7fd";
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
@@ -18,7 +18,7 @@ const formatData = (item: any, type?: string) => ({
 async function fetchTMDB(endpoint: string, params: string = "", type?: string) {
   try {
     const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&language=pt-BR${params}`;
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { next: { revalidate: 60 } });
     const data = await res.json();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return data.results ? data.results.map((item: any) => formatData(item, type)) : [];
@@ -44,7 +44,7 @@ export const getHeroMovie = async () => {
 export const getMovieDetails = async (id: string, type: "movie" | "tv" = "movie") => {
   try {
     const url = `${BASE_URL}/${type}/${id}?api_key=${TMDB_API_KEY}&language=pt-BR`;
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { next: { revalidate: 60 } });
     const data = await res.json();
     return data ? formatData(data) : null;
   } catch (error) {
@@ -55,7 +55,7 @@ export const getMovieDetails = async (id: string, type: "movie" | "tv" = "movie"
 
 export const searchMulti = async (query: string) => {
   try {
-    const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(query)}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&language=pt-BR&query=${encodeURIComponent(query)}`, { next: { revalidate: 60 } });
     const data = await res.json();
     return data.results ? data.results.map(formatData) : [];
   } catch (error) {
@@ -66,7 +66,7 @@ export const searchMulti = async (query: string) => {
 
 export const getMovieVideos = async (id: string, type: "movie" | "tv" = "movie") => {
   try {
-    const res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 60 } });
     const data = await res.json();
     // Prioritiza trailers do YouTube
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
