@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), {
+const ReactPlayer = dynamic(() => import("../dashboard/ReactPlayerWrapper"), {
   ssr: false,
 });
 import { Play, Pause, ArrowLeft, Maximize, Volume2, RotateCcw } from "lucide-react";
@@ -15,7 +15,7 @@ interface VideoPlayerProps {
 }
 
 export default function VideoPlayer({ url, title }: VideoPlayerProps) {
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const [played, setPlayed] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const router = useRouter();

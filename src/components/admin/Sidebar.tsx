@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Users, CreditCard, Bell, Film, HelpCircle, LogOut, X } from "lucide-react";
+import { Home, Users, CreditCard, Bell, Film, HelpCircle, LogOut, X, Tv, Menu, Trophy } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 interface SidebarProps {
@@ -48,27 +48,34 @@ export default function Sidebar({ onClose }: SidebarProps) {
           </li>
         ))}
 
-        <div className="pt-8 pb-4">
+        <li className="pt-8 pb-4">
           <p className="text-[9px] font-black text-gray-600 uppercase tracking-[0.3em] px-5 mb-4">Streaming</p>
-          {[
-            { name: "Início", href: "/dashboard" },
-            { name: "Séries", href: "/dashboard?category=series" },
-            { name: "Filmes", href: "/dashboard?category=movies" },
-            { name: "Bombando", href: "/dashboard?category=trending" },
-            { name: "Minha Lista", href: "/dashboard?category=mylist" },
-            { name: "Sport's", href: "/dashboard?category=sports", color: "text-brand-yellow" },
-          ].map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                onClick={onClose}
-                className={`flex items-center gap-4 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] text-gray-500 hover:text-white hover:bg-white/5 transition-all ${link.color || ''}`}
-              >
-                <span>{link.name}</span>
-              </Link>
-            </li>
-          ))}
-        </div>
+          <ul className="space-y-2">
+            {[
+              { name: "Início", href: "/dashboard", category: "inicio", icon: <Home className="w-4 h-4" /> },
+              { name: "Séries", href: "/dashboard?category=series", category: "series", icon: <Tv className="w-4 h-4" /> },
+              { name: "Filmes", href: "/dashboard?category=movies", category: "movies", icon: <Film className="w-4 h-4" /> },
+              { name: "Bombando", href: "/dashboard?category=trending", category: "trending", icon: <Bell className="w-4 h-4" /> },
+              { name: "Minha Lista", href: "/dashboard?category=mylist", category: "mylist", icon: <Menu className="w-4 h-4" /> },
+              { name: "Sport's", href: "/dashboard?category=sports", category: "sports", icon: <Trophy className="w-4 h-4" />, color: "text-brand-yellow" },
+            ].map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => {
+                    if (onClose) onClose();
+                  }}
+                  className={`flex items-center gap-4 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] text-gray-500 hover:text-white hover:bg-white/5 transition-all group ${link.color || ''}`}
+                >
+                  <div className="opacity-50 group-hover:opacity-100 transition-opacity">
+                    {link.icon}
+                  </div>
+                  <span>{link.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </li>
       </ul>
 
       <button 

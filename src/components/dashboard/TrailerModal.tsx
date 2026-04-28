@@ -4,10 +4,19 @@ import { X, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+
+
+
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), {
+const ReactPlayer = dynamic(() => import("./ReactPlayerWrapper"), {
   ssr: false,
+  loading: () => (
+    <div className="flex flex-col items-center gap-4 text-gray-500">
+      <div className="w-12 h-12 border-4 border-brand-yellow/30 border-t-brand-yellow rounded-full animate-spin" />
+      <p className="text-[10px] font-black uppercase tracking-widest">Carregando Player...</p>
+    </div>
+  )
 });
 
 interface TrailerModalProps {
@@ -70,6 +79,18 @@ export default function TrailerModal({ isOpen, onClose, videoKey, title, movieId
             height="100%"
             playing={true}
             controls={true}
+            muted={false}
+            playsinline={true}
+            config={{
+              youtube: {
+                playerVars: { 
+                  autoplay: 1,
+                  modestbranding: 1,
+                  rel: 0,
+                  showinfo: 1
+                }
+              }
+            }}
           />
         </div>
 
