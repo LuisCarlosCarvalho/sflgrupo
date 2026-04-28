@@ -64,20 +64,25 @@ export const searchMulti = async (query: string) => {
   }
 };
 
-export const getMovieVideos = async (id: string, type: "movie" | "tv" = "movie") => {
+export const getMovieVideos = async (id: string, type: string = "movie") => {
   try {
-    let res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 60 } });
+    const normalizedType = type === "series" || type === "tv" ? "tv" : "movie";
+    
+    let res = await fetch(`${BASE_URL}/${normalizedType}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 60 } });
     let data = await res.json();
     
-    // Filtra YouTube
+    // Filtra YouTube (Trailer, Teaser, Clip, Featurette)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let videos = data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
+    const filterVideos = (results: any[]) => 
+      results?.filter((v: any) => v.site === "YouTube" && ["Trailer", "Teaser", "Clip", "Featurette"].includes(v.type)) || [];
+
+    let videos = filterVideos(data.results);
 
     // Fallback para en-US se não achar nada em pt-BR
     if (videos.length === 0) {
-      res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=en-US`, { next: { revalidate: 60 } });
+      res = await fetch(`${BASE_URL}/${normalizedType}/${id}/videos?api_key=${TMDB_API_KEY}&language=en-US`, { next: { revalidate: 60 } });
       data = await res.json();
-      videos = data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
+      videos = filterVideos(data.results);
     }
 
     return videos;
