@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import ReactPlayer from "react-player";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), {
+  ssr: false,
+});
 import { Play, Pause, ArrowLeft, Maximize, Volume2, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 

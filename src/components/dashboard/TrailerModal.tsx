@@ -6,7 +6,9 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false }) as any;
+const ReactPlayer = dynamic(() => import("react-player"), {
+  ssr: false,
+});
 
 interface TrailerModalProps {
   isOpen: boolean;

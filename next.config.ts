@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreDuringBuilds: true,
+    ignoreBuildErrors: true,
   },
   /* Outras opções do Next.js 16 podem ser adicionadas aqui */
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import { ShoppingBag, Clock, Plus, Loader2, Eye } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
@@ -27,7 +27,7 @@ export default function MyOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<SupportRequest | null>(null);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
 
-  async function fetchRequests() {
+  const fetchRequests = useCallback(async () => {
     if (!session?.user?.id) return;
     setLoading(true);
     const { data, error } = await supabase
@@ -39,11 +39,11 @@ export default function MyOrdersPage() {
     if (error) console.error("Erro ao buscar pedidos:", error);
     else setRequests(data || []);
     setLoading(false);
-  }
+  }, [session?.user?.id]);
 
   useEffect(() => {
     fetchRequests();
-  }, [session]);
+  }, [fetchRequests]);
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR');
 
@@ -191,7 +191,7 @@ export default function MyOrdersPage() {
                     </div>
                     
                     <div className="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
-                      <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">"{req.description}"</p>
+                      <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">&quot;{req.description}&quot;</p>
                     </div>
 
                     {(req.status === 'RESPONDED' || req.status === 'FINISHED' || req.admin_response) ? (
