@@ -14,17 +14,25 @@ const stats = [
   { label: "Suporte", href: "/admin/support", icon: HelpCircle, color: "text-brand-yellow", bg: "bg-brand-yellow/10" },
 ];
 
+import RefreshSportsButton from "@/components/admin/RefreshSportsButton";
+
 export default function AdminDashboard() {
   return (
     <div className="space-y-12">
-      <header className="relative">
-        <div className="absolute -left-20 -top-20 w-64 h-64 bg-brand-yellow/10 blur-[120px] rounded-full -z-10" />
-        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">
-          Painel <span className="text-brand-yellow">Administrativo</span>
-        </h1>
-        <p className="text-gray-500 mt-4 text-lg font-medium max-w-2xl">
-          Bem-vindo ao centro de comando SFL STREAM. Gerencie usuários, finanças e suporte em um só lugar.
-        </p>
+      <header className="relative flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="relative">
+          <div className="absolute -left-20 -top-20 w-64 h-64 bg-brand-yellow/10 blur-[120px] rounded-full -z-10" />
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">
+            Painel <span className="text-brand-yellow">Administrativo</span>
+          </h1>
+          <p className="text-gray-500 mt-4 text-lg font-medium max-w-2xl">
+            Bem-vindo ao centro de comando SFL STREAM. Gerencie usuários, finanças e suporte em um só lugar.
+          </p>
+        </div>
+
+        <div className="flex-shrink-0">
+          <RefreshSportsButton />
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
