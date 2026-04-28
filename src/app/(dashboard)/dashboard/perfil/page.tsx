@@ -1,11 +1,12 @@
-// src/app/(dashboard)/dashboard/perfil/page.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
+import { getAvailableApps } from "@/app/actions/apps";
 import UserProfile from "@/components/dashboard/UserProfile";
 
 export default async function PerfilPage() {
   const session = await getServerSession(authOptions);
+  const apps = await getAvailableApps();
 
   if (!session) return null;
 
@@ -18,6 +19,7 @@ export default async function PerfilPage() {
   return (
     <div className="container mx-auto px-6 md:px-12 py-10">
       <UserProfile 
+        apps={apps}
         user={{
           name: user?.name || session.user.name || "Usuário",
           email: user?.email || session.user.email || "",

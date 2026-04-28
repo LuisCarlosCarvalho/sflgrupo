@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Users, CreditCard, Bell, Film, HelpCircle, LogOut, X, Tv, Menu, Trophy } from "lucide-react";
+import { Home, Users, CreditCard, Bell, Film, HelpCircle, LogOut, X, Tv, Menu, Trophy, Download } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 interface SidebarProps {
@@ -9,6 +9,7 @@ interface SidebarProps {
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
   { href: "/admin/users", label: "Usuários", icon: <Users className="w-5 h-5" /> },
+  { href: "/admin/apps", label: "Aplicativos", icon: <Download className="w-5 h-5" /> },
   { href: "/admin/finance", label: "Finanças", icon: <CreditCard className="w-5 h-5" /> },
   { href: "/admin/alerts", label: "Alertas", icon: <Bell className="w-5 h-5" /> },
   { href: "/admin/content", label: "Conteúdo", icon: <Film className="w-5 h-5" /> },
