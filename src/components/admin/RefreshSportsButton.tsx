@@ -23,7 +23,7 @@ export default function RefreshSportsButton() {
       } else {
         setStatus({ type: 'error', message: "Falha ao atualizar. Tente novamente." });
       }
-    } catch (error) {
+    } catch (_error) {
       setStatus({ type: 'error', message: "Erro de conexão." });
     } finally {
       setIsLoading(false);
