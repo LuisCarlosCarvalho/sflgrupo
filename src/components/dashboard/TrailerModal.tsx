@@ -105,7 +105,8 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
             </div>
           ) : videoKey ? (
             <ReactPlayer 
-              url={`https://www.youtube.com/embed/${videoKey}`}
+              key={videoKey}
+              url={`https://www.youtube.com/watch?v=${videoKey}`}
               width="100%"
               height="100%"
               playing={true}

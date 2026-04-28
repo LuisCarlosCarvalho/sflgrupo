@@ -66,13 +66,23 @@ export const searchMulti = async (query: string) => {
 
 export const getMovieVideos = async (id: string, type: "movie" | "tv" = "movie") => {
   try {
-    const res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 60 } });
-    const data = await res.json();
-    // Prioritiza trailers do YouTube
+    let res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=pt-BR`, { next: { revalidate: 60 } });
+    let data = await res.json();
+    
+    // Filtra YouTube
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
+    let videos = data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
+
+    // Fallback para en-US se não achar nada em pt-BR
+    if (videos.length === 0) {
+      res = await fetch(`${BASE_URL}/${type}/${id}/videos?api_key=${TMDB_API_KEY}&language=en-US`, { next: { revalidate: 60 } });
+      data = await res.json();
+      videos = data.results?.filter((v: any) => v.site === "YouTube" && (v.type === "Trailer" || v.type === "Teaser")) || [];
+    }
+
+    return videos;
   } catch (error) {
-    console.error("TMDB Videos Error:", error);
+    console.error('TMDB Videos Error:', error);
     return [];
   }
 };

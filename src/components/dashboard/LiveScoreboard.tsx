@@ -50,7 +50,7 @@ export default function LiveScoreboard() {
   const fetchScores = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/games/upcoming');
+      const response = await fetch(`/api/games/upcoming?t=${Date.now()}`);
       const data = await response.json();
       setEvents(data || []);
       
