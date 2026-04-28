@@ -105,26 +105,16 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
               <p className="text-[10px] font-black uppercase tracking-widest">Buscando Trailer...</p>
             </div>
           ) : videoKey ? (
-            <ReactPlayer 
+            <iframe
               key={videoKey}
-              url={`https://www.youtube.com/watch?v=${videoKey}`}
               width="100%"
               height="100%"
-              playing={true}
-              controls={true}
-              muted={true}
-              playsinline={true}
-              config={{
-                youtube: {
-                  playerVars: { 
-                    autoplay: 1,
-                    modestbranding: 1,
-                    rel: 0,
-                    showinfo: 1,
-                    mute: 1
-                  }
-                }
-              }}
+              src={`https://www.youtube.com/embed/${videoKey}?autoplay=1&mute=1&modestbranding=1&rel=0&showinfo=0`}
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="w-full h-full"
             />
           ) : (
             <div className="flex flex-col items-center gap-4 text-gray-500">
