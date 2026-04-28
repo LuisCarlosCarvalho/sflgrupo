@@ -29,10 +29,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   // 2. Verificações de Acesso
   
-  // Se for ADMIN, redirecionar para o painel admin
-  if (userData?.role === "ADMIN") {
+  // Se for ADMIN, permitir acesso ao dashboard para testes
+  /* if (userData?.role === "ADMIN") {
     redirect("/admin");
-  }
+  } */
 
   const isExpired = planData?.expires_at ? new Date(planData.expires_at) < new Date() : false;
   const isBlocked = userData?.isActive === false;
