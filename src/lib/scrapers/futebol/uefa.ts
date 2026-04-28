@@ -45,7 +45,7 @@ export async function scrapeUEFA(): Promise<SportsEvent[]> {
       if (timeMatch) {
           time = timeMatch[0];
       } else {
-          time = '16:00'; 
+          return; // Pula se for jogo já finalizado
       }
 
       const d = new Date();

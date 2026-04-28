@@ -8,7 +8,7 @@ import { scrapeNFL } from '@/lib/scrapers/american-football/nfl';
 import { scrapeUEFA } from '@/lib/scrapers/futebol/uefa';
 import { SportsEvent } from '@/lib/scrapers/types';
 
-export const revalidate = 3600; // Cache de 1 hora
+export const revalidate = 60; // Cache de 1 minuto
 
 export async function GET() {
   try {

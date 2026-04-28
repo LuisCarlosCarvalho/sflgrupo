@@ -45,7 +45,7 @@ export async function scrapeNBA(): Promise<SportsEvent[]> {
       if (timeMatch) {
           time = timeMatch[0];
       } else {
-          time = '20:30'; 
+          return; // Pula se for jogo já finalizado
       }
 
       // Calculando datas próximas

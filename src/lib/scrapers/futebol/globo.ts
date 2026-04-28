@@ -53,7 +53,7 @@ export async function scrapeFutebol(): Promise<SportsEvent[]> {
       if (timeMatch) {
           time = timeMatch[0];
       } else {
-          time = '16:00'; // Default se não achar
+          return; // Pula se for jogo já finalizado (ex: 2 - 1)
       }
 
       // Date from the closest header (usually previous sibling with date)

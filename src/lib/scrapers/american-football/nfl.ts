@@ -45,7 +45,7 @@ export async function scrapeNFL(): Promise<SportsEvent[]> {
       if (timeMatch) {
           time = timeMatch[0];
       } else {
-          time = '17:25'; 
+          return; // Pula se for jogo já finalizado
       }
 
       // NFL events usually happen weekly
