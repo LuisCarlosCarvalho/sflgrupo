@@ -19,6 +19,8 @@ import LiveScoreboard from "@/components/dashboard/LiveScoreboard";
 import { getWatchlist } from "@/app/actions/watchlist";
 import { Tv, Trophy, Play } from "lucide-react";
 import { MOVIES } from "@/lib/movies";
+import RecentUploads from "@/components/dashboard/RecentUploads";
+import NewsSection from "@/components/dashboard/NewsSection";
 
 export const dynamic = "force-dynamic";
 
@@ -88,39 +90,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         {/* Lógica de Renderização Baseada na Categoria */}
         {category === "inicio" && (
           <>
+            <RecentUploads watchlistIds={watchlistIds} />
             <MovieRow title="SFL Filmes em Destaque" movies={trendingMovies} glowColor="green" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Séries Populares" movies={trendingSeries} glowColor="blue" watchlistIds={watchlistIds} />
             
-            {/* Live TV & Sports Highlight Row */}
-            <section className="px-6 md:px-12 py-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="group relative aspect-video md:h-48 rounded-3xl overflow-hidden border border-white/5 bg-gradient-to-br from-brand-blue/20 to-black hover:border-brand-blue/40 transition-all cursor-pointer">
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1593305841991-05c297ba4575?q=80&w=1957')] bg-cover opacity-30 group-hover:scale-110 transition-transform duration-700" />
-                  <div className="relative h-full flex flex-col justify-end p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-brand-blue/20 flex items-center justify-center">
-                        <Tv className="w-4 h-4 text-brand-blue" />
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-blue">Ao Vivo agora</span>
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">TV AO VIVO</h3>
-                  </div>
-                </div>
-                <div className="group relative aspect-video md:h-48 rounded-3xl overflow-hidden border border-white/5 bg-gradient-to-br from-brand-green/20 to-black hover:border-brand-green/40 transition-all cursor-pointer">
-                  <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=2070')] bg-cover opacity-30 group-hover:scale-110 transition-transform duration-700" />
-                  <div className="relative h-full flex flex-col justify-end p-6 md:p-8">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-8 h-8 rounded-full bg-brand-green/20 flex items-center justify-center">
-                        <Trophy className="w-4 h-4 text-brand-green" />
-                      </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-brand-green">Esportes SFL</span>
-                    </div>
-                    <h3 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter">ARENA SPORTS</h3>
-                  </div>
-                </div>
-              </div>
-            </section>
-
             <MovieRow title="SFL Animes" movies={animes} glowColor="yellow" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Documentários" movies={documentaries} glowColor="blue" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Conteúdo Kids" movies={kidsContent} glowColor="green" watchlistIds={watchlistIds} />
@@ -168,12 +141,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <div className="px-4 md:px-12 mb-8 mt-6 md:mt-0">
               <h1 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter text-brand-yellow">Bombando</h1>
             </div>
+            <RecentUploads watchlistIds={watchlistIds} />
             <MovieRow title="SFL Top 10 Filmes Hoje" movies={trendingMovies.slice(0, 10)} glowColor="yellow" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Top 10 Séries Hoje" movies={trendingSeries.slice(0, 10)} glowColor="blue" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Top 10 Animes Hoje" movies={animes.slice(0, 10)} glowColor="green" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Top 10 Documentários Hoje" movies={documentaries.slice(0, 10)} glowColor="yellow" watchlistIds={watchlistIds} />
             <MovieRow title="SFL Top 10 Kids Hoje" movies={kidsContent.slice(0, 10)} glowColor="blue" watchlistIds={watchlistIds} />
           </>
+        )}
+
+        {category === "news" && (
+           <div className="pt-6">
+             <NewsSection />
+           </div>
         )}
 
         {category === "mylist" && (

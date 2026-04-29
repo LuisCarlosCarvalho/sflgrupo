@@ -11,7 +11,7 @@ interface OrderResponseModalProps {
     id: string;
     service_type: string;
     description: string;
-    admin_response: string;
+    admin_response?: string | null;
     status: string;
   } | null;
   onSuccess: () => void;

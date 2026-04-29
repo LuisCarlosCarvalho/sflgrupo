@@ -14,6 +14,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
+    currency: "BRL",
     category: "OTHER",
     description: "",
   });
@@ -30,6 +31,7 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
         type: 'EXPENSE',
         category: formData.category,
         amount: Number(formData.amount),
+        currency: formData.currency,
         description: formData.description,
       });
 
@@ -61,17 +63,31 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-1">
-              <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Valor (R$)</label>
-              <div className="relative">
-                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
-                <input 
-                  type="number" step="0.01" required
-                  value={formData.amount}
-                  onChange={e => setFormData({...formData, amount: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-red-500 transition-all text-sm"
-                  placeholder="0.00"
-                />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="md:col-span-1 space-y-1">
+                <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Moeda</label>
+                <select 
+                  value={formData.currency}
+                  onChange={e => setFormData({...formData, currency: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-4 py-3 md:py-3.5 focus:outline-none focus:border-red-500 transition-all text-sm appearance-none"
+                >
+                  <option value="BRL" className="bg-[#15192A]">BRL (R$)</option>
+                  <option value="EUR" className="bg-[#15192A]">EUR (€)</option>
+                </select>
+              </div>
+
+              <div className="md:col-span-2 space-y-1">
+                <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Valor</label>
+                <div className="relative">
+                  <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+                  <input 
+                    type="number" step="0.01" required
+                    value={formData.amount}
+                    onChange={e => setFormData({...formData, amount: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-red-500 transition-all text-sm"
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
             </div>
 

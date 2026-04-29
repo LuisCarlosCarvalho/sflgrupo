@@ -11,3 +11,14 @@ export interface SportsEvent {
   awayLogo?: string;
 }
 
+export interface NewsArticle {
+  id: string;
+  title: string;
+  summary: string;
+  image: string;
+  date: string;
+  category: string;
+  source: string;
+  url: string;
+}
+

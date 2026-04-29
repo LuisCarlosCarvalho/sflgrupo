@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  epg-api:
+    build: .
+    container_name: sfl-epg-api
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./cache_data.json:/app/cache_data.json
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    restart: always

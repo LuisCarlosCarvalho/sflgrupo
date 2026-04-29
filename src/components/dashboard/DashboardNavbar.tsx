@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trophy, Tv, Home, Users, HelpCircle, Film } from "lucide-react";
+import { Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trophy, Tv, Home, Users, HelpCircle, Film, Newspaper } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import SearchBar from "./SearchBar";
@@ -18,7 +18,7 @@ export default function DashboardNavbar() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentCategory = searchParams.get("category") || "inicio";
+  const currentCategory = pathname.startsWith("/tv") ? "tv" : (searchParams.get("category") || "inicio");
   const { data: session } = useSession();
 
   useEffect(() => {
@@ -104,13 +104,14 @@ export default function DashboardNavbar() {
     router.push(link);
     setIsNotificationsOpen(false);
   };
-
   const navLinks = [
     { name: "Início", href: "/dashboard", category: "inicio" },
+    { name: "GUIA TV", href: "/tv", category: "tv", icon: <Tv className="w-3 h-3 text-brand-green" /> },
     { name: "Séries", href: "/dashboard?category=series", category: "series" },
     { name: "Filmes", href: "/dashboard?category=movies", category: "movies" },
     { name: "Bombando", href: "/dashboard?category=trending", category: "trending" },
     { name: "Minha Lista", href: "/dashboard?category=mylist", category: "mylist" },
+    { name: "Notícias", href: "/dashboard?category=news", category: "news", icon: <Newspaper className="w-3 h-3 text-brand-yellow" /> },
     { name: "Sport's", href: "/dashboard?category=sports", category: "sports", icon: <Trophy className="w-3 h-3 text-brand-yellow" /> },
   ];
 
@@ -362,6 +363,7 @@ export default function DashboardNavbar() {
                   { name: "Filmes", href: "/dashboard?category=movies", category: "movies", icon: <Film size={16} /> },
                   { name: "Bombando", href: "/dashboard?category=trending", category: "trending", icon: <Bell size={16} /> },
                   { name: "Minha Lista", href: "/dashboard?category=mylist", category: "mylist", icon: <Menu size={16} /> },
+                  { name: "Notícias", href: "/dashboard?category=news", category: "news", icon: <Newspaper size={16} className="text-brand-yellow" /> },
                   { name: "Sport's", href: "/dashboard?category=sports", category: "sports", icon: <Trophy size={16} className="text-brand-yellow" /> },
                 ].map((link, idx) => (
                   <Link
@@ -399,6 +401,7 @@ export default function DashboardNavbar() {
                   { name: "Filmes", href: "/dashboard?category=movies", category: "movies", icon: <Film size={16} /> },
                   { name: "Bombando", href: "/dashboard?category=trending", category: "trending", icon: <Bell size={16} /> },
                   { name: "Minha Lista", href: "/dashboard?category=mylist", category: "mylist", icon: <Menu size={16} /> },
+                  { name: "Notícias", href: "/dashboard?category=news", category: "news", icon: <Newspaper size={16} className="text-brand-yellow" /> },
                   { name: "Sport's", href: "/dashboard?category=sports", category: "sports", icon: <Trophy size={16} className="text-brand-yellow" /> },
                 ].map((link, idx) => (
                   <Link
