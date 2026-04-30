@@ -123,10 +123,10 @@ export default function EPGGrid({ categories }: EPGGridProps) {
                   className="flex-shrink-0 border-r border-white/5 flex items-center px-6 relative h-full"
                   style={{ width: 60 * PIXELS_PER_MINUTE }}
                 >
-                  <span className="text-[12px] font-medium text-gray-200">
+                  <span className="text-[12px] font-medium text-gray-200 tracking-normal">
                     {hour.toString().padStart(2, "0")}:00hs
                   </span>
-                  <span className="text-[10px] font-normal text-gray-600 absolute left-1/2 -translate-x-1/2">
+                  <span className="text-[10px] font-normal text-gray-600 absolute left-1/2 -translate-x-1/2 tracking-normal">
                      {hour.toString().padStart(2, "0")}:30hs
                   </span>
                 </div>
@@ -169,38 +169,38 @@ export default function EPGGrid({ categories }: EPGGridProps) {
                           <motion.div
                             whileHover={{ backgroundColor: "rgba(255,255,255,0.03)", zIndex: 10 }}
                             key={pIdx}
-                            className={`absolute top-0 bottom-0 border-r border-white/10 p-4 overflow-hidden flex flex-col justify-center transition-all cursor-pointer group/item ${
-                              isLive ? 'bg-brand-green/[0.12] border-l-2 border-l-brand-green' : 'bg-[#0A0A0A]'
+                            className={`absolute top-0 bottom-0 border-r border-white/5 p-3 overflow-hidden flex flex-col justify-center transition-all cursor-pointer group/item select-none min-w-[50px] ${
+                              isLive ? 'bg-brand-green/[0.12] border-l-2 border-l-brand-green' : 'bg-[#121212]'
                             }`}
                             style={{ 
                               left: startMin * PIXELS_PER_MINUTE, 
                               width: width
                             }}
                           >
-                            {/* Título com Truncate Rigoroso */}
-                            <h4 className={`text-[13px] font-medium tracking-tight truncate leading-tight w-full mb-1 ${
+                            {/* Título com Truncate Rigoroso e Alinhamento à Width */}
+                            <span className={`block w-full truncate text-[13px] font-semibold leading-tight mb-1 tracking-normal ${
                               isLive ? 'text-brand-green' : 'text-white'
                             }`}>
                               {program.title}
-                            </h4>
+                            </span>
                             
-                            {/* Horário com Opacidade para não brigar com o título */}
+                            {/* Horário e Porcentagem: Isolada para não encostar no título */}
                             {showTimes && (
-                              <div className="flex items-center gap-2 mt-1">
-                                 <p className="text-[10px] font-normal text-gray-400 whitespace-nowrap">
+                              <div className="flex items-center gap-2 mt-1 opacity-60">
+                                 <span className="text-[10px] text-white whitespace-nowrap tracking-normal">
                                    {program.start} — {program.end}
-                                 </p>
+                                 </span>
                                  {isLive && showDetails && (
-                                   <span className="text-[9px] font-medium text-white/20 uppercase tracking-tighter">
-                                     {elapsed}m / {duration}m
+                                   <span className="text-[9px] text-zinc-500 font-mono">
+                                     {Math.round((elapsed / duration) * 100)}%
                                    </span>
                                  )}
                               </div>
                             )}
 
-                            {/* Barra de Progresso (Isolada) */}
+                            {/* Progress Bar: Fixada no fundo */}
                             {isLive && (
-                               <div className="absolute bottom-0 left-0 h-[2px] bg-brand-green/30 w-full overflow-hidden">
+                               <div className="absolute bottom-0 left-0 w-full h-[2px] bg-white/5">
                                  <motion.div 
                                    initial={{ width: 0 }}
                                    animate={{ width: `${Math.min(100, (elapsed / duration) * 100)}%` }}

@@ -98,6 +98,18 @@ export async function getLiveTVHome() {
           };
         });
 
+        // Filtrar programas duplicados ou com horários idênticos
+        const uniquePrograms: any[] = [];
+        const seen = new Set();
+        programs.forEach((p: any) => {
+          const key = `${p.start}-${p.end}-${p.title}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniquePrograms.push(p);
+          }
+        });
+        programs = uniquePrograms;
+
         nowPlaying = programs.find((p: any) => p.isLive) || programs[0];
       } else {
         const start = `${now.getHours()}:00`;
