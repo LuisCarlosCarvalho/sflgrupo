@@ -56,10 +56,10 @@ export default function TVPage() {
     <main className="min-h-screen bg-[#050505] text-white selection:bg-brand-green selection:text-black">
       <DashboardNavbar />
       
-      <div className="pt-24 md:pt-28 px-4 md:px-8 pb-10 max-w-[1920px] mx-auto">
+      <div className="pt-20 md:pt-28 px-2 md:px-8 pb-10 max-w-[1920px] mx-auto">
         
         {/* Top Bar (Busca e Refresh) */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between mb-6 md:mb-8 gap-4">
            <div className="flex items-center gap-4">
               <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
                  <Calendar size={14} className="text-brand-green" />
@@ -69,23 +69,23 @@ export default function TVPage() {
               </div>
            </div>
 
-           <div className="flex items-center gap-4">
-              <div className="relative group">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-brand-green transition-colors" size={18} />
+           <div className="flex items-center gap-3">
+              <div className="relative group flex-1">
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-600 group-focus-within:text-brand-green transition-colors" size={16} />
                  <input 
                    type="text" 
-                   placeholder="Pesquisar canais..."
+                   placeholder="Buscar..."
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
-                   className="pl-12 pr-6 py-3 bg-black border border-white/5 rounded-2xl text-[11px] font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-all w-64 md:w-80"
+                   className="pl-11 pr-4 py-2.5 bg-black border border-white/5 rounded-xl text-[10px] font-medium uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-all w-full md:w-80"
                  />
               </div>
               <button 
                 onClick={loadData}
                 disabled={isRefreshing}
-                className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all group"
+                className="p-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all group"
               >
-                <RefreshCw size={18} className={`${isRefreshing ? 'animate-spin' : ''} text-gray-400 group-hover:text-brand-green`} />
+                <RefreshCw size={16} className={`${isRefreshing ? 'animate-spin' : ''} text-gray-400 group-hover:text-brand-green`} />
               </button>
            </div>
         </div>
@@ -113,7 +113,7 @@ export default function TVPage() {
 
         {/* Guia Container */}
         <div className="space-y-6">
-           <div className="bg-[#0A0A0A] p-2 rounded-[2.5rem] border border-white/5 shadow-2xl">
+           <div className="bg-[#0A0A0A] p-1 md:p-2 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden">
               <EPGGrid categories={categories
                 .filter(cat => activeCategory === "Todos" || cat.name === activeCategory)
                 .map(cat => ({

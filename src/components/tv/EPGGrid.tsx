@@ -77,7 +77,7 @@ export default function EPGGrid({ categories }: EPGGridProps) {
   }, []);
 
   return (
-    <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-[2rem] overflow-hidden flex flex-col shadow-[0_40px_120px_rgba(0,0,0,0.9)] select-none">
+    <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden flex flex-col shadow-[0_40px_120px_rgba(0,0,0,0.9)] select-none h-[600px] md:h-auto">
       
       {/* Container Principal com Scroll Horizontal */}
       <div 
@@ -87,9 +87,9 @@ export default function EPGGrid({ categories }: EPGGridProps) {
         <div className="flex min-w-max relative">
           
           {/* Coluna de Canais (Sticky Left) */}
-          <div className="sticky left-0 w-[140px] flex-shrink-0 bg-[#0F0F0F] border-r border-white/10 z-50 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
-            <div className="h-[50px] bg-black border-b border-white/10 flex items-center justify-center">
-               <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Canais</span>
+          <div className="sticky left-0 w-[90px] md:w-[140px] flex-shrink-0 bg-[#0F0F0F] border-r border-white/10 z-50 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+            <div className="h-[40px] md:h-[50px] bg-black border-b border-white/10 flex items-center justify-center">
+               <span className="text-[8px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Canais</span>
             </div>
             {categories.map((category) => (
               <div key={category.name}>
@@ -97,15 +97,15 @@ export default function EPGGrid({ categories }: EPGGridProps) {
                   <span className="text-[8px] font-black text-brand-green uppercase tracking-widest">{category.name}</span>
                 </div>
                 {category.channels.map((channel) => (
-                  <div key={channel.id} className="h-[120px] border-b border-white/5 flex flex-col items-center justify-center p-3 text-center transition-all hover:bg-white/[0.03] bg-[#0F0F0F]">
-                    <div className="w-16 h-16 rounded-full bg-black border border-white/10 p-2 flex items-center justify-center mb-1.5 shadow-2xl overflow-hidden">
+                  <div key={channel.id} className="h-[100px] md:h-[120px] border-b border-white/5 flex flex-col items-center justify-center p-2 md:p-3 text-center transition-all hover:bg-white/[0.03] bg-[#0F0F0F]">
+                    <div className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-black border border-white/10 p-1 md:p-2 flex items-center justify-center mb-1 md:mb-1.5 shadow-2xl overflow-hidden">
                       {channel.logo_url ? (
                         <img src={channel.logo_url} alt={channel.name} className="max-w-full max-h-full object-contain" />
                       ) : (
-                        <Tv className="text-gray-800 w-6 h-6" />
+                        <Tv className="text-gray-800 w-4 h-4 md:w-6 md:h-6" />
                       )}
                     </div>
-                    <span className="text-[10px] font-medium text-gray-300 uppercase tracking-tight truncate w-full px-2">{channel.name}</span>
+                    <span className="text-[7px] md:text-[10px] font-medium text-gray-300 uppercase tracking-tight truncate w-full px-1 md:px-2">{channel.name}</span>
                   </div>
                 ))}
               </div>
@@ -116,17 +116,17 @@ export default function EPGGrid({ categories }: EPGGridProps) {
           <div className="flex-1 relative bg-[#050505]">
             
             {/* Timeline (Top Bar) */}
-            <div className="h-[50px] flex bg-[#0A0A0A] border-b border-white/10 sticky top-0 z-40">
+            <div className="h-[40px] md:h-[50px] flex bg-[#0A0A0A] border-b border-white/10 sticky top-0 z-40">
               {hours.map((hour) => (
                 <div 
                   key={hour} 
-                  className="flex-shrink-0 border-r border-white/5 flex items-center px-6 relative h-full"
+                  className="flex-shrink-0 border-r border-white/5 flex items-center px-4 md:px-6 relative h-full"
                   style={{ width: 60 * PIXELS_PER_MINUTE }}
                 >
-                  <span className="text-[12px] font-medium text-gray-200 tracking-normal">
+                  <span className="text-[10px] md:text-[12px] font-medium text-gray-200 tracking-normal">
                     {hour.toString().padStart(2, "0")}:00hs
                   </span>
-                  <span className="text-[10px] font-normal text-gray-600 absolute left-1/2 -translate-x-1/2 tracking-normal">
+                  <span className="text-[8px] md:text-[10px] font-normal text-gray-600 absolute left-1/2 -translate-x-1/2 tracking-normal">
                      {hour.toString().padStart(2, "0")}:30hs
                   </span>
                 </div>
@@ -149,7 +149,7 @@ export default function EPGGrid({ categories }: EPGGridProps) {
                 <div key={category.name}>
                   <div className="h-[30px] bg-brand-green/[0.03] border-b border-white/5" />
                   {category.channels.map((channel) => (
-                    <div key={channel.id} className="h-[120px] border-b border-white/5 relative group">
+                    <div key={channel.id} className="h-[100px] md:h-[120px] border-b border-white/5 relative group">
                       {channel.programs.map((program, pIdx) => {
                         const startMin = timeToMinutes(program.start);
                         const endMin = timeToMinutes(program.end);
@@ -178,7 +178,7 @@ export default function EPGGrid({ categories }: EPGGridProps) {
                             }}
                           >
                             {/* Título com Truncate Rigoroso e Alinhamento à Width */}
-                            <span className={`block w-full truncate text-[13px] font-semibold leading-tight mb-1 tracking-normal ${
+                            <span className={`block w-full truncate text-[13px] font-medium leading-[1.4] mb-1 tracking-wide pr-2 ${
                               isLive ? 'text-brand-green' : 'text-white'
                             }`}>
                               {program.title}
@@ -220,8 +220,8 @@ export default function EPGGrid({ categories }: EPGGridProps) {
         </div>
       </div>
 
-      {/* Controles de Navegação */}
-      <div className="absolute bottom-10 right-10 flex gap-4 z-[100]">
+      {/* Controles de Navegação (Apenas Desktop) */}
+      <div className="hidden md:flex absolute bottom-10 right-10 gap-4 z-[100]">
         <button 
           onClick={() => scroll('left')}
           className="p-4 bg-black/80 border border-white/10 rounded-full text-white hover:bg-brand-green hover:text-black transition-all shadow-2xl backdrop-blur-xl"

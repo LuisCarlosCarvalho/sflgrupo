@@ -43,6 +43,12 @@ function parseXMLTVTime(timeStr: string) {
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', hour12: false });
 }
 
+function timeToMinutes(timeStr: string) {
+  if (!timeStr) return 0;
+  const [h, m] = timeStr.split(":").map(Number);
+  return h * 60 + m;
+}
+
 export async function getTVChannels() {
   const { data, error } = await supabaseAdmin
     .from('tv_channels')
@@ -59,15 +65,24 @@ export async function getLiveTVHome() {
   try {
     const channels = await getTVChannels();
     
-    // Tentar buscar EPG com Timeout
+    // Tentar buscar EPG com Timeout de 15 segundos
     let epgCanais = [];
     try {
-      const epgResponse = await fetch(EPG_SERVICE_URL, { cache: 'no-store' });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const epgResponse = await fetch(EPG_SERVICE_URL, { 
+        cache: 'no-store',
+        signal: controller.signal 
+      });
+      
+      clearTimeout(timeoutId);
+      
       const json = await epgResponse.json();
       epgCanais = json.canais || [];
       console.log(`[Actions] Sucesso! ${epgCanais.length} canais carregados do XMLTV.`);
-    } catch (e) {
-      console.warn("[Actions] Serviço de EPG Offline. Usando fallback.");
+    } catch (e: any) {
+      console.warn(`[Actions] Erro no EPG Service (${e.message}). Usando fallback.`);
     }
 
     const now = new Date();
@@ -98,17 +113,35 @@ export async function getLiveTVHome() {
           };
         });
 
-        // Filtrar programas duplicados ou com horários idênticos
-        const uniquePrograms: any[] = [];
-        const seen = new Set();
-        programs.forEach((p: any) => {
-          const key = `${p.start}-${p.end}-${p.title}`;
-          if (!seen.has(key)) {
-            seen.add(key);
-            uniquePrograms.push(p);
-          }
+        // 1. Ordenar por horário de início
+        programs.sort((a, b) => {
+          const startA = timeToMinutes(a.start);
+          const startB = timeToMinutes(b.start);
+          return startA - startB;
         });
-        programs = uniquePrograms;
+
+        // 2. Remover duplicatas exatas e sanitizar sobreposições
+        const sanitizedPrograms: any[] = [];
+        for (let i = 0; i < programs.length; i++) {
+          const current = programs[i];
+          const next = programs[i + 1];
+
+          // Se houver um próximo programa que começa ANTES deste terminar, cortamos o fim deste
+          if (next) {
+            const currentEndMin = timeToMinutes(current.end);
+            const nextStartMin = timeToMinutes(next.start);
+
+            if (currentEndMin > nextStartMin) {
+              current.end = next.start; // Ajusta o fim do atual para o início do próximo
+            }
+          }
+
+          // Evitar adicionar programas que ficaram com duração zero após o ajuste
+          if (timeToMinutes(current.start) < timeToMinutes(current.end)) {
+            sanitizedPrograms.push(current);
+          }
+        }
+        programs = sanitizedPrograms;
 
         nowPlaying = programs.find((p: any) => p.isLive) || programs[0];
       } else {
