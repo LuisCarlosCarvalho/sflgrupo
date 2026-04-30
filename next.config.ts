@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+const WebpackObfuscator = require('webpack-obfuscator');
 
 const nextConfig: NextConfig = {
   images: {
@@ -27,7 +28,22 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  /* Outras opções do Next.js 16 podem ser adicionadas aqui */
+  
+  webpack: (config, { dev, isServer }) => {
+    if (!dev && !isServer) {
+      config.plugins.push(
+        new WebpackObfuscator({
+          rotateStringArray: true,
+          stringArray: true,
+          stringArrayThreshold: 0.75,
+          debugProtection: true,
+          debugProtectionInterval: 4000,
+          disableConsoleOutput: true
+        }, [])
+      );
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
