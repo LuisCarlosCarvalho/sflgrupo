@@ -13,11 +13,17 @@ app.use(express.json());
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// Função de limpeza de URL
+// Função ultra-agressiva de limpeza de URL
 function extrairUrl(texto) {
   if (!texto) return null;
+  console.log(`[Debug] Analisando texto da URL: "${texto}"`);
+
+  // Procura por qualquer coisa que comece com http e termine em espaço ou fim da linha
   const match = texto.match(/https?:\/\/[^\s*]+/i);
-  return match ? match[0] : texto.trim();
+  const urlLimpa = match ? match[0] : texto.trim();
+
+  console.log(`[Debug] URL extraída e limpa: "${urlLimpa}"`);
+  return urlLimpa;
 }
 
 async function getEPGUrl() {
