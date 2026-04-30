@@ -9,9 +9,14 @@ import { motion } from "framer-motion";
 
 export default function TVPage() {
   const [categories, setCategories] = useState<any[]>([]);
+  const [activeCategory, setActiveCategory] = useState("Todos");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const staticCategories = [
+    "Todos", "Abertos", "Esportes", "Filmes/Séries", "Infantil", "Documentários", "Notícias", "Música", "Internacionais"
+  ];
 
   async function loadData() {
     setIsRefreshing(true);
@@ -58,7 +63,9 @@ export default function TVPage() {
            <div className="flex items-center gap-4">
               <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl">
                  <Calendar size={14} className="text-brand-green" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Quarta, 29 Abr</span>
+                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+                    {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'short' })}
+                 </span>
               </div>
            </div>
 
@@ -83,20 +90,43 @@ export default function TVPage() {
            </div>
         </div>
 
-        {/* Guia Container (Fidelidade ao Print) */}
-        <div className="space-y-6">
-           <div className="flex items-center gap-4 pl-4">
-              <div className="p-2 rounded-xl bg-brand-green/10 border border-brand-green/30">
-                 <Tv className="text-brand-green" size={24} />
-              </div>
-              <h1 className="text-3xl font-black uppercase tracking-tighter italic text-white flex items-center gap-3">
-                 GUIA <span className="text-gray-200">TV</span>
-                 <span className="text-[10px] font-bold text-brand-green bg-brand-green/10 px-3 py-1 rounded-full tracking-widest not-italic">MI.TV PREMIUM</span>
-              </h1>
-           </div>
+        {/* Category Tabs (Fidelidade ao Print) */}
+        <div className="flex items-center gap-6 mb-8 overflow-x-auto no-scrollbar pb-2 border-b border-white/5">
+           {staticCategories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`text-[11px] font-bold uppercase tracking-[0.2em] whitespace-nowrap transition-all relative pb-4 ${
+                  activeCategory === cat ? 'text-brand-green' : 'text-gray-500 hover:text-white'
+                }`}
+              >
+                {cat}
+                {activeCategory === cat && (
+                  <motion.div 
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-brand-green shadow-[0_0_10px_#00a651]"
+                  />
+                )}
+              </button>
+           ))}
+        </div>
 
+        {/* Guia Container */}
+        <div className="space-y-6">
            <div className="bg-[#0A0A0A] p-2 rounded-[2.5rem] border border-white/5 shadow-2xl">
-              <EPGGrid channels={allChannelsForEPG} />
+              <EPGGrid categories={categories
+                .filter(cat => activeCategory === "Todos" || cat.name === activeCategory)
+                .map(cat => ({
+                  name: cat.name,
+                  channels: cat.channels
+                    .filter((ch: any) => ch.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((ch: any) => ({
+                       id: ch.id,
+                       name: ch.name,
+                       logo_url: ch.logo_url,
+                       programs: ch.programs || []
+                    }))
+              })).filter(cat => cat.channels.length > 0)} />
            </div>
         </div>
 
