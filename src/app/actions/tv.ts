@@ -24,18 +24,15 @@ function getXMLTVDate(timeStr: string) {
   
   // Formata o offset de +HHMM para +HH:MM para o construtor Date
   let offset = "+00:00";
-  if (timeStr.length >= 20) {
-    const rawOffset = timeStr.substring(15, 20);
-    offset = rawOffset.replace(/(\d{2})(\d{2})/, '$1:$2');
-  }
+  const year = parseInt(y, 10);
+  const month = parseInt(mo, 10) - 1;
+  const day = parseInt(d, 10);
+  const hour = parseInt(h, 10);
+  const min = parseInt(mi, 10);
+  const sec = parseInt(s, 10);
 
-  const iso = `${y}-${mo}-${d}T${h}:${mi}:${s}${offset}`;
-  const date = new Date(iso);
-  
-  // Ajuste de fuso horário (epg.pw vem com 8 horas de atraso para o Brasil)
-  date.setHours(date.getHours() - 8);
-  
-  return date;
+  const xmltvDate = new Date(year, month, day, hour, min, sec);
+  return xmltvDate;
 }
 
 function parseXMLTVTime(timeStr: string) {
@@ -114,34 +111,41 @@ export async function getLiveTVHome() {
         });
 
         // 1. Ordenar por horário de início
-        programs.sort((a, b) => {
+        programs.sort((a: any, b: any) => {
           const startA = timeToMinutes(a.start);
           const startB = timeToMinutes(b.start);
           return startA - startB;
         });
 
-        // 2. Remover duplicatas exatas e sanitizar sobreposições
-        const sanitizedPrograms: any[] = [];
-        for (let i = 0; i < programs.length; i++) {
-          const current = programs[i];
-          const next = programs[i + 1];
+  // 2. Remover duplicatas exatas e sanitizar sobreposições
+  const sanitizedPrograms: any[] = [];
+  for (let i = 0; i < programs.length; i++) {
+    const current = programs[i];
+    const next = programs[i + 1];
 
-          // Se houver um próximo programa que começa ANTES deste terminar, cortamos o fim deste
-          if (next) {
-            const currentEndMin = timeToMinutes(current.end);
-            const nextStartMin = timeToMinutes(next.start);
+    const currentStartMin = timeToMinutes(current.start);
+    let currentEndMin = timeToMinutes(current.end);
 
-            if (currentEndMin > nextStartMin) {
-              current.end = next.start; // Ajusta o fim do atual para o início do próximo
-            }
-          }
+    // Ajuste para programas que passam da meia-noite
+    if (currentEndMin < currentStartMin) currentEndMin += 1440;
 
-          // Evitar adicionar programas que ficaram com duração zero após o ajuste
-          if (timeToMinutes(current.start) < timeToMinutes(current.end)) {
-            sanitizedPrograms.push(current);
-          }
-        }
-        programs = sanitizedPrograms;
+    // Se houver um próximo programa que começa ANTES deste terminar, cortamos o fim deste
+    if (next) {
+      const nextStartMin = timeToMinutes(next.start);
+      // Se o próximo programa também passou da meia-noite, precisamos ajustar o cálculo dele também se necessário
+      // mas aqui simplificamos: se o início do próximo é menor que o fim do atual, pode ser sobreposição
+      if (currentEndMin > nextStartMin && nextStartMin >= currentStartMin) {
+        current.end = next.start;
+        currentEndMin = nextStartMin;
+      }
+    }
+
+    // Só adicionamos se tiver duração válida
+    if (currentStartMin !== currentEndMin) {
+      sanitizedPrograms.push(current);
+    }
+  }
+  programs = sanitizedPrograms;
 
         nowPlaying = programs.find((p: any) => p.isLive) || programs[0];
       } else {

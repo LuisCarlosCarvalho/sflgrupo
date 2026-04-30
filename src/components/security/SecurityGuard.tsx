@@ -11,13 +11,13 @@ export const SecurityGuard = ({ children }: { children: React.ReactNode }) => {
     
     // 2. Bloquear Atalhos de Teclado (F12, Ctrl+Shift+I, Ctrl+U, Ctrl+C, Ctrl+S)
     const handleKeyDown = (e: KeyboardEvent) => {
+      const isCtrl = e.ctrlKey || e.metaKey;
+      const isShift = e.shiftKey;
+      
       if (
-        e.keyCode === 123 || // F12
-        (e.ctrlKey && e.shiftKey && e.keyCode === 73) || // Ctrl+Shift+I
-        (e.ctrlKey && e.shiftKey && e.keyCode === 74) || // Ctrl+Shift+J
-        (e.ctrlKey && e.keyCode === 85) || // Ctrl+U (View Source)
-        (e.ctrlKey && e.keyCode === 83) || // Ctrl+S (Save Page)
-        (e.ctrlKey && e.keyCode === 67)    // Ctrl+C (Copy)
+        e.key === 'F12' ||
+        (isCtrl && isShift && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (isCtrl && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'U' || e.key === 'S' || e.key === 'C'))
       ) {
         e.preventDefault();
         return false;

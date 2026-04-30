@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config: any, { dev, isServer }: any) => {
     if (!dev && !isServer) {
       config.plugins.push(
         new WebpackObfuscator({
@@ -44,6 +44,8 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  // Habilitar compatibilidade com Webpack no Next.js 16
+  turbopack: {},
 };
 
 export default nextConfig;
