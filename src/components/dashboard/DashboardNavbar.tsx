@@ -359,6 +359,7 @@ export default function DashboardNavbar() {
                 <p className="text-[9px] font-black text-brand-green uppercase tracking-[0.2em] px-4 mb-4">Área de Streaming</p>
                 {[
                   { name: "Início", href: "/dashboard", category: "inicio", icon: <Home size={16} /> },
+                  { name: "GUIA TV", href: "/tv", category: "tv", icon: <Tv size={16} className="text-brand-green" /> },
                   { name: "Séries", href: "/dashboard?category=series", category: "series", icon: <Tv size={16} /> },
                   { name: "Filmes", href: "/dashboard?category=movies", category: "movies", icon: <Film size={16} /> },
                   { name: "Bombando", href: "/dashboard?category=trending", category: "trending", icon: <Bell size={16} /> },
@@ -397,6 +398,7 @@ export default function DashboardNavbar() {
                 <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] px-4 mb-4">Navegação</p>
                 {[
                   { name: "Início", href: "/dashboard", category: "inicio", icon: <Home size={16} /> },
+                  { name: "GUIA TV", href: "/tv", category: "tv", icon: <Tv size={16} className="text-brand-green" /> },
                   { name: "Séries", href: "/dashboard?category=series", category: "series", icon: <Tv size={16} /> },
                   { name: "Filmes", href: "/dashboard?category=movies", category: "movies", icon: <Film size={16} /> },
                   { name: "Bombando", href: "/dashboard?category=trending", category: "trending", icon: <Bell size={16} /> },
