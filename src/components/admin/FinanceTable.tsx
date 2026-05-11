@@ -27,7 +27,7 @@ export default function FinanceTable() {
     EUR: { income: 0, expense: 0, balance: 0 }
   });
 
-  async function fetchTransactions() {
+  const fetchTransactions = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("transactions")
@@ -37,7 +37,7 @@ export default function FinanceTable() {
     if (error) {
       console.error("Erro ao buscar transações:", error);
     } else {
-      const txs = data as any[];
+      const txs = data as unknown as Transaction[];
       setTransactions(txs);
       
       const newTotals = {
@@ -62,7 +62,7 @@ export default function FinanceTable() {
       setTotals(newTotals);
     }
     setLoading(false);
-  }
+  };
 
   useEffect(() => {
     fetchTransactions();

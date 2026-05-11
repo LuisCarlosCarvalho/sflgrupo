@@ -31,9 +31,10 @@ export default function TrailerForm() {
       setMessage({ type: 'success', text: "Trailer configurado com sucesso!" });
       setMovieId("");
       setManualUrl("");
-    } catch (err: any) {
-      console.error(err);
-      setMessage({ type: 'error', text: err.message || "Erro ao salvar override." });
+    } catch (err) {
+      const error = err as Error;
+      console.error(error);
+      setMessage({ type: 'error', text: error.message || "Erro ao salvar override." });
     } finally {
       setSaving(false);
     }

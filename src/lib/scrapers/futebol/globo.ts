@@ -86,8 +86,8 @@ export async function scrapeFutebol(): Promise<SportsEvent[]> {
     });
 
     return events;
-  } catch (error) {
-    console.error('Futebol Scraper Error:', error);
+  } catch {
+    console.error('Futebol Scraper Error');
     return [];
   }
 }

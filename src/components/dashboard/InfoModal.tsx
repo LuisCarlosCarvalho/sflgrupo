@@ -8,17 +8,25 @@ import { toggleWatchlist } from "@/app/actions/watchlist";
 interface InfoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  movie: any;
+  movie: {
+    id: string | number;
+    title: string;
+    backdropUrl: string;
+    thumbnailUrl?: string;
+    description?: string;
+    genre?: string;
+    duration?: string;
+    rating?: string | number;
+    type?: string;
+  };
   onPlayTrailer?: () => void;
 }
 
 export default function InfoModal({ isOpen, onClose, movie, onPlayTrailer }: InfoModalProps) {
-  const [mounted, setMounted] = useState(false);
   const [isInList, setIsInList] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
@@ -29,21 +37,21 @@ export default function InfoModal({ isOpen, onClose, movie, onPlayTrailer }: Inf
     };
   }, [isOpen]);
 
-  if (!mounted || !isOpen || !movie) return null;
+  if (!isOpen || !movie) return null;
 
   const handleToggleWatchlist = async () => {
     if (isLoading) return;
     setIsLoading(true);
     try {
       const result = await toggleWatchlist({
-        id: movie.id,
+        id: movie.id.toString(),
         title: movie.title,
         posterPath: movie.thumbnailUrl || movie.backdropUrl,
         type: movie.type || "movie",
       });
       setIsInList(result.added);
-    } catch (error) {
-      console.error("Watchlist Error:", error);
+    } catch {
+      console.error("Watchlist Error");
     } finally {
       setIsLoading(false);
     }

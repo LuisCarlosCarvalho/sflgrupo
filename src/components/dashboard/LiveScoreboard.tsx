@@ -47,28 +47,35 @@ export default function LiveScoreboard() {
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchScores = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/games/upcoming?t=${Date.now()}`);
-      const data = await response.json();
-      setEvents(data || []);
-      
-      const watchlistData = await getWatchlist();
-      setWatchlistIds(new Set(watchlistData.map(item => item.mediaId)));
-    } catch (error) {
-      console.error("Erro ao carregar os eventos esportivos:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
+    let isMounted = true;
+    
+    const fetchScores = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/games/upcoming?t=${Date.now()}`);
+        const data = await response.json();
+        if (isMounted) {
+          setEvents(data || []);
+          
+          const watchlistData = await getWatchlist();
+          setWatchlistIds(new Set(watchlistData.map(item => item.mediaId)));
+        }
+      } catch {
+        console.error("Erro ao carregar os eventos esportivos");
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
     fetchScores();
     
     // Auto-refresh a cada 5 minutos
     const interval = setInterval(fetchScores, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const handleToggleWatchlist = async (match: SportsEvent, matchId: string) => {
@@ -96,8 +103,8 @@ export default function LiveScoreboard() {
         else next.delete(matchId);
         return next;
       });
-    } catch (error) {
-      console.error("Erro ao alternar watchlist:", error);
+    } catch {
+      console.error("Erro ao alternar watchlist");
     } finally {
       setActionLoading(null);
     }
@@ -122,8 +129,10 @@ export default function LiveScoreboard() {
     if (cat === "football" && sport === "futebol") return true;
     if (cat === "american football" && sport === "american-football") return true;
     if (cat === "fighting" && sport === "mma") return true;
-    if (cat === "basketball" && sport === "basketball") return true;
+    if (cat === "basketball" && (sport === "basketball" || sport === "basquete")) return true;
     if (cat === "ice hockey" && sport === "ice-hockey") return true;
+    if (cat === "volleyball" && sport === "volei") return true;
+    if (cat === "tennis" && sport === "tênis") return true;
     
     return sport.includes(cat.replace(' ', '-'));
   });

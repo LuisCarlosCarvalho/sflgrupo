@@ -3,19 +3,31 @@ import PricingCard from "./PricingCard";
 import LeadModal from "./LeadModal";
 import { supabase } from "@/lib/supabase/client";
 
+interface PricingPlan {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  features: string[];
+  color_theme: string;
+  is_popular: boolean;
+}
+
 export default function PricingTable() {
-  const [plans, setPlans] = useState<any[]>([]);
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchPlans() {
       const { data } = await supabase.from("pricing_plans").select("*").order("price");
-      if (data) setPlans(data);
-      setLoading(false);
+      if (data && isMounted) setPlans(data as PricingPlan[]);
+      if (isMounted) setLoading(false);
     }
     fetchPlans();
+    return () => { isMounted = false; };
   }, []);
 
   const handleSubscribe = (planName: string) => {
@@ -45,7 +57,7 @@ export default function PricingTable() {
               price={`${plan.currency === 'BRL' ? 'R$' : plan.currency === 'EUR' ? '€' : '$'} ${plan.price}`}
               description={plan.name === 'BASIC' ? 'Para quem quer o essencial.' : plan.name === 'STANDARD' ? 'A melhor experiência HD.' : 'O máximo do entretenimento.'}
               features={plan.features}
-              buttonColor={plan.color_theme as any}
+              buttonColor={plan.color_theme as "blue" | "green" | "yellow"}
               highlight={plan.is_popular}
               onSubscribe={handleSubscribe}
             />

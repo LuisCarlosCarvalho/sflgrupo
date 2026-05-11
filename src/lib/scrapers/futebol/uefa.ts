@@ -67,8 +67,8 @@ export async function scrapeUEFA(): Promise<SportsEvent[]> {
     });
 
     return events;
-  } catch (error) {
-    console.error('UEFA Scraper Error:', error);
+  } catch {
+    console.error('UEFA Scraper Error');
     return [];
   }
 }

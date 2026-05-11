@@ -6,15 +6,20 @@ import { supabase } from "@/lib/supabase/client";
 import { Save, Loader2, Tv, RefreshCcw, ExternalLink, Plus, Trash2 } from "lucide-react";
 
 export default function SiteSettingsPage() {
-  const [plans, setPlans] = useState<any[]>([]);
-  const [features, setFeatures] = useState<any[]>([]);
+  const [plans, setPlans] = useState<{ id: string; [key: string]: unknown }[]>([]);
+  const [features, setFeatures] = useState<{ id: string; [key: string]: unknown }[]>([]);
   const [epgUrl, setEpgUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    let isMounted = true;
+    const load = async () => {
+      if (isMounted) await fetchData();
+    };
+    load();
+    return () => { isMounted = false; };
   }, []);
 
   async function fetchData() {
@@ -29,14 +34,14 @@ export default function SiteSettingsPage() {
     setLoading(false);
   }
 
-  async function updatePlan(id: string, updates: any) {
+  async function updatePlan(id: string, updates: { [key: string]: unknown }) {
     setSaving(true);
     await supabase.from("pricing_plans").update(updates).eq("id", id);
     fetchData();
     setSaving(false);
   }
 
-  async function updateFeature(id: string, updates: any) {
+  async function updateFeature(id: string, updates: { [key: string]: unknown }) {
     setSaving(true);
     await supabase.from("site_features").update(updates).eq("id", id);
     fetchData();
@@ -62,7 +67,8 @@ export default function SiteSettingsPage() {
       const data = await response.json();
       if (data.ok) alert("Grade de TV atualizada com sucesso!");
       else alert("Erro no serviço: " + data.error);
-    } catch (e) {
+    } catch (err) {
+      console.error(err);
       alert("Serviço de EPG está offline ou bloqueado pelo navegador.");
     }
     setRefreshing(false);

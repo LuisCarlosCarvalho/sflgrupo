@@ -1,9 +1,11 @@
 // src/components/dashboard/RecentUploads.tsx
 import { getRecentCatalogUpdates } from "@/app/actions/catalog";
-import { searchMulti } from "@/lib/tmdb";
+import { searchMulti, TMDBItem } from "@/lib/tmdb";
 import MovieRow from "@/components/shared/MovieRow";
 
 export default async function RecentUploads({ watchlistIds }: { watchlistIds: Set<string> }) {
+  let movies: TMDBItem[] = [];
+
   try {
     const titles = await getRecentCatalogUpdates();
     
@@ -14,29 +16,29 @@ export default async function RecentUploads({ watchlistIds }: { watchlistIds: Se
       try {
         const results = await searchMulti(title);
         return results[0]; // Pegar o primeiro resultado mais relevante
-      } catch (err) {
-        console.error(`Erro ao buscar metadados para ${title}:`, err);
+      } catch {
         return null;
       }
     });
 
     const results = await Promise.all(moviePromises);
-    const movies = results.filter((m): m is any => m !== undefined && m !== null);
-
-    if (movies.length === 0) return null;
-
-    return (
-      <section className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
-        <MovieRow 
-          title="Adicionados Recentemente" 
-          movies={movies} 
-          glowColor="yellow" 
-          watchlistIds={watchlistIds} 
-        />
-      </section>
-    );
+    movies = results.filter((m): m is TMDBItem => m !== undefined && m !== null);
   } catch (error) {
-    console.error("Erro no componente RecentUploads:", error);
+    const err = error as Error;
+    console.error("Erro no componente RecentUploads:", err.message);
     return null;
   }
+
+  if (movies.length === 0) return null;
+
+  return (
+    <section className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      <MovieRow 
+        title="Adicionados Recentemente" 
+        movies={movies} 
+        glowColor="yellow" 
+        watchlistIds={watchlistIds} 
+      />
+    </section>
+  );
 }

@@ -33,7 +33,7 @@ export default function LoginPage() {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login Exception:", err);
       setError("Erro ao tentar logar. Verifique sua conexão ou variáveis de ambiente.");
       setIsLoading(false);
@@ -47,7 +47,6 @@ export default function LoginPage() {
         {/* Logo Section */}
         <div className="text-center mb-10">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <img src="https://i.imgur.com/2ex0N3R.png" alt="Logo" className="h-10 w-auto" />
             <span className="text-2xl font-black tracking-tighter uppercase">SFL <span className="text-brand-yellow">STREAM</span></span>
           </Link>
           <h2 className="text-xl font-bold text-gray-300">Acesse sua conta</h2>

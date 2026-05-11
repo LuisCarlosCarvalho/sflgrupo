@@ -90,7 +90,7 @@ export default function AdminReplyModal({ isOpen, onClose, request, onSuccess }:
             <div className="flex items-center gap-2 text-[10px] font-black uppercase text-brand-blue">
               <Ticket size={12} /> {request.service_type}
             </div>
-            <p className="text-sm text-gray-400 italic">"{request.description}"</p>
+            <p className="text-sm text-gray-400 italic">&quot;{request.description}&quot;</p>
           </div>
 
           <div className="space-y-4">

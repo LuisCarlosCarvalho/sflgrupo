@@ -109,7 +109,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
                 className="flex items-center gap-4 px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] text-brand-yellow hover:text-white hover:bg-white/5 transition-all group"
               >
                 <Trophy className="w-4 h-4 opacity-50 group-hover:opacity-100" />
-                <span>Sport's</span>
+                <span>Sport&apos;s</span>
               </Link>
             </li>
           </ul>

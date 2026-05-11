@@ -13,7 +13,7 @@ interface User {
   createdAt: Date;
 }
 
-export default function AdminUserTable({ users }: { users: any[] }) {
+export default function AdminUserTable({ users }: { users: User[] }) {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleToggleActive = async (userId: string, currentStatus: boolean) => {

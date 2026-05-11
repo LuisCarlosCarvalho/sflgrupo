@@ -9,20 +9,14 @@ interface NotificationBannerProps {
 }
 
 export default function NotificationBanner({ expiresAt }: NotificationBannerProps) {
-  const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
+  if (!expiresAt) return null;
 
-  useEffect(() => {
-    if (!expiresAt) return;
-    
-    const now = new Date();
-    const expiry = new Date(expiresAt);
-    const diffTime = expiry.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    setDaysRemaining(diffDays);
-  }, [expiresAt]);
+  const now = new Date();
+  const expiry = new Date(expiresAt);
+  const diffTime = expiry.getTime() - now.getTime();
+  const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  if (daysRemaining === null || daysRemaining > 5 || daysRemaining < 0) {
+  if (daysRemaining > 5 || daysRemaining < 0) {
     return null;
   }
 

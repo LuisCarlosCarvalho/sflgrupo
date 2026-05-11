@@ -10,6 +10,14 @@ if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 }
 
+interface MiTVProgram {
+  title: string;
+  description: string;
+  start: string;
+  end: string;
+  image: string;
+}
+
 export async function fetchMiTVChannel(slug: string) {
   const cacheFile = path.join(CACHE_DIR, `${slug}.json`);
 
@@ -19,7 +27,7 @@ export async function fetchMiTVChannel(slug: string) {
       try {
         const cached = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
         if (cached.programs && cached.programs.length > 0) return cached;
-      } catch (e) {}
+      } catch { /* Ignora erro de cache */ }
     }
   }
 
@@ -38,18 +46,18 @@ export async function fetchMiTVChannel(slug: string) {
     });
 
     const $ = cheerio.load(response.data);
-    const programs: any[] = [];
+    const programs: MiTVProgram[] = [];
     const dateCompact = dateStr.replace(/-/g, '');
 
     // Capturar Logo do Canal se disponível no cabeçalho do async
     const channelLogo = $('.channel-info img').attr('src') || '';
 
-    $('ul.broadcasts li').each((i, el) => {
+    $('ul.broadcasts li').each((_i, el) => {
       const link = $(el).find('a.program-link');
       if (link.length === 0) return;
 
       const time = link.find('span.time').text().trim();
-      let titleNode = link.find('h2').clone();
+      const titleNode = link.find('h2').clone();
       titleNode.find('img').remove();
       const title = titleNode.text().trim();
       
@@ -93,8 +101,9 @@ export async function fetchMiTVChannel(slug: string) {
 
     fs.writeFileSync(cacheFile, JSON.stringify(channelData));
     return channelData;
-  } catch (error: any) {
-    console.error(`[MiTV Scraper] Erro (${slug}):`, error.message);
+  } catch (error) {
+    const err = error as Error;
+    console.error(`[MiTV Scraper] Erro (${slug}):`, err.message);
     return null;
   }
 }

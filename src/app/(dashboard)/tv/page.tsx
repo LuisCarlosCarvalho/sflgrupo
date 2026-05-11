@@ -4,11 +4,28 @@ import { useEffect, useState } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import EPGGrid from "@/components/tv/EPGGrid";
 import { getLiveTVHome } from "@/app/actions/tv";
-import { Search, RefreshCw, Tv, Calendar } from "lucide-react";
+import { Search, RefreshCw, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
 
+interface TVChannel {
+  id: string;
+  name: string;
+  logo_url: string;
+  programs: {
+    title: string;
+    start: string;
+    end: string;
+    description?: string;
+  }[];
+}
+
+interface TVCategory {
+  name: string;
+  channels: TVChannel[];
+}
+
 export default function TVPage() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<TVCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState("Todos");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -27,19 +44,22 @@ export default function TVPage() {
   }
 
   useEffect(() => {
-    loadData();
-    const interval = setInterval(loadData, 300000);
-    return () => clearInterval(interval);
+    let isMounted = true;
+    const initialLoad = async () => {
+      if (isMounted) await loadData();
+    };
+    initialLoad();
+
+    const interval = setInterval(async () => {
+      if (isMounted) await loadData();
+    }, 300000);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
-  const allChannelsForEPG = categories.flatMap(cat => cat.channels)
-    .filter(ch => ch.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .map(ch => ({
-      id: ch.id,
-      name: ch.name,
-      logo_url: ch.logo_url,
-      programs: ch.programs || []
-    }));
 
   if (isLoading) {
     return (
@@ -119,8 +139,8 @@ export default function TVPage() {
                 .map(cat => ({
                   name: cat.name,
                   channels: cat.channels
-                    .filter((ch: any) => ch.name.toLowerCase().includes(searchTerm.toLowerCase()))
-                    .map((ch: any) => ({
+                    .filter((ch: { name: string }) => ch.name.toLowerCase().includes(searchTerm.toLowerCase()))
+                    .map((ch: TVChannel) => ({
                        id: ch.id,
                        name: ch.name,
                        logo_url: ch.logo_url,

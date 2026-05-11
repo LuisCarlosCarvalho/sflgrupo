@@ -54,23 +54,26 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
 
   useEffect(() => {
     if (user) {
-      setFormData({
-        name: user.name || "",
-        username: user.username || "",
-        email: user.email || "",
-        whatsapp: user.whatsapp || "",
-        password: "",
-        planType: user.planType || "PREMIUM",
-        role: user.role || "USER",
-        isActive: user.isActive,
-        expires_at: user.expires_at || new Date().toISOString(),
-        notification_active: user.notification_active || false,
-        plan_price: user.plan_price || 0,
-        connections: user.connections || 1,
-        app_name: user.app_name || "",
-        device_type: user.device_type || "SMART TV",
-        location: user.location || ""
-      });
+      const timer = setTimeout(() => {
+        setFormData({
+          name: user.name || "",
+          username: user.username || "",
+          email: user.email || "",
+          whatsapp: user.whatsapp || "",
+          password: "",
+          planType: user.planType || "PREMIUM",
+          role: user.role || "USER",
+          isActive: user.isActive,
+          expires_at: user.expires_at || new Date().toISOString(),
+          notification_active: user.notification_active || false,
+          plan_price: user.plan_price || 0,
+          connections: user.connections || 1,
+          app_name: user.app_name || "",
+          device_type: user.device_type || "SMART TV",
+          location: user.location || ""
+        });
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [user]);
 
@@ -112,8 +115,9 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
 
       onSuccess();
       onClose();
-    } catch (err: any) {
-      alert("Erro ao atualizar usuário: " + err.message);
+    } catch (err) {
+      const error = err as Error;
+      alert("Erro ao atualizar usuário: " + error.message);
     } finally {
       setLoading(false);
     }

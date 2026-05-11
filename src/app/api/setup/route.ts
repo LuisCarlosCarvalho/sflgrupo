@@ -43,13 +43,14 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       message: "Setup concluído com sucesso!",
-      admin: adminUser.username,
-      test: testUser.username,
+      admin: adminUser?.username || "Admin",
+      test: testUser?.username || "Teste",
     });
-  } catch (error: any) {
-    console.error("Setup Error:", error);
+  } catch (error) {
+    const err = error as Error;
+    console.error("Setup Error:", err);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: err.message },
       { status: 500 }
     );
   }

@@ -12,8 +12,15 @@ import "swiper/css/pagination";
 
 interface MovieRowProps {
   title: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  movies: any[];
+  movies: {
+    id: string | number;
+    title: string;
+    thumbnailUrl: string;
+    duration: string;
+    genre: string;
+    rating: string;
+    type?: string;
+  }[];
   glowColor?: "yellow" | "green" | "blue";
   watchlistIds?: Set<string>;
 }

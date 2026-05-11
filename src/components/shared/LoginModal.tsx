@@ -24,7 +24,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   // Garante que o portal só seja renderizado no cliente
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +49,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         router.push("/dashboard");
         router.refresh();
       }
-    } catch (err) {
+    } catch {
       setError("Ocorreu um erro inesperado. Tente mais tarde.");
       setLoading(false);
     }

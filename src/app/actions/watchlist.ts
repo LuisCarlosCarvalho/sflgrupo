@@ -5,6 +5,16 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
+export interface WatchlistItem {
+  userId: string;
+  mediaId: string;
+  title: string;
+  posterPath: string;
+  type: string;
+  metadata?: string;
+  created_at?: string;
+}
+
 export async function toggleWatchlist(media: {
   id: string;
   title: string;
@@ -69,7 +79,7 @@ export async function getWatchlist() {
     return [];
   }
 
-  return data || [];
+  return (data as WatchlistItem[]) || [];
 }
 
 export async function clearWatchlist() {

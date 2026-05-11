@@ -40,11 +40,11 @@ export async function getEPGData() {
 
     // Mapear Canais
     if (result.tv && result.tv.channel) {
-      result.tv.channel.forEach((ch: any) => {
+      result.tv.channel.forEach((ch: { $: { id: string }, 'display-name'?: Array<{ _: string } | string>, icon?: Array<{ $: { src: string } }> }) => {
         const id = ch.$.id;
         channels[id] = {
           id,
-          name: ch['display-name'] ? ch['display-name'][0]._ || ch['display-name'][0] : id,
+          name: ch['display-name'] ? (typeof ch['display-name'][0] === 'object' ? ch['display-name'][0]._ : ch['display-name'][0]) : id,
           logo: ch.icon ? ch.icon[0].$.src : undefined,
           programs: []
         };
@@ -53,12 +53,12 @@ export async function getEPGData() {
 
     // Mapear Programas
     if (result.tv && result.tv.programme) {
-      result.tv.programme.forEach((p: any) => {
+      result.tv.programme.forEach((p: { $: { channel: string, start: string, stop: string }, title?: Array<{ _: string } | string>, desc?: Array<{ _: string } | string> }) => {
         const channelId = p.$.channel;
         if (channels[channelId]) {
           channels[channelId].programs.push({
-            title: p.title ? p.title[0]._ || p.title[0] : 'Sem título',
-            description: p.desc ? p.desc[0]._ || p.desc[0] : '',
+            title: p.title ? (typeof p.title[0] === 'object' ? p.title[0]._ : p.title[0]) : 'Sem título',
+            description: p.desc ? (typeof p.desc[0] === 'object' ? p.desc[0]._ : p.desc[0]) : '',
             start: p.$.start,
             end: p.$.stop,
             channelId

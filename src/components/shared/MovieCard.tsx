@@ -27,13 +27,11 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
   const [isInList, setIsInList] = useState(initialInList);
   const [isLoading, setIsLoading] = useState(false);
   const [isTrailerModalOpen, setIsTrailerModalOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [trailerKey, setTrailerKey] = useState("");
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsInList(initialInList);
+    const timer = setTimeout(() => setIsInList(initialInList), 0);
+    return () => clearTimeout(timer);
   }, [initialInList]);
 
   const handleToggleWatchlist = async (e: React.MouseEvent) => {
@@ -63,7 +61,8 @@ export default function MovieCard({ movie, initialInList = false }: MovieCardPro
     e.preventDefault();
     e.stopPropagation();
     
-    const videos = await getMovieVideos(movie.id, movie.type as any || "movie");
+    const movieType = (movie.type === "series" || movie.type === "tv") ? "tv" : "movie";
+    const videos = await getMovieVideos(movie.id, movieType);
     const trailer = videos[0];
     
     if (trailer) {

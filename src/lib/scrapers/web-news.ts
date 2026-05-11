@@ -28,17 +28,17 @@ export async function fetchWebNews(): Promise<NewsArticle[]> {
     const espnPromises = espnSports.map(async (sport) => {
       try {
         const res = await axios.get(`http://site.api.espn.com/apis/site/v2/sports/${sport.path}/news?limit=10`);
-        return res.data.articles.map((art: any) => ({
+        return res.data.articles.map((art: { dataSourceIdentifier?: string; headline: string; description?: string; teaser?: string; images?: { url: string }[]; published: string; links?: { web?: { href: string } } }) => ({
           id: `espn-${art.dataSourceIdentifier || Math.random()}`,
           title: art.headline,
-          summary: art.description || art.teaser,
+          summary: art.description || art.teaser || "",
           image: art.images?.[0]?.url || "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=2070",
           date: art.published,
           category: sport.name,
           source: 'ESPN',
           url: art.links?.web?.href || "#"
         }));
-      } catch (err) {
+      } catch {
         return [];
       }
     });
@@ -76,8 +76,8 @@ export async function fetchWebNews(): Promise<NewsArticle[]> {
         });
       }
     });
-  } catch (err) {
-    console.error('Erro GE Scraper:', err);
+  } catch {
+    console.error('Erro GE Scraper');
   }
 
   // 3. A Bola (Campeonato Português e Europa)
@@ -104,8 +104,8 @@ export async function fetchWebNews(): Promise<NewsArticle[]> {
         });
       }
     });
-  } catch (err) {
-    console.error('Erro A Bola Scraper:', err);
+  } catch {
+    console.error('Erro A Bola Scraper');
   }
 
   return articles.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

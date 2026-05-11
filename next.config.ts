@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
-  webpack: (config: any, { dev, isServer }: any) => {
+  webpack: (config: any, { dev, isServer }: { dev: boolean; isServer: boolean }) => {
     if (!dev && !isServer) {
       config.plugins.push(
         new WebpackObfuscator({

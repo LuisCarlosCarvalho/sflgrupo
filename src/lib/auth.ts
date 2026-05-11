@@ -7,7 +7,6 @@ import bcrypt from "bcryptjs";
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
-  useSecureCookies: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -58,7 +57,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.username = user.username;
@@ -69,7 +68,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
         session.user.username = token.username;
@@ -92,16 +91,5 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
-  },
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true
-      }
-    }
   }
-} as any;
+};

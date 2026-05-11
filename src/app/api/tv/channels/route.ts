@@ -5,7 +5,7 @@ export async function GET() {
   try {
     const channels = await getTVChannels();
     return NextResponse.json(channels);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao buscar canais' }, { status: 500 });
   }
 }

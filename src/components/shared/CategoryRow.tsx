@@ -6,7 +6,17 @@ import MovieCard from "./MovieCard";
 
 interface CategoryRowProps {
   title: string;
-  movies: any[];
+  movies: {
+    id: string;
+    title: string;
+    thumbnailUrl: string;
+    duration: string;
+    genre: string;
+    rating: string;
+    type?: string;
+    description?: string;
+    backdropUrl?: string;
+  }[];
 }
 
 export default function CategoryRow({ title, movies }: CategoryRowProps) {

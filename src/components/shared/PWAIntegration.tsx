@@ -2,10 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
 
 export default function PWAIntegration() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Registro do Service Worker
@@ -24,8 +31,9 @@ export default function PWAIntegration() {
 
     // Captura do evento de instalação
     window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
+      const promptEvent = e as BeforeInstallPromptEvent;
+      promptEvent.preventDefault();
+      setDeferredPrompt(promptEvent);
       
       // Mostrar o banner após 5 segundos para não ser invasivo logo de cara
       const timer = setTimeout(() => {
@@ -54,7 +62,7 @@ export default function PWAIntegration() {
     }
   };
 
-  if (!showInstallBanner) return null;
+  if (!showInstallBanner || pathname === '/cta') return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] w-[90%] max-w-[400px] animate-in slide-in-from-bottom-10 duration-500">

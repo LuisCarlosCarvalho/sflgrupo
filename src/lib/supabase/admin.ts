@@ -5,13 +5,23 @@ import { supabase } from "@/lib/supabase/client";
 /**
  * Busca todos os planos com informações de usuário.
  */
-export async function fetchPlans() {
+interface AdminPlan {
+  id: string;
+  user_id: string;
+  plan_name: string;
+  activated_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+  users: { email: string; name: string | null } | null;
+}
+
+export async function fetchPlans(): Promise<AdminPlan[]> {
   const { data, error } = await supabase
     .from("plans")
     .select("id, user_id, plan_name, activated_at, expires_at, created_at, users(email, name)")
     .order("expires_at", { ascending: true });
   if (error) throw error;
-  return data as any[]; // tipo simplificado
+  return data as unknown as AdminPlan[];
 }
 
 /**

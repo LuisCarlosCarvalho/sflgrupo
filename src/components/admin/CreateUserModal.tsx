@@ -91,8 +91,9 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
         device_type: "SMART TV",
         location: ""
       });
-    } catch (err: any) {
-      alert("Erro ao cadastrar usuário: " + err.message);
+    } catch (err) {
+      const error = err as Error;
+      alert("Erro ao cadastrar usuário: " + error.message);
     } finally {
       setLoading(false);
     }

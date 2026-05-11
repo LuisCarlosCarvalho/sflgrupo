@@ -45,7 +45,12 @@ export default function UserTable({ onEdit, refreshKey }: { onEdit: (user: User)
   }
 
   useEffect(() => {
-    fetchUsers();
+    let isMounted = true;
+    const load = async () => {
+      if (isMounted) await fetchUsers();
+    };
+    load();
+    return () => { isMounted = false; };
   }, [refreshKey]);
 
   async function activateAndRenew(userId: string) {

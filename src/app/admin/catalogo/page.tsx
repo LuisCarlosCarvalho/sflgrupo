@@ -16,7 +16,7 @@ export default async function AdminCatalogPage() {
             Importar <span className="text-brand-yellow italic">Catálogo</span>
           </h1>
         </div>
-        <p className="text-[10px] md:text-sm text-gray-500 font-medium uppercase tracking-widest">Atualize a seção "Adicionados Recentemente" do Dashboard.</p>
+        <p className="text-[10px] md:text-sm text-gray-500 font-medium uppercase tracking-widest">Atualize a seção &quot;Adicionados Recentemente&quot; do Dashboard.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

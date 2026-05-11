@@ -9,9 +9,17 @@ interface SearchBarProps {
   fullWidth?: boolean;
 }
 
+interface SearchResult {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  rating: string;
+  duration: string;
+}
+
 export default function SearchBar({ fullWidth }: SearchBarProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -31,7 +39,7 @@ export default function SearchBar({ fullWidth }: SearchBarProps) {
       if (query.length > 2) {
         setIsLoading(true);
         const data = await searchMulti(query);
-        setResults(data.slice(0, 6)); // Top 6 results
+        setResults(data.slice(0, 6) as SearchResult[]); // Top 6 results
         setIsLoading(false);
         setIsOpen(true);
       } else {

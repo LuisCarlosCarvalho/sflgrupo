@@ -5,11 +5,27 @@ import { supabase } from "@/lib/supabase/client";
 import { Loader2, MessageCircle, CheckCircle2, Ticket, Clock, User as UserIcon, MessageSquare, Reply, CheckCircle } from "lucide-react";
 import AdminReplyModal from "@/components/admin/AdminReplyModal";
 
+interface SupportRequest {
+  id: string;
+  service_type: string;
+  status: 'PENDING' | 'RESPONDED' | 'FINISHED';
+  messages: { role: 'user' | 'admin'; text: string; date: string }[];
+  updated_at: string;
+  created_at: string;
+  admin_response?: string;
+  User?: {
+    email: string;
+    name?: string;
+    username?: string;
+    whatsapp?: string;
+  };
+}
+
 export default function AdminSupportPage() {
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<SupportRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [selectedRequest, setSelectedRequest] = useState<SupportRequest | null>(null);
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
 
   const whatsappNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "5511928485483";
@@ -26,7 +42,7 @@ export default function AdminSupportPage() {
     setLoading(false);
   }
 
-  async function completeRequest(id: string, user: any, serviceType: string) {
+  async function completeRequest(id: string) {
     if (!confirm("Deseja finalizar este pedido? O cliente não poderá mais responder.")) return;
     
     setUpdating(id);
@@ -43,13 +59,18 @@ export default function AdminSupportPage() {
     setUpdating(null);
   }
 
-  const handleOpenReply = (req: any) => {
+  const handleOpenReply = (req: SupportRequest) => {
     setSelectedRequest(req);
     setIsReplyModalOpen(true);
   };
 
   useEffect(() => {
-    fetchRequests();
+    let isMounted = true;
+    const load = async () => {
+      if (isMounted) await fetchRequests();
+    };
+    load();
+    return () => { isMounted = false; };
   }, []);
 
   const getStatusStyle = (status: string) => {
@@ -113,7 +134,7 @@ export default function AdminSupportPage() {
                   </div>
                   
                   <div className="space-y-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                    {r.messages?.map((msg: any, i: number) => (
+                    {r.messages?.map((msg: { role: string; text: string; date: string }, i: number) => (
                       <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-start' : 'items-end'} gap-1.5`}>
                         <div className={`text-[9px] font-black uppercase ${msg.role === 'user' ? 'text-brand-blue' : 'text-brand-green'}`}>
                           {msg.role === 'user' ? 'Cliente' : 'Você'} • {new Date(msg.date).toLocaleString('pt-BR')}
@@ -146,7 +167,7 @@ export default function AdminSupportPage() {
                     </button>
                     
                     <button
-                      onClick={() => completeRequest(r.id, r.User, r.service_type)}
+                      onClick={() => completeRequest(r.id)}
                       disabled={updating === r.id}
                       className="w-full bg-white/5 hover:bg-brand-green text-gray-400 hover:text-black font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 uppercase text-[10px] tracking-widest border border-white/5"
                     >

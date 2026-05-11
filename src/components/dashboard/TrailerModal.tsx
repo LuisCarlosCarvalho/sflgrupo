@@ -31,7 +31,11 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       // Se não temos a key, buscamos agora
@@ -45,8 +49,8 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
             } else {
               setVideoKey("");
             }
-          } catch (err) {
-            console.error("Erro ao buscar trailer no modal:", err);
+          } catch {
+            console.error("Erro ao buscar trailer no modal");
             setVideoKey("");
           } finally {
             setIsLoading(false);
@@ -54,8 +58,11 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
         };
         fetchVideo();
       } else {
-        setVideoKey(initialVideoKey || "");
-        setIsLoading(false);
+        const timer = setTimeout(() => {
+          setVideoKey(initialVideoKey || "");
+          setIsLoading(false);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     } else {
       document.body.style.overflow = "unset";
@@ -63,7 +70,7 @@ export default function TrailerModal({ isOpen, onClose, videoKey: initialVideoKe
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, initialVideoKey, movieId, type]);
+  }, [isOpen, initialVideoKey, movieId, type, title]);
 
   if (!mounted || !isOpen) return null;
 

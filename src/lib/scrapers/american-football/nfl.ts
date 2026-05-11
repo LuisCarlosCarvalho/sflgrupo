@@ -68,8 +68,8 @@ export async function scrapeNFL(): Promise<SportsEvent[]> {
     });
 
     return events;
-  } catch (error) {
-    console.error('NFL Scraper Error:', error);
+  } catch {
+    console.error('NFL Scraper Error');
     return [];
   }
 }

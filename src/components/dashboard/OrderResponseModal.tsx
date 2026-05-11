@@ -4,6 +4,12 @@ import { useState } from "react";
 import { X, CheckCircle2, MessageSquare, Loader2, User, ShieldCheck } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
+interface Message {
+  role: 'user' | 'admin';
+  text: string;
+  date: string;
+}
+
 interface OrderResponseModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -13,6 +19,7 @@ interface OrderResponseModalProps {
     description: string;
     admin_response?: string | null;
     status: string;
+    messages?: Message[];
   } | null;
   onSuccess: () => void;
 }
@@ -110,9 +117,8 @@ export default function OrderResponseModal({ isOpen, onClose, order, onSuccess }
 
         <div className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
           
-          {/* Conversa */}
           <div className="space-y-8">
-            {(order as any).messages?.map((msg: any, i: number) => (
+            {order.messages?.map((msg, i) => (
               <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} gap-2`}>
                 <div className={`flex items-center gap-2 text-[10px] font-black uppercase ${msg.role === 'user' ? 'text-gray-500 mr-2' : 'text-brand-green ml-2'}`}>
                   {msg.role === 'user' ? (

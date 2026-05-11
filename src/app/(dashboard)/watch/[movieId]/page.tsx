@@ -18,11 +18,10 @@ export default async function WatchPage({ params }: WatchPageProps) {
 
   if (!session) redirect("/login");
   
-  // @ts-ignore
   if (!session.user?.isActive) redirect("/aguardando-ativacao");
 
   // 1. Tenta buscar na lista estática (Esportes / TV Ao Vivo)
-  let movie = MOVIES.find((m) => m.id === movieId);
+  const movie = MOVIES.find((m) => m.id === movieId);
   let videoUrl = movie?.videoUrl || "";
   let title = movie?.title || "Carregando...";
 

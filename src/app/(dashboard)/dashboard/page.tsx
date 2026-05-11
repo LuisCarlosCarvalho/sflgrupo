@@ -5,7 +5,6 @@ import {
   getTrendingMovies, 
   getTrendingSeries, 
   getKidsContent, 
-  getHeroMovie,
   getPopularMovies,
   getPopularSeries,
   getAnimes,
@@ -17,8 +16,6 @@ import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import MyListGrid from "@/components/dashboard/MyListGrid";
 import LiveScoreboard from "@/components/dashboard/LiveScoreboard";
 import { getWatchlist } from "@/app/actions/watchlist";
-import { Tv, Trophy, Play } from "lucide-react";
-import { MOVIES } from "@/lib/movies";
 import RecentUploads from "@/components/dashboard/RecentUploads";
 import NewsSection from "@/components/dashboard/NewsSection";
 
@@ -37,7 +34,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     redirect("/login");
   }
 
-  // @ts-ignore
   if (session.user?.isActive === false) {
     redirect("/aguardando-ativacao");
   }
@@ -66,7 +62,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     getWatchlist().catch(() => []), // Se o banco falhar, retorna lista vazia e não trava a página
   ]);
 
-  const watchlistIds = new Set((watchlistData || []).map(item => item.mediaId));
+  const watchlistIds = new Set((watchlistData || []).map((item: { mediaId: string }) => item.mediaId));
   const isSports = category === "sports";
 
   // Escolher o Hero dinamicamente baseado na categoria (top 5 para o carrossel)
@@ -83,7 +79,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <DashboardNavbar />
       
       {/* Hero Section */}
-      {!isSports && category !== "mylist" && <DashboardHero movies={currentHeroArray as any} />}
+      {!isSports && category !== "mylist" && <DashboardHero movies={currentHeroArray} />}
 
       <div className={`relative z-20 space-y-8 ${(!isSports && category !== "mylist") ? "-mt-12 md:-mt-20" : "pt-24 md:pt-32"}`}>
         
@@ -127,7 +123,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <div className="px-2 sm:px-4 md:px-12 space-y-8 md:space-y-12 mt-6 md:mt-0">
             <div className="px-2">
               <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-2 md:mb-4">
-                SFL <span className="text-brand-green">SPORT'S</span>
+                SFL <span className="text-brand-green">SPORT&apos;S</span>
               </h1>
               <p className="text-gray-400 text-sm md:text-base max-w-xl font-bold">Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em tempo real.</p>
             </div>

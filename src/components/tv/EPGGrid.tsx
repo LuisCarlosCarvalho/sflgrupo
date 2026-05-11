@@ -87,14 +87,14 @@ export default function EPGGrid({ categories }: EPGGridProps) {
         <div className="flex min-w-max relative">
           
           {/* Coluna de Canais (Sticky Left) */}
-          <div className="sticky left-0 w-[90px] md:w-[140px] flex-shrink-0 bg-[#0F0F0F] border-r border-white/10 z-50 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+          <div className="sticky left-0 w-[100px] md:w-[140px] flex-shrink-0 bg-[#0F0F0F] border-r border-white/10 z-50 shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
             <div className="h-[40px] md:h-[50px] bg-black border-b border-white/10 flex items-center justify-center">
                <span className="text-[8px] md:text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Canais</span>
             </div>
             {categories.map((category) => (
               <div key={category.name}>
                 <div className="h-[30px] bg-brand-green/20 border-b border-white/10 flex items-center px-3 backdrop-blur-md">
-                  <span className="text-[8px] font-black text-brand-green uppercase tracking-widest">{category.name}</span>
+                  <span className="text-[9px] font-black text-brand-green uppercase tracking-[0.2em]">{category.name}</span>
                 </div>
                 {category.channels.map((channel) => (
                   <div key={channel.id} className="h-[100px] md:h-[120px] border-b border-white/5 flex flex-col items-center justify-center p-2 md:p-3 text-center transition-all hover:bg-white/[0.03] bg-[#0F0F0F]">
@@ -105,7 +105,7 @@ export default function EPGGrid({ categories }: EPGGridProps) {
                         <Tv className="text-gray-800 w-4 h-4 md:w-6 md:h-6" />
                       )}
                     </div>
-                    <span className="text-[7px] md:text-[10px] font-medium text-gray-300 uppercase tracking-tight truncate w-full px-1 md:px-2">{channel.name}</span>
+                    <span className="text-[8px] md:text-[10px] font-bold text-gray-300 uppercase tracking-wide truncate w-full px-1 md:px-2">{channel.name}</span>
                   </div>
                 ))}
               </div>

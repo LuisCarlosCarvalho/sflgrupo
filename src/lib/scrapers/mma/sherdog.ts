@@ -23,9 +23,9 @@ export async function scrapeSherdog(): Promise<SportsEvent[]> {
 
       // name format typically: "UFC Fight Night 274 - Sterling vs. Zalal"
       const [leaguePart, fightPart] = name.split(' - ');
-      let league = leaguePart ? leaguePart.trim() : name.trim();
+      const league = leaguePart ? leaguePart.trim() : name.trim();
       let home = name.trim();
-      let away = undefined;
+      let away: string | undefined = undefined;
 
       if (fightPart) {
         const fighters = fightPart.split(' vs. ');
@@ -34,7 +34,6 @@ export async function scrapeSherdog(): Promise<SportsEvent[]> {
           away = fighters[1]?.trim();
         }
       } else {
-         // If no fight part, just keep the event as home
          home = league;
       }
 
@@ -69,8 +68,8 @@ export async function scrapeSherdog(): Promise<SportsEvent[]> {
     });
 
     return events;
-  } catch (error) {
-    console.error('Sherdog Scraper Error:', error);
+  } catch {
+    console.error('Sherdog Scraper Error');
     return [];
   }
 }

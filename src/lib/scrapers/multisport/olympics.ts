@@ -41,8 +41,8 @@ export async function scrapeOlympics(): Promise<SportsEvent[]> {
     });
 
     return events;
-  } catch (error) {
-    console.error('Olympics Scraper Error:', error);
+  } catch {
+    console.error('Olympics Scraper Error');
     return [];
   }
 }

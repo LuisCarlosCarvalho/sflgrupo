@@ -60,22 +60,22 @@ const fallbackNews = [
   }
 ];
 
-export async function fetchSportsNews(): Promise<any[]> {
+export async function fetchSportsNews(): Promise<NewsArticle[]> {
   const [soccerNews, soccerTransfers, nflNews] = await Promise.all([
     fetchFromRapidAPI("sports-information.p.rapidapi.com", "/soccer/news"),
     fetchFromRapidAPI("sports-information.p.rapidapi.com", "/soccer/transfers"),
     fetchFromRapidAPI("nfl-api-data.p.rapidapi.com", "/nfl-team-listing/v1/data") 
   ]);
 
-  const articles: any[] = [];
+  const articles: NewsArticle[] = [];
 
   // Mapear Notícias de Futebol
   if (soccerNews?.articles) {
-    soccerNews.articles.forEach((art: any) => {
+    soccerNews.articles.forEach((art: { id: string | number; title: string; description?: string; teaser?: string; images?: { url: string }[]; published: string; links?: { web?: { href: string } } }) => {
       articles.push({
         id: `soccer-news-${art.id || Math.random()}`,
         title: art.title,
-        summary: art.description || art.teaser,
+        summary: art.description || art.teaser || "",
         image: art.images?.[0]?.url || "https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=2093",
         date: art.published,
         category: "Futebol",
@@ -87,7 +87,7 @@ export async function fetchSportsNews(): Promise<any[]> {
 
   // Mapear Transferências
   if (soccerTransfers?.transfers) {
-    soccerTransfers.transfers.slice(0, 10).forEach((tr: any) => {
+    soccerTransfers.transfers.slice(0, 10).forEach((tr: { id: string | number; player?: { name: string; image: string }; teamTo?: { name: string }; teamFrom?: { name: string }; value?: string }) => {
       articles.push({
         id: `transfer-${tr.id || Math.random()}`,
         title: `${tr.player?.name} vai para ${tr.teamTo?.name}`,
@@ -103,7 +103,7 @@ export async function fetchSportsNews(): Promise<any[]> {
 
   // Mapear NFL
   if (nflNews?.sports?.[0]?.leagues?.[0]?.teams) {
-    nflNews.sports[0].leagues[0].teams.slice(0, 10).forEach((t: any) => {
+    nflNews.sports[0].leagues[0].teams.slice(0, 10).forEach((t: { team: { id: string; displayName: string; logos?: { href: string }[]; links?: { href: string }[] } }) => {
       const team = t.team;
       articles.push({
         id: `nfl-team-${team.id}`,

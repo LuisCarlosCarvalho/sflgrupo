@@ -14,16 +14,22 @@ interface UserProfileProps {
     connections?: number;
     app_name?: string;
     device_type?: string;
-    location?: string;
   };
   plan?: {
     expires_at: string;
     plan_name: string;
   };
-  apps?: any[];
 }
 
-export default function UserProfile({ user, plan, apps = [] }: UserProfileProps) {
+interface DashboardApp {
+  id: string;
+  name: string;
+  platform: string;
+  download_url: string;
+  icon_url?: string;
+}
+
+export default function UserProfile({ user, plan, apps = [] }: UserProfileProps & { apps?: DashboardApp[] }) {
   // Priorizar o vencimento do objeto user (que é o que o admin edita agora)
   const finalExpiryDate = user.expires_at || plan?.expires_at;
 

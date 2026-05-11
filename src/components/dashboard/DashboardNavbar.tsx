@@ -13,7 +13,12 @@ export default function DashboardNavbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<{
+    title: string;
+    text: string;
+    type: string;
+    link: string;
+  }[]>([]);
   
   const pathname = usePathname();
   const router = useRouter();
@@ -33,7 +38,7 @@ export default function DashboardNavbar() {
     async function fetchNotifications() {
       if (!session?.user?.id) return;
       
-      const newNotifications: any[] = [];
+      const newNotifications: { title: string; text: string; type: string; link: string }[] = [];
 
       try {
         // 1. Verificar Vencimento (Para Usuários)
@@ -88,8 +93,8 @@ export default function DashboardNavbar() {
             });
           }
         }
-      } catch (err) {
-        console.error("Erro ao buscar notificações:", err);
+      } catch {
+        console.error("Erro ao buscar notificações");
       }
 
       setNotifications(newNotifications);

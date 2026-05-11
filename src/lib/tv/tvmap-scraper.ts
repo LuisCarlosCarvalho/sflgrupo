@@ -10,7 +10,21 @@ if (!fs.existsSync(CACHE_DIR)) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
 }
 
-export async function fetchTVMapChannel(slug: string) {
+interface TVMapProgram {
+  title: string;
+  description: string;
+  start: string;
+  end: string;
+  image: string;
+}
+
+interface TVMapChannel {
+  id: string;
+  name: string;
+  programs: TVMapProgram[];
+}
+
+export async function fetchTVMapChannel(slug: string): Promise<TVMapChannel | null> {
   const cacheFile = path.join(CACHE_DIR, `${slug}.json`);
 
   if (fs.existsSync(cacheFile)) {
@@ -19,7 +33,7 @@ export async function fetchTVMapChannel(slug: string) {
       try {
         const cached = JSON.parse(fs.readFileSync(cacheFile, 'utf-8'));
         if (cached.programs && cached.programs.length > 0) return cached;
-      } catch (e) {}
+      } catch { /* Ignora erro de cache */ }
     }
   }
 
@@ -37,12 +51,12 @@ export async function fetchTVMapChannel(slug: string) {
     });
 
     const $ = cheerio.load(response.data);
-    const programs: any[] = [];
+    const programs: TVMapProgram[] = [];
     const now = new Date();
     const dateCompact = now.toISOString().split('T')[0].replace(/-/g, '');
 
     // O TVMap usa div.exhibition-card para cada programa na página do canal
-    $('div.exhibition-card').each((i, el) => {
+    $('div.exhibition-card').each((_i, el) => {
       const title = $(el).find('strong.exhibition-title').text().trim();
       const timeStr = $(el).find('span.label-time').text().replace('h', '').trim();
       const description = $(el).find('p.exhibition-description').text().trim();
@@ -78,7 +92,7 @@ export async function fetchTVMapChannel(slug: string) {
       }
     }
 
-    const channelData = {
+    const channelData: TVMapChannel = {
       id: slug,
       name: formattedSlug.replace(/-/g, ' '),
       programs
@@ -86,8 +100,9 @@ export async function fetchTVMapChannel(slug: string) {
 
     fs.writeFileSync(cacheFile, JSON.stringify(channelData));
     return channelData;
-  } catch (error: any) {
-    console.error(`[TVMap Scraper] Erro (${slug}):`, error.message);
+  } catch (error) {
+    const err = error as Error;
+    console.error(`[TVMap Scraper] Erro (${slug}):`, err.message);
     return null;
   }
 }

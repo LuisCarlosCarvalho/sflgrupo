@@ -1,7 +1,7 @@
 "use client";
 
-import ReactPlayer from "react-player";
+import ReactPlayer, { ReactPlayerProps } from "react-player";
 
-export default function ReactPlayerWrapper(props: any) {
+export default function ReactPlayerWrapper(props: ReactPlayerProps) {
   return <ReactPlayer {...props} />;
 }

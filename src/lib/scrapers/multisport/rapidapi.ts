@@ -26,8 +26,8 @@ async function fetchFromRapidAPI(path: string) {
     }
 
     return await response.json();
-  } catch (error) {
-    console.error(`Falha na requisição RapidAPI (${path}):`, error);
+  } catch {
+    console.error(`Falha na requisição RapidAPI (${path})`);
     return null;
   }
 }
@@ -53,16 +53,16 @@ export async function fetchRapidAPISports(): Promise<SportsEvent[]> {
     const leagueData = data.leagues[0];
     const leagueName = league.id === "soccer" ? (leagueData.name || "Global Soccer") : league.name;
 
-    const events: SportsEvent[] = leagueData.events.map((event: any) => {
+    const events: SportsEvent[] = leagueData.events.map((event: { date: string; competitions?: { competitors?: { homeAway: string; team: { displayName: string; name: string; logo?: string } }[]; broadcasts?: { names: string[] }[] }[] }) => {
       const competition = event.competitions?.[0];
-      const homeTeam = competition?.competitors?.find((c: any) => c.homeAway === "home")?.team;
-      const awayTeam = competition?.competitors?.find((c: any) => c.homeAway === "away")?.team;
+      const homeTeam = competition?.competitors?.find(c => c.homeAway === "home")?.team;
+      const awayTeam = competition?.competitors?.find(c => c.homeAway === "away")?.team;
       
       const dateObj = new Date(event.date);
       const dateStr = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
       const timeStr = dateObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-      const broadcasts = competition?.broadcasts?.map((b: any) => b.names?.[0]).filter(Boolean) || [];
+      const broadcasts = competition?.broadcasts?.map(b => b.names?.[0]).filter(Boolean) || [];
 
       // Deduzir país para futebol
       let countryCode = "us";

@@ -6,63 +6,78 @@ import { Play, Share2, MessageCircle } from "lucide-react";
 import { getWatchlist, clearWatchlist } from "@/app/actions/watchlist";
 import { useSession } from "next-auth/react";
 
+interface MovieListItem {
+  id: string;
+  title: string;
+  thumbnailUrl: string;
+  duration: string;
+  genre: string;
+  extra: string;
+  rating: string;
+  type: string;
+}
+
 export default function MyListGrid() {
   const { data: session } = useSession();
-  const [list, setList] = useState<any[]>([]);
+  const [list, setList] = useState<MovieListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadList = async () => {
-    setIsLoading(true);
-    const saved = await getWatchlist();
-    const formatted = saved.map(item => {
-      let grade = "Série";
-      let extra = "";
-      
-      if (item.type === "movie") grade = "Filme";
-      if (item.type === "sports") {
-        grade = "Sport's";
-        try {
-          const meta = JSON.parse(item.metadata || "{}");
-          if (meta.date) {
-            const dateStr = meta.date.split('-').reverse().join('/');
-            extra = `\n• Data: ${dateStr} às ${meta.time || '--:--'}\n• Transmissão: ${meta.broadcast?.join(', ') || 'A definir'}`;
-          }
-        } catch (e) {
-          console.error("Erro ao parsear metadata de sports", e);
-        }
-      }
-      
-      // Lógica para detectar Anime ou Kids com base no metadata (que salva o gênero)
-      const genreLower = (item.metadata || "").toLowerCase();
-      if (item.type !== "sports") {
-        if (genreLower.includes("anime") || item.title.toLowerCase().includes("bleach") || item.title.toLowerCase().includes("naruto")) {
-          grade = "Anime";
-        } else if (genreLower.includes("kids") || genreLower.includes("infantil") || genreLower.includes("animação")) {
-          grade = "Kids";
-        }
-      }
-
-      return {
-        id: item.mediaId,
-        title: item.title,
-        thumbnailUrl: item.posterPath,
-        duration: "HD", 
-        genre: grade,
-        extra: extra, // Campo novo para o WhatsApp
-        rating: "98",
-        type: item.type
-      };
-    });
-    setList(formatted);
-    setIsLoading(false);
-  };
-
   useEffect(() => {
+    let isMounted = true;
+    const loadList = async () => {
+      setIsLoading(true);
+      const saved = await getWatchlist();
+      const formatted: MovieListItem[] = saved.map(item => {
+        let grade = "Série";
+        let extra = "";
+        
+        if (item.type === "movie") grade = "Filme";
+        if (item.type === "sports") {
+          grade = "Sport's";
+          try {
+            const meta = JSON.parse(item.metadata || "{}");
+            if (meta.date) {
+              const dateStr = meta.date.split('-').reverse().join('/');
+              extra = `\n• Data: ${dateStr} às ${meta.time || '--:--'}\n• Transmissão: ${meta.broadcast?.join(', ') || 'A definir'}`;
+            }
+          } catch (e) {
+            console.error("Erro ao parsear metadata de sports", e);
+          }
+        }
+        
+        // Lógica para detectar Anime ou Kids com base no metadata (que salva o gênero)
+        const genreLower = (item.metadata || "").toLowerCase();
+        if (item.type !== "sports") {
+          if (genreLower.includes("anime") || item.title.toLowerCase().includes("bleach") || item.title.toLowerCase().includes("naruto")) {
+            grade = "Anime";
+          } else if (genreLower.includes("kids") || genreLower.includes("infantil") || genreLower.includes("animação")) {
+            grade = "Kids";
+          }
+        }
+
+        return {
+          id: item.mediaId,
+          title: item.title,
+          thumbnailUrl: item.posterPath,
+          duration: "HD", 
+          genre: grade,
+          extra: extra, // Campo novo para o WhatsApp
+          rating: "98",
+          type: item.type
+        };
+      });
+      if (isMounted) {
+        setList(formatted);
+        setIsLoading(false);
+      }
+    };
+
     loadList();
+    return () => { isMounted = false; };
   }, []);
 
   const handleExportWhatsApp = async () => {
-    // @ts-ignore
+    // @ts-expect-error custom session property
     const userWhatsapp = session?.user?.whatsapp;
 
     if (!userWhatsapp) {
@@ -72,7 +87,7 @@ export default function MyListGrid() {
 
     if (list.length === 0) return;
 
-    // @ts-ignore
+    // @ts-expect-error custom session property
     const userName = session?.user?.name || "Cliente";
     const itemsList = list.map((m, index) => {
       let itemText = `${index + 1}. ${m.title} – Grade: ${m.genre}`;

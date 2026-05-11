@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(epgData);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao buscar EPG' }, { status: 500 });
   }
 }

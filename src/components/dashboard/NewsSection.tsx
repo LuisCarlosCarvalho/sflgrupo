@@ -3,24 +3,37 @@
 import { useEffect, useState } from "react";
 import { Calendar, User, ArrowRight, Newspaper, Loader2, Filter } from "lucide-react";
 
+interface NewsArticle {
+  id?: string;
+  title: string;
+  summary: string;
+  image: string;
+  category: string;
+  date: string;
+  source: string;
+  url: string;
+}
+
 export default function NewsSection() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("Todos");
 
   useEffect(() => {
+    let isMounted = true;
     async function loadNews() {
       try {
         const response = await fetch("/api/news");
         const data = await response.json();
-        setArticles(data);
+        if (isMounted) setArticles(data);
       } catch (error) {
         console.error("Erro ao carregar notícias:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted) setIsLoading(false);
       }
     }
     loadNews();
+    return () => { isMounted = false; };
   }, []);
 
   const filteredArticles = filter === "Todos" 
@@ -73,7 +86,7 @@ export default function NewsSection() {
 
       {/* Grid de Notícias */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredArticles.map((article: any, idx: number) => (
+        {filteredArticles.map((article, idx) => (
           <article 
             key={article.id || idx}
             className="group bg-[#0A0A0A] border border-white/5 rounded-[2.5rem] overflow-hidden flex flex-col hover:border-white/20 transition-all hover:shadow-2xl hover:-translate-y-1"

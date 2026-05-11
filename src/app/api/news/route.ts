@@ -7,8 +7,8 @@ export async function GET() {
   try {
     const articles = await fetchWebNews();
     return NextResponse.json(articles);
-  } catch (error) {
-    console.error('API News Error:', error);
+  } catch {
+    console.error('API News Error');
     return NextResponse.json({ error: 'Falha ao buscar notícias' }, { status: 500 });
   }
 }

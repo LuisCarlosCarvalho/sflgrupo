@@ -6,8 +6,18 @@ import { supabase } from "@/lib/supabase/client";
 import AlertCard from "@/components/admin/AlertCard";
 import { Loader2, BellOff } from "lucide-react";
 
+interface Alert {
+  id: string;
+  sent_at: string;
+  User?: {
+    email: string;
+    name?: string;
+  };
+  [key: string]: unknown;
+}
+
 export default function AdminAlertsPage() {
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
 
   async function fetchAlerts() {
@@ -29,7 +39,12 @@ export default function AdminAlertsPage() {
   }
 
   useEffect(() => {
-    fetchAlerts();
+    let isMounted = true;
+    const load = async () => {
+      if (isMounted) await fetchAlerts();
+    };
+    load();
+    return () => { isMounted = false; };
   }, []);
 
   return (
@@ -53,7 +68,7 @@ export default function AdminAlertsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4 max-w-4xl">
-            {alerts.map((alert) => (
+            {alerts.map((alert: Alert) => (
               <AlertCard key={alert.id} alert={alert} onDismiss={dismissAlert} />
             ))}
           </div>

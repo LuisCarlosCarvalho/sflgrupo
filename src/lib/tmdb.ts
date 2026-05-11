@@ -2,8 +2,20 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY || "bef325d5616036e502edb3cdc104e7
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const formatData = (item: any, type?: string) => ({
+interface TMDBItem {
+  id: number | string;
+  title?: string;
+  name?: string;
+  overview?: string;
+  poster_path?: string;
+  backdrop_path?: string;
+  vote_average?: number;
+  release_date?: string;
+  first_air_date?: string;
+  media_type?: string;
+}
+
+const formatData = (item: TMDBItem, type?: string) => ({
   id: item.id.toString(),
   title: item.title || item.name,
   description: item.overview,
@@ -20,8 +32,7 @@ async function fetchTMDB(endpoint: string, params: string = "", type?: string) {
     const url = `${BASE_URL}${endpoint}?api_key=${TMDB_API_KEY}&language=pt-BR${params}`;
     const res = await fetch(url, { next: { revalidate: 60 } });
     const data = await res.json();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return data.results ? data.results.map((item: any) => formatData(item, type)) : [];
+    return data.results ? data.results.map((item: TMDBItem) => formatData(item, type)) : [];
   } catch (error) {
     console.error("TMDB Fetch Error:", error);
     return [];
@@ -72,9 +83,14 @@ export const getMovieVideos = async (id: string, type: string = "movie") => {
     let data = await res.json();
     
     // Filtra YouTube (Trailer, Teaser, Clip, Featurette)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const filterVideos = (results: any[]) => 
-      results?.filter((v: any) => v.site === "YouTube" && ["Trailer", "Teaser", "Clip", "Featurette"].includes(v.type)) || [];
+    interface TMDBVideo {
+      site: string;
+      type: string;
+      key: string;
+    }
+    
+    const filterVideos = (results: TMDBVideo[]) => 
+      results?.filter((v: TMDBVideo) => v.site === "YouTube" && ["Trailer", "Teaser", "Clip", "Featurette"].includes(v.type)) || [];
 
     let videos = filterVideos(data.results);
 

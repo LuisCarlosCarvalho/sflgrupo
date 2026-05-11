@@ -37,7 +37,7 @@ export default async function AdminContentPage() {
             {overrides.length === 0 ? (
               <p className="text-gray-600 font-medium italic">Nenhum override configurado.</p>
             ) : (
-              overrides.map((ov: any) => (
+              overrides.map((ov: { movie_id: string; manual_url: string }) => (
                 <div key={ov.movie_id} className="bg-white/5 border border-white/5 p-4 rounded-2xl flex items-center justify-between group hover:bg-white/[0.08] transition-all">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-brand-blue/10 flex items-center justify-center text-brand-blue">

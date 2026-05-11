@@ -4,27 +4,37 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/shared/Navbar";
 import Hero from "@/components/shared/Hero";
 import PricingTable from "@/components/shared/PricingTable";
-import { Tv, Smartphone, Globe, ShieldCheck, Loader2 } from "lucide-react";
+import { Tv, Smartphone, Globe, ShieldCheck, Loader2, LucideIcon } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 
-const iconMap: any = {
+const iconMap: Record<string, LucideIcon> = {
   Tv: Tv,
   Smartphone: Smartphone,
   Globe: Globe,
   ShieldCheck: ShieldCheck
 };
 
+interface Feature {
+  id: string;
+  icon_name: string;
+  title: string;
+  description: string;
+  color_theme?: string;
+}
+
 export default function LandingPage() {
-  const [features, setFeatures] = useState<any[]>([]);
+  const [features, setFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     async function fetchFeatures() {
       const { data } = await supabase.from("site_features").select("*");
-      if (data) setFeatures(data);
-      setLoading(false);
+      if (isMounted && data) setFeatures(data);
+      if (isMounted) setLoading(false);
     }
     fetchFeatures();
+    return () => { isMounted = false; };
   }, []);
 
   return (
