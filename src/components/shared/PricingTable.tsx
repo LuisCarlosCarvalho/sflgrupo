@@ -18,17 +18,52 @@ export default function PricingTable() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isBR, setIsBR] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
+    
+    // Detect Location
+    async function detectLocation() {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        if (data.country_code === "BR" && isMounted) {
+          setIsBR(true);
+        }
+      } catch (error) {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+        if ((tz.includes("Sao_Paulo") || tz.includes("Bahia") || tz.includes("Belem") || tz.includes("Fortaleza") || tz.includes("Maceio") || tz.includes("Manaus") || tz.includes("Cuiaba") || tz.includes("Porto_Velho") || tz.includes("Boa_Vista") || tz.includes("Campo_Grande") || tz.includes("Rio_Branco")) && isMounted) {
+          setIsBR(true);
+        }
+      }
+    }
+
     async function fetchPlans() {
       const { data } = await supabase.from("pricing_plans").select("*").order("price");
       if (data && isMounted) setPlans(data as PricingPlan[]);
       if (isMounted) setLoading(false);
     }
+    
+    detectLocation();
     fetchPlans();
+    
     return () => { isMounted = false; };
   }, []);
+
+  // Helper para converter o preço do banco (Euro) para Real
+  const getDisplayPrice = (plan: PricingPlan) => {
+    if (!isBR) return { price: plan.price, currency: plan.currency === 'BRL' ? 'R$' : plan.currency === 'EUR' ? '€' : '$' };
+    
+    // Tabela de conversão manual (Euro -> BRL) baseada no CTA
+    let convertedPrice = plan.price;
+    if (plan.price === 9) convertedPrice = 40;
+    else if (plan.price === 48) convertedPrice = 199; // Estimado para semestral
+    else if (plan.price === 30) convertedPrice = 130; // Estimado para SaaS
+    else convertedPrice = Math.round(plan.price * 4.5);
+    
+    return { price: convertedPrice, currency: "R$" };
+  };
 
   const handleSubscribe = (planName: string) => {
     setSelectedPlan(planName);
@@ -50,18 +85,21 @@ export default function PricingTable() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan) => (
-            <PricingCard
-              key={plan.id}
-              name={plan.name}
-              price={`${plan.currency === 'BRL' ? 'R$' : plan.currency === 'EUR' ? '€' : '$'} ${plan.price}`}
-              description={plan.name === 'BASIC' ? 'Para quem quer o essencial.' : plan.name === 'STANDARD' ? 'A melhor experiência HD.' : 'O máximo do entretenimento.'}
-              features={plan.features}
-              buttonColor={plan.color_theme as "blue" | "green" | "yellow"}
-              highlight={plan.is_popular}
-              onSubscribe={handleSubscribe}
-            />
-          ))}
+          {plans.map((plan) => {
+            const display = getDisplayPrice(plan);
+            return (
+              <PricingCard
+                key={plan.id}
+                name={plan.name}
+                price={`${display.currency} ${display.price},00`}
+                description={plan.name === 'BASIC' ? 'Para quem quer o essencial.' : plan.name === 'STANDARD' ? 'A melhor experiência HD.' : 'O máximo do entretenimento.'}
+                features={plan.features}
+                buttonColor={plan.color_theme as "blue" | "green" | "yellow"}
+                highlight={plan.is_popular}
+                onSubscribe={handleSubscribe}
+              />
+            );
+          })}
         </div>
       </div>
 
