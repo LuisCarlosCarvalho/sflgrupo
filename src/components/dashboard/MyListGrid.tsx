@@ -77,7 +77,6 @@ export default function MyListGrid() {
   }, []);
 
   const handleExportWhatsApp = async () => {
-    // @ts-expect-error custom session property
     const userWhatsapp = session?.user?.whatsapp;
 
     if (!userWhatsapp) {
@@ -87,7 +86,6 @@ export default function MyListGrid() {
 
     if (list.length === 0) return;
 
-    // @ts-expect-error custom session property
     const userName = session?.user?.name || "Cliente";
     const itemsList = list.map((m, index) => {
       let itemText = `${index + 1}. ${m.title} – Grade: ${m.genre}`;

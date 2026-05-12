@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabase/client";
 import { Save, Loader2, Tv, RefreshCcw, ExternalLink, Plus, Trash2 } from "lucide-react";
 
 export default function SiteSettingsPage() {
-  const [plans, setPlans] = useState<{ id: string; [key: string]: unknown }[]>([]);
-  const [features, setFeatures] = useState<{ id: string; [key: string]: unknown }[]>([]);
+  const [plans, setPlans] = useState<any[]>([]);
+  const [features, setFeatures] = useState<any[]>([]);
   const [epgUrl, setEpgUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -34,14 +34,14 @@ export default function SiteSettingsPage() {
     setLoading(false);
   }
 
-  async function updatePlan(id: string, updates: { [key: string]: unknown }) {
+  async function updatePlan(id: string, updates: any) {
     setSaving(true);
     await supabase.from("pricing_plans").update(updates).eq("id", id);
     fetchData();
     setSaving(false);
   }
 
-  async function updateFeature(id: string, updates: { [key: string]: unknown }) {
+  async function updateFeature(id: string, updates: any) {
     setSaving(true);
     await supabase.from("site_features").update(updates).eq("id", id);
     fetchData();

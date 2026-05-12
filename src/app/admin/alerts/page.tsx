@@ -9,9 +9,12 @@ import { Loader2, BellOff } from "lucide-react";
 interface Alert {
   id: string;
   sent_at: string;
+  user_id: string;
+  type: string;
+  days_remaining: number;
   User?: {
     email: string;
-    name?: string;
+    name: string | null;
   };
   [key: string]: unknown;
 }

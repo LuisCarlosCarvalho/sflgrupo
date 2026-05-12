@@ -9,6 +9,7 @@ interface SupportRequest {
   id: string;
   service_type: string;
   status: 'PENDING' | 'RESPONDED' | 'FINISHED';
+  description: string;
   messages: { role: 'user' | 'admin'; text: string; date: string }[];
   updated_at: string;
   created_at: string;

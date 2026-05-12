@@ -13,7 +13,7 @@ import "swiper/css/pagination";
 interface MovieRowProps {
   title: string;
   movies: {
-    id: string | number;
+    id: string;
     title: string;
     thumbnailUrl: string;
     duration: string;

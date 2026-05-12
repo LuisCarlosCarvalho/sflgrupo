@@ -29,7 +29,7 @@ export default async function WatchPage({ params }: WatchPageProps) {
   if (!movie) {
     const tmdbMovie = await getMovieDetails(movieId);
     if (tmdbMovie) {
-      title = tmdbMovie.title;
+      title = tmdbMovie.title || "";
       // Para demonstração, usamos um vídeo placeholder se for TMDB
       videoUrl = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"; 
     } else {

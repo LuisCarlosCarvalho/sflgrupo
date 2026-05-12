@@ -10,6 +10,7 @@ interface User {
   email: string | null;
   isActive: boolean;
   planType: string | null;
+  image?: string | null;
   createdAt: Date;
 }
 

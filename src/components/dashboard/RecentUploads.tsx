@@ -4,7 +4,7 @@ import { searchMulti, TMDBItem } from "@/lib/tmdb";
 import MovieRow from "@/components/shared/MovieRow";
 
 export default async function RecentUploads({ watchlistIds }: { watchlistIds: Set<string> }) {
-  let movies: TMDBItem[] = [];
+  let movies: any[] = [];
 
   try {
     const titles = await getRecentCatalogUpdates();
@@ -22,7 +22,7 @@ export default async function RecentUploads({ watchlistIds }: { watchlistIds: Se
     });
 
     const results = await Promise.all(moviePromises);
-    movies = results.filter((m): m is TMDBItem => m !== undefined && m !== null);
+    movies = results.filter(m => m !== undefined && m !== null);
   } catch (error) {
     const err = error as Error;
     console.error("Erro no componente RecentUploads:", err.message);

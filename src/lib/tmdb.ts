@@ -2,7 +2,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY || "bef325d5616036e502edb3cdc104e7
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-interface TMDBItem {
+export interface TMDBItem {
   id: number | string;
   title?: string;
   name?: string;

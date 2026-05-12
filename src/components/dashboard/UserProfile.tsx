@@ -14,6 +14,7 @@ interface UserProfileProps {
     connections?: number;
     app_name?: string;
     device_type?: string;
+    location?: string;
   };
   plan?: {
     expires_at: string;

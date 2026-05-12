@@ -27,27 +27,27 @@ export default function MyOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<SupportRequest | null>(null);
   const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
 
+  const fetchRequests = useCallback(async () => {
+    if (!session?.user?.id) return;
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("support_requests")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .order("updated_at", { ascending: false });
+
+    if (error) console.error("Erro ao buscar pedidos:", error);
+    else setRequests(data || []);
+    setLoading(false);
+  }, [session?.user?.id]);
+
   useEffect(() => {
     let isMounted = true;
-    const loadData = async () => {
-      if (!session?.user?.id) return;
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("support_requests")
-        .select("*")
-        .eq("user_id", session.user.id)
-        .order("updated_at", { ascending: false });
-
-      if (isMounted) {
-        if (error) console.error("Erro ao buscar pedidos:", error);
-        else setRequests(data || []);
-        setLoading(false);
-      }
-    };
-    
-    loadData();
+    fetchRequests().then(() => {
+      // The state updates inside fetchRequests handle loading
+    });
     return () => { isMounted = false; };
-  }, [session?.user?.id]);
+  }, [fetchRequests]);
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR');
 
