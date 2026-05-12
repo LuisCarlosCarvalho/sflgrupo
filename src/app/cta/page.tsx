@@ -8,6 +8,40 @@ import { motion } from "framer-motion";
 
 export default function CTA() {
   const [timeLeft, setTimeLeft] = useState(15 * 60);
+  
+  // Estado Dinâmico de Preços (Euro como padrão / Real para Brasil)
+  const [pricing, setPricing] = useState({
+    original: "15€",
+    promo: "9€",
+    text: "Pagamento mensal."
+  });
+
+  useEffect(() => {
+    async function detectLocation() {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        if (data.country_code === "BR") {
+          setPricing({
+            original: "R$ 50,00",
+            promo: "R$ 40,00",
+            text: "Pagamento via PIX ou Cartão Nacional."
+          });
+        }
+      } catch (error) {
+        // Fallback: se o usuário usar AdBlock ou a API falhar, verificamos pelo fuso horário
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+        if (tz.includes("Sao_Paulo") || tz.includes("Bahia") || tz.includes("Belem") || tz.includes("Fortaleza") || tz.includes("Maceio") || tz.includes("Manaus") || tz.includes("Cuiaba") || tz.includes("Porto_Velho") || tz.includes("Boa_Vista") || tz.includes("Campo_Grande") || tz.includes("Rio_Branco")) {
+          setPricing({
+            original: "R$ 50,00",
+            promo: "R$ 40,00",
+            text: "Pagamento via PIX ou Cartão Nacional."
+          });
+        }
+      }
+    }
+    detectLocation();
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -207,12 +241,12 @@ export default function CTA() {
             </h2>
 
             <div className="mt-8 flex flex-col items-center justify-center">
-              <span className="text-gray-500 text-xl font-bold line-through">De 15€</span>
+              <span className="text-gray-500 text-xl font-bold line-through">De {pricing.original}</span>
               <div className="text-6xl md:text-8xl font-black text-brand-yellow drop-shadow-[0_0_20px_rgba(248,231,28,0.4)] mt-2 italic tracking-tighter flex items-start justify-center gap-2">
                 <span className="text-2xl md:text-3xl mt-2 not-italic font-bold text-white tracking-normal">Por apenas</span>
-                <span>9€</span>
+                <span>{pricing.promo}</span>
               </div>
-              <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-6">Pagamento mensal.</p>
+              <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-6">{pricing.text}</p>
             </div>
 
             <div className="mt-10 bg-red-500/10 border border-red-500/20 rounded-3xl p-6 w-full relative overflow-hidden group">
