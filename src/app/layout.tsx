@@ -18,6 +18,26 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "SFL Stream | A Melhor Experiência de Streaming",
   description: "Assista a filmes, séries e esportes ao vivo com a melhor qualidade.",
+  openGraph: {
+    title: "SFL Stream | A Melhor Experiência de Streaming",
+    description: "Assista a filmes, séries e esportes ao vivo com a melhor qualidade.",
+    images: [
+      {
+        url: "https://i.imgur.com/2ex0N3R.png",
+        width: 1200,
+        height: 630,
+        alt: "SFL Grupo",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SFL Stream | A Melhor Experiência de Streaming",
+    description: "Assista a filmes, séries e esportes ao vivo com a melhor qualidade.",
+    images: ["https://i.imgur.com/2ex0N3R.png"],
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
