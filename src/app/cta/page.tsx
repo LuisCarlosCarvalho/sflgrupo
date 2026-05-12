@@ -242,9 +242,9 @@ export default function CTA() {
 
             <div className="mt-8 flex flex-col items-center justify-center">
               <span className="text-gray-500 text-xl font-bold line-through">De {pricing.original}</span>
-              <div className="text-6xl md:text-8xl font-black text-brand-yellow drop-shadow-[0_0_20px_rgba(248,231,28,0.4)] mt-2 italic tracking-tighter flex items-start justify-center gap-2">
-                <span className="text-2xl md:text-3xl mt-2 not-italic font-bold text-white tracking-normal">Por apenas</span>
-                <span>{pricing.promo}</span>
+              <div className="text-6xl md:text-8xl font-black text-brand-yellow drop-shadow-[0_0_20px_rgba(248,231,28,0.4)] mt-2 italic tracking-tighter flex flex-col md:flex-row items-center justify-center gap-0 md:gap-4">
+                <span className="text-xl md:text-3xl md:mt-2 not-italic font-bold text-white tracking-normal">Por apenas</span>
+                <span className="whitespace-nowrap leading-none mt-2 md:mt-0">{pricing.promo}</span>
               </div>
               <p className="text-gray-400 font-bold uppercase tracking-widest text-xs mt-6">{pricing.text}</p>
             </div>
