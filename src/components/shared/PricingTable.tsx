@@ -55,11 +55,11 @@ export default function PricingTable() {
   const getDisplayPrice = (plan: PricingPlan) => {
     if (!isBR) return { price: plan.price, currency: plan.currency === 'BRL' ? 'R$' : plan.currency === 'EUR' ? '€' : '$' };
     
-    // Tabela de conversão manual (Euro -> BRL) baseada no CTA
+    // Tabela de conversão manual (Euro -> BRL) com os valores exatos do SFL Grupo
     let convertedPrice = plan.price;
-    if (plan.price === 9) convertedPrice = 40;
-    else if (plan.price === 48) convertedPrice = 199; // Estimado para semestral
-    else if (plan.price === 30) convertedPrice = 130; // Estimado para SaaS
+    if (plan.price === 9) convertedPrice = 40;     // SFL MITV VIP Mês
+    else if (plan.price === 48) convertedPrice = 225; // Plano SFL Semestral
+    else if (plan.price === 30) convertedPrice = 50;  // SaaS Gestão de clientes
     else convertedPrice = Math.round(plan.price * 4.5);
     
     return { price: convertedPrice, currency: "R$" };
