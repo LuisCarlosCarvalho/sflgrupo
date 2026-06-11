@@ -122,9 +122,14 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-2 ml-1">
-                  Senha
-                </label>
+                <div className="flex items-center justify-between mb-2 ml-1">
+                  <label className="block text-sm font-bold text-gray-300">
+                    Senha
+                  </label>
+                  <a href="/esqueci-senha" onClick={onClose} className="text-xs font-bold text-brand-green hover:underline">
+                    Esqueceu a senha?
+                  </a>
+                </div>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}

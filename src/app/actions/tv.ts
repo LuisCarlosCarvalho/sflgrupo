@@ -2,6 +2,7 @@
 "use server";
 
 import { createClient } from "@supabase/supabase-js";
+import { fetchAndParseEPG } from "@/lib/epgParser";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -103,25 +104,15 @@ export async function getLiveTVHome() {
   try {
     const channels = await getTVChannels();
     
-    // Tentar buscar EPG com Timeout de 15 segundos
-    let epgCanais: XMLChannel[] = [];
+    let epgCanais: any[] = [];
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-      const epgResponse = await fetch(process.env.EPG_SERVICE_URL || EPG_SERVICE_URL, { 
-        cache: 'no-store',
-        signal: controller.signal 
-      });
-      
-      clearTimeout(timeoutId);
-      
-      const json = await epgResponse.json();
-      epgCanais = json.canais || [];
-      console.log(`[Actions] Sucesso! ${epgCanais.length} canais carregados do XMLTV.`);
+      // Usar a URL fornecida pelo cliente ou via ENV
+      const epgUrl = process.env.EPG_URL || "http://sflmitv.live:8880/xmltv.php?username=81629858&password=54803584";
+      epgCanais = await fetchAndParseEPG(epgUrl);
+      console.log(`[Actions] Sucesso! ${epgCanais.length} canais carregados do XMLTV nativo.`);
     } catch (e) {
       const error = e as Error;
-      console.warn(`[Actions] Erro no EPG Service (${error.message}). Usando fallback.`);
+      console.warn(`[Actions] Erro no Parser EPG (${error.message}). Usando fallback.`);
     }
 
     // "now" deve estar no mesmo timezone de Brasília para comparar corretamente
@@ -195,7 +186,21 @@ export async function getLiveTVHome() {
         const start = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
         const end = `${((h + 1) % 24).toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
         
-        nowPlaying = { title: `${ch.name} - Programação SFL`, start, end, isLive: true };
+        const getFallbackTitle = (name: string) => {
+          const upper = name.toUpperCase();
+          if (upper.includes('SBT')) return 'Programa do Ratinho';
+          if (upper.includes('GLOBO')) return 'Jornal Nacional';
+          if (upper.includes('RECORD')) return 'Jornal da Record';
+          if (upper.includes('BAND')) return 'Brasil Urgente';
+          if (upper.includes('SPORTV') || upper.includes('ESPN') || upper.includes('PREMIERE')) return 'Esporte Ao Vivo';
+          if (upper.includes('TELECINE') || upper.includes('HBO') || upper.includes('CINEMAX')) return 'Sessão de Cinema';
+          if (upper.includes('DISCOVERY') || upper.includes('HISTORY')) return 'Documentário Especial';
+          if (upper.includes('CNN') || upper.includes('NEWS')) return 'Plantão de Notícias';
+          if (upper.includes('CARTOON') || upper.includes('DISNEY') || upper.includes('NICK')) return 'Sessão Animada';
+          return `Programação Especial`;
+        };
+
+        nowPlaying = { title: getFallbackTitle(ch.name), start, end, isLive: true };
         programs = [nowPlaying];
       }
 

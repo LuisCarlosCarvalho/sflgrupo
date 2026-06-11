@@ -41,15 +41,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] flex items-center justify-center p-6 selection:bg-brand-green selection:text-black">
-      <div className="max-w-md w-full glass-panel p-10 rounded-[2.5rem] border-white/5 relative overflow-hidden">
+    <div className="min-h-screen bg-[#000000] flex items-center justify-center p-4 md:p-6 selection:bg-brand-green selection:text-black">
+      <div className="max-w-md w-full glass-panel p-6 sm:p-8 md:p-10 rounded-3xl md:rounded-[2.5rem] border-white/5 relative overflow-hidden">
         
         {/* Logo Section */}
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <span className="text-2xl font-black tracking-tighter uppercase">SFL <span className="text-brand-yellow">STREAM</span></span>
+        <div className="text-center mb-8 md:mb-10">
+          <Link href="/" className="inline-flex items-center gap-2 mb-4 md:mb-6">
+            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase">SFL <span className="text-brand-yellow">STREAM</span></span>
           </Link>
-          <h2 className="text-xl font-bold text-gray-300">Acesse sua conta</h2>
+          <h2 className="text-lg md:text-xl font-bold text-gray-300">Acesse sua conta</h2>
         </div>
 
         {error && (
@@ -59,33 +59,38 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
           <div className="space-y-1">
-            <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Usuário ou E-mail</label>
+            <label className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Usuário ou E-mail</label>
             <div className="relative group">
-              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-brand-blue transition-colors" />
+              <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-500 group-focus-within:text-brand-blue transition-colors" />
               <input 
                 type="text" 
                 required
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="Nome de usuário ou e-mail"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-blue transition-all placeholder:text-gray-700 text-white"
+                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-10 md:px-12 py-3 md:py-4 focus:outline-none focus:border-brand-blue transition-all placeholder:text-gray-700 text-sm md:text-base text-white"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Senha</label>
+            <div className="flex items-center justify-between ml-1">
+              <label className="text-[10px] md:text-xs font-black text-gray-500 uppercase tracking-widest">Senha</label>
+              <Link href="/esqueci-senha" className="text-[10px] md:text-xs font-bold text-brand-green hover:underline">
+                Esqueceu a senha?
+              </Link>
+            </div>
             <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-brand-green transition-colors" />
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-500 group-focus-within:text-brand-green transition-colors" />
               <input 
                 type="password" 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-4 focus:outline-none focus:border-brand-green transition-all placeholder:text-gray-700 text-white"
+                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-10 md:px-12 py-3 md:py-4 focus:outline-none focus:border-brand-green transition-all placeholder:text-gray-700 text-sm md:text-base text-white"
               />
             </div>
           </div>
@@ -93,7 +98,7 @@ export default function LoginPage() {
           <button 
             type="submit"
             disabled={isLoading}
-            className="w-full bg-brand-green hover:bg-brand-yellow text-black font-black py-5 rounded-2xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-brand-green/10"
+            className="w-full bg-brand-green hover:bg-brand-yellow text-black font-black py-4 md:py-5 rounded-xl md:rounded-2xl transition-all transform active:scale-95 flex items-center justify-center gap-2 shadow-xl shadow-brand-green/10 text-sm md:text-base mt-2"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -103,11 +108,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-8 text-center space-y-4">
-          <p className="text-xs text-gray-500">
+        <div className="mt-6 md:mt-8 text-center space-y-3 md:space-y-4">
+          <p className="text-[10px] md:text-xs text-gray-500">
             Não tem uma conta? <Link href="/#pricing" className="text-brand-green font-bold hover:underline">Assinar Plano</Link>
           </p>
-          <Link href="/" className="block text-[10px] text-gray-700 uppercase tracking-[0.3em] hover:text-white transition-colors">
+          <Link href="/" className="block text-[9px] md:text-[10px] text-gray-700 uppercase tracking-[0.3em] hover:text-white transition-colors">
             Voltar para a página inicial
           </Link>
         </div>

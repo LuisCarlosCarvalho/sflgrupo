@@ -334,6 +334,10 @@ export default function DashboardNavbar() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-6">
+          <div className="mb-6 px-1">
+            <SearchBar fullWidth={true} />
+          </div>
+
           {session?.user?.role === "ADMIN" ? (
             <div className="space-y-6">
               {/* ADMIN SECTION */}

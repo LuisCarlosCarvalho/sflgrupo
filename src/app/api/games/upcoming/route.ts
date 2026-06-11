@@ -1,24 +1,14 @@
 import { NextResponse } from 'next/server';
-import { scrapeFutebol } from '@/lib/scrapers/futebol/globo';
-import { scrapeSherdog } from '@/lib/scrapers/mma/sherdog';
-import { scrapeUFC } from '@/lib/scrapers/mma/ufc';
-import { scrapeOlympics } from '@/lib/scrapers/multisport/olympics';
-import { scrapeUEFA } from '@/lib/scrapers/futebol/uefa';
-import { fetchRapidAPISports } from '@/lib/scrapers/multisport/rapidapi';
+import { fetchESPNScraper } from '@/lib/scrapers/multisport/espnApi';
 import { SportsEvent } from '@/lib/scrapers/types';
 
 export const revalidate = 60; // Cache de 1 minuto
 
 export async function GET() {
   try {
-    // Roda os scrapers em paralelo
+    // Roda os scrapers em paralelo (neste caso, apenas o nosso ESPN API que já lida com múltiplas ligas)
     const results = await Promise.allSettled([
-      scrapeFutebol(),
-      scrapeSherdog(),
-      scrapeUFC(),
-      scrapeOlympics(),
-      fetchRapidAPISports(), // Nova API que abrange NFL, NBA, MLB, NHL, etc.
-      scrapeUEFA()
+      fetchESPNScraper()
     ]);
 
     let allEvents: SportsEvent[] = [];
@@ -32,41 +22,34 @@ export async function GET() {
       }
     });
 
-    // Lógica de Filtro: Eventos >= hoje até +3 dias
+    // Lógica de Filtro: Eventos >= hoje até +7 dias
     const now = new Date();
     // Normaliza para o início do dia no timezone local/utc dependendo de como é feito (simplificado aqui para string ISO base)
     const todayStr = now.toISOString().split('T')[0];
     
     const limitDate = new Date();
-    limitDate.setDate(limitDate.getDate() + 3);
+    limitDate.setDate(limitDate.getDate() + 7);
     const limitDateStr = limitDate.toISOString().split('T')[0];
 
     const filteredEvents = allEvents.filter(event => {
-       // Se o scraper não retornar date, por segurança descarta ou aceita.
-       // O nosso formato é YYYY-MM-DD
        if (!event.date) return false;
        return event.date >= todayStr && event.date <= limitDateStr;
     });
 
     // --- LÓGICA DE DEDUPLICAÇÃO ---
-    // Evita jogos repetidos de fontes diferentes (ex: Atlético vs Arsenal e Arsenal vs Atlético)
     const uniqueEventsMap = new Map<string, SportsEvent>();
 
     filteredEvents.forEach(event => {
-      // Normaliza nomes para comparação
       const t1 = (event.home || "").toLowerCase().trim();
       const t2 = (event.away || "").toLowerCase().trim();
       
-      // Ordena alfabeticamente para que "A vs B" e "B vs A" gerem a mesma chave
       const teams = [t1, t2].sort();
       
-      // Chave única: Times + Data + Horário
       const key = `${teams[0]}|${teams[1]}|${event.date}|${event.time}`;
       
       if (!uniqueEventsMap.has(key)) {
         uniqueEventsMap.set(key, event);
       } else {
-        // Mescla informações de transmissão
         const existing = uniqueEventsMap.get(key)!;
         const mergedBroadcast = Array.from(new Set([...(existing.broadcast || []), ...(event.broadcast || [])]));
         uniqueEventsMap.set(key, { ...existing, broadcast: mergedBroadcast });
