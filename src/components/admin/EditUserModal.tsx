@@ -1,10 +1,6 @@
-// src/components/admin/EditUserModal.tsx
-"use client";
-
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { editUser } from "@/app/actions/admin";
 import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe } from "lucide-react";
-import bcrypt from "bcryptjs";
 import { User as UserType } from "./UserTable";
 
 interface EditUserModalProps {
@@ -40,9 +36,9 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
     email: user.email || "",
     whatsapp: user.whatsapp || "",
     password: "", 
-    planType: user.planType || "PREMIUM",
+    planType: user.plan || user.planType || "VIP",
     role: user.role || "USER",
-    isActive: user.isActive,
+    isActive: user.isActive ?? true,
     expires_at: user.expires_at || new Date().toISOString(),
     notification_active: user.notification_active || false,
     plan_price: user.plan_price || 0,
@@ -61,9 +57,9 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
           email: user.email || "",
           whatsapp: user.whatsapp || "",
           password: "",
-          planType: user.planType || "PREMIUM",
+          planType: user.plan || user.planType || "VIP",
           role: user.role || "USER",
-          isActive: user.isActive,
+          isActive: user.isActive ?? true,
           expires_at: user.expires_at || new Date().toISOString(),
           notification_active: user.notification_active || false,
           plan_price: user.plan_price || 0,
@@ -84,40 +80,21 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
     setLoading(true);
 
     try {
-      const updateData: Partial<UserType> & { password?: string; updatedAt: string } = {
+      await editUser(user.id, {
         name: formData.name,
-        username: formData.username,
         email: formData.email,
+        password: formData.password.trim() !== "" ? formData.password : undefined,
+        role: formData.role as any,
+        plan: formData.planType,
         whatsapp: formData.whatsapp,
-        planType: formData.planType,
-        role: formData.role,
-        isActive: formData.isActive,
-        expires_at: formData.expires_at,
-        notification_active: formData.notification_active,
-        plan_price: Number(formData.plan_price),
-        connections: Number(formData.connections),
-        app_name: formData.app_name,
-        device_type: formData.device_type,
-        location: formData.location,
-        updatedAt: new Date().toISOString()
-      };
-
-      if (formData.password.trim() !== "") {
-        updateData.password = await bcrypt.hash(formData.password, 10);
-      }
-
-      const { error } = await supabase
-        .from("User")
-        .update(updateData)
-        .eq("id", user.id);
-
-      if (error) throw error;
+        status: formData.isActive ? "ACTIVE" : "SUSPENDED",
+        planExpiresAt: new Date(formData.expires_at),
+      });
 
       onSuccess();
       onClose();
-    } catch (err) {
-      const error = err as Error;
-      alert("Erro ao atualizar usuário: " + error.message);
+    } catch (err: any) {
+      alert("Erro ao atualizar usuário: " + err.message);
     } finally {
       setLoading(false);
     }

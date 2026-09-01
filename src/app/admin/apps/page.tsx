@@ -1,7 +1,7 @@
-"use server";
-
 import { getAvailableApps, addApp, deleteApp } from "@/app/actions/apps";
 import { Download, Plus, Trash2, Globe } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminAppsPage() {
   const apps = await getAvailableApps();

@@ -1,57 +1,71 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
-    const hashedPassword = await bcrypt.hash("123456", 10);
+    const adminPasswordHash = await bcrypt.hash("Admin@SFL2026", 10);
+    const testUserPasswordHash = await bcrypt.hash("User@SFL2026", 10);
 
-    // 1. Upsert ADMIN
-    const { data: adminUser, error: adminError } = await supabase
-      .from('User')
-      .upsert({
-        email: "brasilviptv@gmail.com",
-        username: "Admin",
-        password: hashedPassword,
+    const admin = await prisma.user.upsert({
+      where: { email: "admin@sflgrupo.store" },
+      update: {},
+      create: {
+        email: "admin@sflgrupo.store",
+        name: "Administrador SFL",
         role: "ADMIN",
-        isActive: true,
-        planType: "PREMIUM",
-        name: "SFL Admin"
-      }, { onConflict: 'email' })
-      .select()
-      .single();
+        status: "ACTIVE",
+        plan: "VIP",
+        passwordHash: adminPasswordHash,
+      },
+    });
 
-    if (adminError) throw adminError;
-
-    // 2. Upsert Usuário TESTE
-    const { data: testUser, error: testError } = await supabase
-      .from('User')
-      .upsert({
-        email: "teste@teste.com",
-        username: "teste",
-        password: hashedPassword,
+    await prisma.user.upsert({
+      where: { email: "teste@sflgrupo.store" },
+      update: {},
+      create: {
+        email: "teste@sflgrupo.store",
+        name: "Usuário Teste",
         role: "USER",
-        isActive: false,
-        planType: "FREE",
-        name: "Usuário Teste"
-      }, { onConflict: 'email' })
-      .select()
-      .single();
+        status: "ACTIVE",
+        plan: "PRO",
+        passwordHash: testUserPasswordHash,
+      },
+    });
 
-    if (testError) throw testError;
+    const channelCount = await prisma.tVChannel.count();
+    if (channelCount === 0) {
+      const channel1 = await prisma.tVChannel.create({
+        data: {
+          channelNum: "001",
+          name: "RECORD SP HD¹",
+          logoUrl: "https://upload.wikimedia.org/wikipedia/pt/7/77/RecordTV_2016.png",
+          streamUrl: "https://stream.sflgrupo.store/live/record.m3u8",
+          category: "ABERTOS",
+        },
+      });
+
+      const now = new Date();
+      const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+      await prisma.tVProgram.create({
+        data: {
+          channelId: channel1.id,
+          title: "Jornal da Record",
+          description: "Noticiário nacional e internacional com reportagens exclusivas.",
+          startTime: now,
+          endTime: oneHourLater,
+          isLive: true,
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Setup concluído com sucesso!",
-      admin: adminUser?.username || "Admin",
-      test: testUser?.username || "Teste",
+      message: "Banco inicializado com sucesso!",
+      adminEmail: admin.email,
     });
-  } catch (error) {
-    const err = error as Error;
-    console.error("Setup Error:", err);
-    return NextResponse.json(
-      { success: false, error: err.message },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

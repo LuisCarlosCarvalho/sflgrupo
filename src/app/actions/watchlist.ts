@@ -1,6 +1,6 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -19,82 +19,68 @@ export async function toggleWatchlist(media: {
   id: string;
   title: string;
   posterPath: string;
-  type: string;
+  type?: string;
   metadata?: string;
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  // First check if it exists
-  const { data: existing, error: fetchError } = await supabase
-    .from('Watchlist')
-    .select('userId')
-    .match({ userId: session.user.id, mediaId: media.id })
-    .maybeSingle();
+  const existing = await prisma.watchlistItem.findUnique({
+    where: {
+      userId_tmdbId: {
+        userId: session.user.id,
+        tmdbId: media.id,
+      },
+    },
+  });
 
   if (existing) {
-    // Exists, so remove it
-    const { error: deleteError } = await supabase
-      .from('Watchlist')
-      .delete()
-      .match({ userId: session.user.id, mediaId: media.id });
-      
-    if (deleteError) throw deleteError;
+    await prisma.watchlistItem.delete({
+      where: { id: existing.id },
+    });
     revalidatePath("/dashboard", "layout");
     return { success: true, added: false };
   } else {
-    // Doesn't exist, so add it
-    const { error: insertError } = await supabase
-      .from('Watchlist')
-      .insert({
-        id: crypto.randomUUID(),
+    await prisma.watchlistItem.create({
+      data: {
         userId: session.user.id,
-        mediaId: media.id,
+        tmdbId: media.id,
         title: media.title,
-        posterPath: media.posterPath,
-        type: media.type,
-        metadata: media.metadata
-      });
-
-    if (insertError) {
-      console.error("Watchlist Insert Error:", insertError);
-      throw insertError;
-    }
+        poster: media.posterPath,
+      },
+    });
     revalidatePath("/dashboard", "layout");
     return { success: true, added: true };
   }
 }
 
-export async function getWatchlist() {
+export async function getWatchlist(): Promise<WatchlistItem[]> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return [];
 
-  const { data, error } = await supabase
-    .from('Watchlist')
-    .select('*')
-    .eq('userId', session.user.id);
+  const items = await prisma.watchlistItem.findMany({
+    where: { userId: session.user.id },
+    orderBy: { createdAt: "desc" },
+  });
 
-  if (error) {
-    console.error("GetWatchlist Error:", error);
-    return [];
-  }
-
-  return (data as WatchlistItem[]) || [];
+  return items.map((item) => ({
+    userId: item.userId,
+    mediaId: item.tmdbId,
+    title: item.title,
+    posterPath: item.poster,
+    type: "movie",
+    metadata: "",
+    created_at: item.createdAt.toISOString(),
+  }));
 }
 
 export async function clearWatchlist() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const { error } = await supabase
-    .from('Watchlist')
-    .delete()
-    .eq('userId', session.user.id);
-
-  if (error) {
-    console.error("ClearWatchlist Error:", error);
-    throw error;
-  }
+  await prisma.watchlistItem.deleteMany({
+    where: { userId: session.user.id },
+  });
 
   revalidatePath("/dashboard", "layout");
   return { success: true };

@@ -1,85 +1,63 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-/**
- * Função Parser para extrair títulos do relatório.
- * Exemplo de entrada:
- * - A Última Ceia (2025) [LEG]
- * - Massacre no Bairro Japonês
- * Saída: ["A Última Ceia", "Massacre no Bairro Japonês"]
- */
 function parseCatalogReport(text: string): string[] {
-  const lines = text.split('\n');
+  const lines = text.split("\n");
   const titles: string[] = [];
 
   for (const line of lines) {
-    // Regex para capturar o nome após o traço "-" ou no início da linha,
-    // parando antes de parenteses (ano) ou colchetes [tags]
     const match = line.match(/^\s*-\s*([^(\n\[]+)/) || line.match(/^([^(\n\[]+)/);
-    
+
     if (match && match[1]) {
       let title = match[1].trim();
-      
-      // Limpeza adicional: remover tags residuais e espaços extras
-      title = title.replace(/\[.*\]/g, '').trim();
-      
-      if (title && title.length > 2 && !title.includes('Atualizações') && !title.includes('Relatório')) {
+      title = title.replace(/\[.*\]/g, "").trim();
+
+      if (title && title.length > 2 && !title.includes("Atualizações") && !title.includes("Relatório")) {
         titles.push(title);
       }
     }
   }
 
-  return [...new Set(titles)]; // Remover duplicatas
+  return [...new Set(titles)];
 }
 
 export async function importCatalogUpdates(formData: FormData) {
-  const raw_text = formData.get("report") as string;
-  if (!raw_text) return;
+  const rawContent = formData.get("report") as string;
+  if (!rawContent) return;
 
-  const parsed_titles = parseCatalogReport(raw_text);
+  const parsedTitles = parseCatalogReport(rawContent);
 
-  if (parsed_titles.length === 0) {
+  if (parsedTitles.length === 0) {
     throw new Error("Nenhum título identificado no texto.");
   }
 
-  // Salvar no banco de dados (Upsert no único registro ou criar novo)
-  // Como queremos apenas UM conjunto de "Adicionados Recentemente" ativo:
-  const { data: existing } = await supabaseAdmin
-    .from("recent_catalog_updates")
-    .select("id")
-    .limit(1)
-    .single();
+  try {
+    await prisma.recentCatalogUpdate.create({
+      data: {
+        rawContent,
+        period: new Date().toLocaleDateString("pt-BR"),
+      },
+    });
 
-  if (existing) {
-    await supabaseAdmin
-      .from("recent_catalog_updates")
-      .update({ raw_text, parsed_titles, updated_at: new Date().toISOString() })
-      .eq("id", existing.id);
-  } else {
-    await supabaseAdmin
-      .from("recent_catalog_updates")
-      .insert([{ raw_text, parsed_titles }]);
+    revalidatePath("/admin/catalogo");
+    revalidatePath("/dashboard");
+  } catch (error) {
+    console.error("Error importing catalog updates:", error);
   }
-
-  revalidatePath("/admin/catalogo");
-  revalidatePath("/dashboard");
 }
 
 export async function getRecentCatalogUpdates() {
-  const { data, error } = await supabaseAdmin
-    .from("recent_catalog_updates")
-    .select("parsed_titles")
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .single();
+  try {
+    const latest = await prisma.recentCatalogUpdate.findFirst({
+      orderBy: { createdAt: "desc" },
+    });
 
-  if (error || !data) return [];
-  return data.parsed_titles;
+    if (!latest) return [];
+    return parseCatalogReport(latest.rawContent);
+  } catch (error) {
+    console.error("Error fetching recent catalog updates:", error);
+    return [];
+  }
 }

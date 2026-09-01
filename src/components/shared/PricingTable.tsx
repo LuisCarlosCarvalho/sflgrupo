@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PricingCard from "./PricingCard";
 import LeadModal from "./LeadModal";
-import { supabase } from "@/lib/supabase/client";
+import { getLandingPricingPlans } from "@/app/actions/landing";
 
 interface PricingPlan {
   id: string;
@@ -22,8 +22,7 @@ export default function PricingTable() {
 
   useEffect(() => {
     let isMounted = true;
-    
-    // Detect Location
+
     async function detectLocation() {
       try {
         const res = await fetch("https://ipapi.co/json/");
@@ -33,29 +32,42 @@ export default function PricingTable() {
         }
       } catch (error) {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-        if ((tz.includes("Sao_Paulo") || tz.includes("Bahia") || tz.includes("Belem") || tz.includes("Fortaleza") || tz.includes("Maceio") || tz.includes("Manaus") || tz.includes("Cuiaba") || tz.includes("Porto_Velho") || tz.includes("Boa_Vista") || tz.includes("Campo_Grande") || tz.includes("Rio_Branco")) && isMounted) {
+        if (
+          (tz.includes("Sao_Paulo") ||
+            tz.includes("Bahia") ||
+            tz.includes("Belem") ||
+            tz.includes("Fortaleza") ||
+            tz.includes("Maceio") ||
+            tz.includes("Manaus") ||
+            tz.includes("Cuiaba") ||
+            tz.includes("Porto_Velho") ||
+            tz.includes("Boa_Vista") ||
+            tz.includes("Campo_Grande") ||
+            tz.includes("Rio_Branco")) &&
+          isMounted
+        ) {
           setIsBR(true);
         }
       }
     }
 
     async function fetchPlans() {
-      const { data } = await supabase.from("pricing_plans").select("*").order("price");
+      const data = await getLandingPricingPlans();
       if (data && isMounted) setPlans(data as PricingPlan[]);
       if (isMounted) setLoading(false);
     }
-    
+
     detectLocation();
     fetchPlans();
-    
-    return () => { isMounted = false; };
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Helper para converter o preço do banco (Euro) para Real
   const getDisplayPrice = (plan: PricingPlan) => {
-    if (!isBR) return { price: plan.price, currency: plan.currency === 'BRL' ? 'R$' : plan.currency === 'EUR' ? '€' : '$' };
-    
-    // Tabela de conversão manual (Euro -> BRL) com os valores exatos do SFL Grupo
+    if (!isBR) return { price: plan.price, currency: plan.currency === "BRL" ? "R$" : plan.currency === "EUR" ? "€" : "$" };
+
     let convertedPrice: number | string = plan.price;
     const name = plan.name.toUpperCase();
 
@@ -63,11 +75,10 @@ export default function PricingTable() {
     else if (name.includes("SEMESTRAL")) convertedPrice = 225;
     else if (name.includes("SAAS") || name.includes("GESTÃO")) convertedPrice = 50;
     else {
-      // Fallback para qualquer outro plano
-      const num = typeof plan.price === 'string' ? parseFloat((plan.price as string).replace(',', '.')) : Number(plan.price);
+      const num = typeof plan.price === "string" ? parseFloat((plan.price as string).replace(",", ".")) : Number(plan.price);
       convertedPrice = isNaN(num) ? plan.price : Math.round(num * 4.5);
     }
-    
+
     return { price: convertedPrice, currency: "R$" };
   };
 
@@ -98,7 +109,13 @@ export default function PricingTable() {
                 key={plan.id}
                 name={plan.name}
                 price={`${display.currency} ${display.price},00`}
-                description={plan.name === 'BASIC' ? 'Para quem quer o essencial.' : plan.name === 'STANDARD' ? 'A melhor experiência HD.' : 'O máximo do entretenimento.'}
+                description={
+                  plan.name === "BASIC"
+                    ? "Para quem quer o essencial."
+                    : plan.name === "STANDARD"
+                    ? "A melhor experiência HD."
+                    : "O máximo do entretenimento."
+                }
                 features={plan.features}
                 buttonColor={plan.color_theme as "blue" | "green" | "yellow"}
                 highlight={plan.is_popular}
@@ -109,11 +126,7 @@ export default function PricingTable() {
         </div>
       </div>
 
-      <LeadModal 
-        planName={selectedPlan || ""} 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
+      <LeadModal planName={selectedPlan || ""} isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }

@@ -1,10 +1,8 @@
-// src/components/dashboard/SupportModal.tsx
 "use client";
 
 import { useState } from "react";
 import { X, Send, Loader2, Film, Tv, Cpu, Smartphone, User, Globe, Shield, CheckCircle, HelpCircle, MessageSquare } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
-import { useSession } from "next-auth/react";
+import { createSupportRequest } from "@/app/actions/support";
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -27,7 +25,6 @@ const SERVICES = [
 ];
 
 export default function SupportModal({ isOpen, onClose, onSuccess }: SupportModalProps) {
-  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [selectedService, setSelectedService] = useState("");
   const [description, setDescription] = useState("");
@@ -39,34 +36,22 @@ export default function SupportModal({ isOpen, onClose, onSuccess }: SupportModa
     if (!selectedService || !description) return;
 
     setLoading(true);
-    const { error } = await supabase
-      .from("support_requests")
-      .insert([
-        {
-          user_id: session?.user?.id,
-          service_type: selectedService,
-          description: description,
-          status: 'PENDING',
-          messages: [
-            {
-              role: 'user',
-              text: description,
-              date: new Date().toISOString()
-            }
-          ]
-        }
-      ]);
+    try {
+      await createSupportRequest({
+        subject: selectedService,
+        message: description,
+      });
 
-    if (error) {
-      console.error("Erro ao enviar pedido:", error);
-      alert("Erro ao enviar pedido. Tente novamente.");
-    } else {
       onSuccess();
       onClose();
       setSelectedService("");
       setDescription("");
+    } catch (error) {
+      console.error("Erro ao enviar pedido:", error);
+      alert("Erro ao enviar pedido. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
@@ -74,7 +59,9 @@ export default function SupportModal({ isOpen, onClose, onSuccess }: SupportModa
       <div className="bg-[#15192A] border border-white/10 w-full max-w-xl rounded-[2rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
         <div className="p-8 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-brand-blue/10 to-transparent">
           <div>
-            <h2 className="text-2xl font-black uppercase tracking-tighter text-white">Novo <span className="text-brand-blue">Pedido</span></h2>
+            <h2 className="text-2xl font-black uppercase tracking-tighter text-white">
+              Novo <span className="text-brand-blue">Pedido</span>
+            </h2>
             <p className="text-gray-500 text-xs font-bold uppercase tracking-widest mt-1">Como podemos te ajudar hoje?</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full transition-colors">
@@ -93,8 +80,8 @@ export default function SupportModal({ isOpen, onClose, onSuccess }: SupportModa
                   type="button"
                   onClick={() => setSelectedService(s.label)}
                   className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${
-                    selectedService === s.label 
-                      ? "bg-brand-blue/10 border-brand-blue text-white shadow-[0_0_15px_rgba(0,86,179,0.2)]" 
+                    selectedService === s.label
+                      ? "bg-brand-blue/10 border-brand-blue text-white shadow-[0_0_15px_rgba(0,86,179,0.2)]"
                       : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20 hover:bg-white/10"
                   }`}
                 >

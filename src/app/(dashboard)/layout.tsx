@@ -1,9 +1,8 @@
 import { Suspense } from "react";
-// src/app/(dashboard)/layout.tsx
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import NotificationBanner from "@/components/dashboard/NotificationBanner";
 
@@ -14,46 +13,33 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/");
   }
 
-  // 1. Buscar status do usuário e plano
-  const { data: userData } = await supabase
-    .from("User")
-    .select("isActive, role")
-    .eq("id", session.user.id)
-    .single();
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      status: true,
+      role: true,
+      planExpiresAt: true,
+    },
+  });
 
-  const { data: planData } = await supabase
-    .from("plans")
-    .select("expires_at, plan_name")
-    .eq("user_id", session.user.id)
-    .single();
-
-  // 2. Verificações de Acesso
-  
-  // Se for ADMIN, permitir acesso ao dashboard para testes
-  /* if (userData?.role === "ADMIN") {
-    redirect("/admin");
-  } */
-
-  const isExpired = planData?.expires_at ? new Date(planData.expires_at) < new Date() : false;
-  const isBlocked = userData?.isActive === false;
+  const expiresAt = user?.planExpiresAt?.toISOString() || null;
 
   return (
     <div className="min-h-screen bg-black flex flex-col w-full overflow-x-hidden">
       <Suspense fallback={<div className="h-20 bg-black/50" />}>
         <DashboardNavbar />
       </Suspense>
-      
+
       {/* Sistema de Alarme Visual */}
-      {planData?.expires_at && (
-        <div className="mt-20"> {/* Compensa a navbar fixa */}
-          <NotificationBanner expiresAt={planData.expires_at} />
+      {expiresAt && (
+        <div className="mt-20">
+          <NotificationBanner expiresAt={expiresAt} />
         </div>
       )}
 
-      <main className={`flex-1 ${planData?.expires_at ? '' : 'mt-20'}`}>
+      <main className={`flex-1 ${expiresAt ? "" : "mt-20"}`}>
         {children}
       </main>
-
     </div>
   );
 }

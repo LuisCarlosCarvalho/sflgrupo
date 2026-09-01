@@ -6,7 +6,7 @@ import { Bell, User, Menu, X, ChevronDown, CreditCard, ShoppingBag, LogOut, Trop
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import SearchBar from "./SearchBar";
-import { supabase } from "@/lib/supabase/client";
+import { getUserNotifications } from "@/app/actions/notifications";
 
 export default function DashboardNavbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -37,67 +37,12 @@ export default function DashboardNavbar() {
   useEffect(() => {
     async function fetchNotifications() {
       if (!session?.user?.id) return;
-      
-      const newNotifications: { title: string; text: string; type: string; link: string }[] = [];
-
       try {
-        // 1. Verificar Vencimento (Para Usuários)
-        if (session.user.role !== 'ADMIN') {
-          const { data: userData } = await supabase
-            .from('User')
-            .select('expires_at, notification_active')
-            .eq('id', session.user.id)
-            .single();
-
-          if (userData?.expires_at) {
-            const daysRemaining = Math.ceil((new Date(userData.expires_at).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-            if (daysRemaining <= 7 || userData.notification_active) {
-              newNotifications.push({
-                title: "Renovação Próxima",
-                text: daysRemaining < 0 ? "Seu plano venceu! Renove agora." : `Seu plano vence em ${daysRemaining} dias.`,
-                type: 'expiry',
-                link: '/dashboard/perfil'
-              });
-            }
-          }
-        }
-
-        // 2. Verificar Suporte
-        if (session.user.role === 'ADMIN') {
-          const { data: pending } = await supabase
-            .from('support_requests')
-            .select('id')
-            .eq('status', 'PENDING');
-          
-          if (pending && pending.length > 0) {
-            newNotifications.push({
-              title: "Novos Pedidos",
-              text: `Você tem ${pending.length} pedido(s) aguardando resposta.`,
-              type: 'support',
-              link: '/admin/support'
-            });
-          }
-        } else {
-          const { data: responded } = await supabase
-            .from('support_requests')
-            .select('service_type')
-            .eq('user_id', session.user.id)
-            .eq('status', 'RESPONDED');
-
-          if (responded && responded.length > 0) {
-            newNotifications.push({
-              title: "Pedido Respondido",
-              text: `Seu pedido de ${responded[0].service_type} foi respondido.`,
-              type: 'support',
-              link: '/dashboard/meus-pedidos'
-            });
-          }
-        }
+        const notifs = await getUserNotifications();
+        setNotifications(notifs);
       } catch {
         console.error("Erro ao buscar notificações");
       }
-
-      setNotifications(newNotifications);
     }
 
     fetchNotifications();

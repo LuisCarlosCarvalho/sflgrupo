@@ -1,8 +1,6 @@
-"use client";
-
 import { useState } from "react";
 import { X, DollarSign, Tag, Calendar, FileText, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { addTransaction } from "@/app/actions/admin";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -25,23 +23,20 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase
-      .from("transactions")
-      .insert({
-        type: 'EXPENSE',
+    try {
+      await addTransaction({
+        type: "EXPENSE",
         category: formData.category,
         amount: Number(formData.amount),
-        currency: formData.currency,
         description: formData.description,
       });
-
-    if (error) {
-      console.error("Erro ao salvar despesa:", error);
-    } else {
       onSuccess();
       onClose();
+    } catch (error) {
+      console.error("Erro ao salvar despesa:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

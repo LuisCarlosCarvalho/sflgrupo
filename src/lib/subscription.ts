@@ -1,16 +1,23 @@
-import { supabase } from "./supabase";
+import { prisma } from "./prisma";
 
 export async function getSubscription(userId: string) {
-  const { data: user, error } = await supabase
-    .from('User')
-    .select('isActive, planType')
-    .eq('id', userId)
-    .single();
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        status: true,
+        plan: true,
+      },
+    });
 
-  if (error || !user) return null;
+    if (!user) return null;
 
-  return {
-    isActive: user.isActive,
-    planType: user.planType,
-  };
+    return {
+      isActive: user.status === "ACTIVE",
+      planType: user.plan,
+    };
+  } catch (error) {
+    console.error("Error fetching subscription:", error);
+    return null;
+  }
 }

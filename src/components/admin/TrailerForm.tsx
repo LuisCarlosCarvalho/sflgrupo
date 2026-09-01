@@ -1,15 +1,14 @@
-// src/components/admin/TrailerForm.tsx
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { saveTrailerOverride } from "@/app/actions/trailers";
 import { Loader2, Plus, Film, Link as LinkIcon, Save } from "lucide-react";
 
 export default function TrailerForm() {
   const [movieId, setMovieId] = useState("");
   const [manualUrl, setManualUrl] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,22 +18,13 @@ export default function TrailerForm() {
     setMessage(null);
 
     try {
-      const { error } = await supabase
-        .from("trailer_overrides")
-        .upsert({ 
-          movie_id: movieId, 
-          manual_url: manualUrl 
-        });
-
-      if (error) throw error;
-
-      setMessage({ type: 'success', text: "Trailer configurado com sucesso!" });
+      await saveTrailerOverride(movieId, manualUrl);
+      setMessage({ type: "success", text: "Trailer configurado com sucesso!" });
       setMovieId("");
       setManualUrl("");
-    } catch (err) {
-      const error = err as Error;
-      console.error(error);
-      setMessage({ type: 'error', text: error.message || "Erro ao salvar override." });
+    } catch (err: any) {
+      console.error(err);
+      setMessage({ type: "error", text: err.message || "Erro ao salvar override." });
     } finally {
       setSaving(false);
     }
@@ -82,7 +72,11 @@ export default function TrailerForm() {
         </div>
 
         {message && (
-          <div className={`p-4 rounded-2xl text-sm font-bold ${message.type === 'success' ? 'bg-brand-green/10 text-brand-green' : 'bg-red-500/10 text-red-500'}`}>
+          <div
+            className={`p-4 rounded-2xl text-sm font-bold ${
+              message.type === "success" ? "bg-brand-green/10 text-brand-green" : "bg-red-500/10 text-red-500"
+            }`}
+          >
             {message.text}
           </div>
         )}

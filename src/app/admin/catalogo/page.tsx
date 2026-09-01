@@ -1,6 +1,7 @@
-// src/app/admin/catalogo/page.tsx
 import { importCatalogUpdates, getRecentCatalogUpdates } from "@/app/actions/catalog";
 import { ListPlus, Search, Info, CheckCircle2 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminCatalogPage() {
   const currentTitles = await getRecentCatalogUpdates();

@@ -1,0 +1,172 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum SubStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+model User {
+  id                    String            @id @default(cuid())
+  name                  String?
+  email                 String            @unique
+  passwordHash          String?
+  role                  Role              @default(USER)
+  status                SubStatus         @default(TRIAL)
+  plan                  String            @default("FREE")
+  whatsapp              String?
+  stripeCustomerId      String?           @unique
+  stripeSubscriptionId  String?           @unique
+  planExpiresAt         DateTime?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  subscriptions         Subscription[]
+  alerts                Alert[]
+  watchlist             WatchlistItem[]
+  supportRequests       SupportRequest[]
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 String    // "PRO_MONTHLY", "VIP_YEARLY"
+  currency             String    @default("EUR")
+  amount               Int
+  status               SubStatus @default(ACTIVE)
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  createdAt            DateTime  @default(now())
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String   @db.Text
+  type      String   @default("info") // "info" | "warning" | "urgent"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model TrailerOverride {
+  id        String   @id @default(cuid())
+  mediaId   String   @unique
+  title     String
+  youtubeUrl String
+  createdAt DateTime @default(now())
+}
+
+model SupportRequest {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject   String
+  message   String   @db.Text
+  response  String?  @db.Text
+  status    String   @default("OPEN") // "OPEN", "ANSWERED", "CLOSED"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  description String
+  amount      Float
+  type        String   // "INCOME" | "EXPENSE"
+  category    String
+  createdAt   DateTime @default(now())
+}
+
+model WatchlistItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tmdbId    String
+  title     String
+  poster    String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, tmdbId])
+}
+
+model TVChannel {
+  id          String      @id @default(cuid())
+  channelNum  String      @unique
+  name        String
+  logoUrl     String
+  streamUrl   String
+  category    String      // "ABERTOS", "ESPORTES", "FILMES/SÉRIES", etc.
+  active      Boolean     @default(true)
+  programs    TVProgram[]
+}
+
+model TVProgram {
+  id          String    @id @default(cuid())
+  channelId   String
+  channel     TVChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  title       String
+  description String    @db.Text
+  startTime   DateTime
+  endTime     DateTime
+  category    String?
+  isLive      Boolean   @default(false)
+}
+
+model AvailableApp {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  downloadUrl String
+  iconUrl     String
+  platform    String   // "ANDROID", "TV", "WINDOWS"
+  createdAt   DateTime @default(now())
+}
+
+model RecentCatalogUpdate {
+  id          String   @id @default(cuid())
+  rawContent  String   @db.Text
+  period      String
+  createdById String?
+  createdAt   DateTime @default(now())
+}
+
+model PricingPlan {
+  id          String   @id @default(cuid())
+  name        String
+  priceEur    Float
+  priceBrl    Float
+  interval    String   @default("month")
+  features    String[]
+  popular     Boolean  @default(false)
+  active      Boolean  @default(true)
+}
+
+model SiteFeature {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  order       Int      @default(0)
+}
+
+model SystemSetting {
+  key         String   @id
+  value       String   @db.Text
+  updatedAt   DateTime @updatedAt
+}

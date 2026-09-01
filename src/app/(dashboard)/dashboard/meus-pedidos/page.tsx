@@ -4,19 +4,19 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect, useCallback } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import { ShoppingBag, Clock, Plus, Loader2, Eye } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { getUserSupportRequests } from "@/app/actions/support";
 import SupportModal from "@/components/dashboard/SupportModal";
 import OrderResponseModal from "@/components/dashboard/OrderResponseModal";
 
 interface SupportRequest {
   id: string;
-  created_at: string;
-  updated_at: string;
-  service_type: string;
-  description: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  subject: string;
+  message: string;
   status: string;
-  admin_response?: string;
-  user_id: string;
+  response?: string | null;
+  userId: string;
 }
 
 export default function MyOrdersPage() {
@@ -30,37 +30,34 @@ export default function MyOrdersPage() {
   const fetchRequests = useCallback(async () => {
     if (!session?.user?.id) return;
     setLoading(true);
-    const { data, error } = await supabase
-      .from("support_requests")
-      .select("*")
-      .eq("user_id", session.user.id)
-      .order("updated_at", { ascending: false });
-
-    if (error) console.error("Erro ao buscar pedidos:", error);
-    else setRequests(data || []);
+    const data = await getUserSupportRequests();
+    setRequests(data as any);
     setLoading(false);
   }, [session?.user?.id]);
 
   useEffect(() => {
     let isMounted = true;
-    fetchRequests().then(() => {
-      // The state updates inside fetchRequests handle loading
-    });
-    return () => { isMounted = false; };
+    fetchRequests().then(() => {});
+    return () => {
+      isMounted = false;
+    };
   }, [fetchRequests]);
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR');
+  const formatDate = (d: Date | string) => new Date(d).toLocaleDateString("pt-BR");
 
   const getStatusInfo = (status: string) => {
     switch (status) {
-      case 'PENDING':
-        return { label: 'AGUARDANDO', color: 'brand-yellow', bg: 'brand-yellow/10', border: 'brand-yellow/20' };
-      case 'RESPONDED':
-        return { label: 'RESPONDIDO', color: 'brand-green', bg: 'brand-green/10', border: 'brand-green/20' };
-      case 'FINISHED':
-        return { label: 'FINALIZADO', color: 'gray-500', bg: 'white/5', border: 'white/10' };
+      case "PENDING":
+      case "OPEN":
+        return { label: "AGUARDANDO", color: "brand-yellow", bg: "brand-yellow/10", border: "brand-yellow/20" };
+      case "ANSWERED":
+      case "RESPONDED":
+        return { label: "RESPONDIDO", color: "brand-green", bg: "brand-green/10", border: "brand-green/20" };
+      case "CLOSED":
+      case "FINISHED":
+        return { label: "FINALIZADO", color: "gray-500", bg: "white/5", border: "white/10" };
       default:
-        return { label: status, color: 'brand-blue', bg: 'brand-blue/10', border: 'brand-blue/20' };
+        return { label: status, color: "brand-blue", bg: "brand-blue/10", border: "brand-blue/20" };
     }
   };
 
@@ -72,7 +69,7 @@ export default function MyOrdersPage() {
   return (
     <main className="min-h-screen bg-black text-white selection:bg-brand-green selection:text-black">
       <DashboardNavbar />
-      
+
       <div className="container mx-auto px-6 md:px-12 pt-32 pb-20">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
@@ -87,7 +84,7 @@ export default function MyOrdersPage() {
             </div>
 
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={() => setIsModalOpen(true)}
                 className="group relative flex items-center gap-4 bg-gradient-to-r from-brand-blue to-brand-green p-[2px] rounded-full transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(0,166,81,0.4)] active:scale-95 shadow-xl"
               >
@@ -129,42 +126,44 @@ export default function MyOrdersPage() {
                         <p className="text-gray-500 font-black uppercase tracking-widest">Nenhum pedido encontrado.</p>
                       </td>
                     </tr>
-                  ) : requests.map((req) => {
-                    const statusInfo = getStatusInfo(req.status);
-                    return (
-                      <tr key={req.id} className="hover:bg-white/[0.01] transition-colors group">
-                        <td className="px-8 py-6 font-mono text-[10px] text-brand-blue uppercase">#{req.id.slice(0,8)}</td>
-                        <td className="px-8 py-6 text-[10px] text-gray-400 font-black uppercase tracking-widest">{formatDate(req.created_at)}</td>
-                        <td className="px-8 py-6">
-                          <div className="flex flex-col">
-                            <span className="text-sm font-black uppercase tracking-tight text-white">{req.service_type}</span>
-                            <span className="text-[10px] text-gray-500 font-medium truncate max-w-[200px]">{req.description}</span>
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-center">
-                          <div className={`inline-flex items-center gap-2 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border transition-all bg-${statusInfo.bg} text-${statusInfo.color} border-${statusInfo.border}`}>
-                            <div className={`w-1.5 h-1.5 rounded-full ${req.status !== 'FINISHED' ? 'animate-pulse' : ''} bg-${statusInfo.color}`} />
-                            {statusInfo.label}
-                          </div>
-                        </td>
-                        <td className="px-8 py-6 text-right">
-                          {(req.status === 'RESPONDED' || req.status === 'FINISHED' || req.admin_response) ? (
-                            <button 
-                              onClick={() => handleOpenResponse(req)}
-                              className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-green hover:text-white transition-all underline underline-offset-4"
+                  ) : (
+                    requests.map((req) => {
+                      const statusInfo = getStatusInfo(req.status);
+                      return (
+                        <tr key={req.id} className="hover:bg-white/[0.01] transition-colors group">
+                          <td className="px-8 py-6 font-mono text-[10px] text-brand-blue uppercase">#{req.id.slice(0, 8)}</td>
+                          <td className="px-8 py-6 text-[10px] text-gray-400 font-black uppercase tracking-widest">{formatDate(req.createdAt)}</td>
+                          <td className="px-8 py-6">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-black uppercase tracking-tight text-white">{req.subject}</span>
+                              <span className="text-[10px] text-gray-500 font-medium truncate max-w-[200px]">{req.message}</span>
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-center">
+                            <div
+                              className={`inline-flex items-center gap-2 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest border transition-all bg-${statusInfo.bg} text-${statusInfo.color} border-${statusInfo.border}`}
                             >
-                              <Eye size={12} />
-                              Ver Resposta
-                            </button>
-                          ) : (
-                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">
-                              Aguardando...
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                              <div className={`w-1.5 h-1.5 rounded-full ${req.status !== "FINISHED" ? "animate-pulse" : ""} bg-${statusInfo.color}`} />
+                              {statusInfo.label}
+                            </div>
+                          </td>
+                          <td className="px-8 py-6 text-right">
+                            {req.status === "ANSWERED" || req.response ? (
+                              <button
+                                onClick={() => handleOpenResponse(req)}
+                                className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-brand-green hover:text-white transition-all underline underline-offset-4"
+                              >
+                                <Eye size={12} />
+                                Ver Resposta
+                              </button>
+                            ) : (
+                              <span className="text-[10px] font-black uppercase tracking-widest text-gray-600">Aguardando...</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
@@ -177,43 +176,47 @@ export default function MyOrdersPage() {
                 </div>
               ) : requests.length === 0 ? (
                 <div className="py-20 text-center">
-                   <p className="text-gray-500 font-black uppercase tracking-widest text-xs">Nenhum pedido encontrado.</p>
+                  <p className="text-gray-500 font-black uppercase tracking-widest text-xs">Nenhum pedido encontrado.</p>
                 </div>
-              ) : requests.map((req) => {
-                const statusInfo = getStatusInfo(req.status);
-                return (
-                  <div key={req.id} className="p-6 space-y-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-[9px] font-mono text-brand-blue uppercase mb-1">#{req.id.slice(0,8)}</p>
-                        <h3 className="text-sm font-black uppercase tracking-tight text-white">{req.service_type}</h3>
-                        <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">{formatDate(req.created_at)}</p>
+              ) : (
+                requests.map((req) => {
+                  const statusInfo = getStatusInfo(req.status);
+                  return (
+                    <div key={req.id} className="p-6 space-y-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="text-[9px] font-mono text-brand-blue uppercase mb-1">#{req.id.slice(0, 8)}</p>
+                          <h3 className="text-sm font-black uppercase tracking-tight text-white">{req.subject}</h3>
+                          <p className="text-[9px] text-gray-500 font-black uppercase tracking-widest">{formatDate(req.createdAt)}</p>
+                        </div>
+                        <div
+                          className={`inline-flex items-center gap-2 text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest border bg-${statusInfo.bg} text-${statusInfo.color} border-${statusInfo.border}`}
+                        >
+                          {statusInfo.label}
+                        </div>
                       </div>
-                      <div className={`inline-flex items-center gap-2 text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest border bg-${statusInfo.bg} text-${statusInfo.color} border-${statusInfo.border}`}>
-                        {statusInfo.label}
-                      </div>
-                    </div>
-                    
-                    <div className="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
-                      <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">&quot;{req.description}&quot;</p>
-                    </div>
 
-                    {(req.status === 'RESPONDED' || req.status === 'FINISHED' || req.admin_response) ? (
-                      <button 
-                        onClick={() => handleOpenResponse(req)}
-                        className="flex items-center justify-center gap-2 w-full bg-brand-green/10 text-brand-green font-black py-4 rounded-xl uppercase text-[10px] tracking-widest border border-brand-green/20 active:scale-95 transition-all"
-                      >
-                        <Eye size={14} />
-                        Ver Resposta do Suporte
-                      </button>
-                    ) : (
-                      <div className="text-center py-2 bg-white/5 rounded-xl">
-                        <p className="text-[9px] font-black uppercase text-gray-600 tracking-widest">Pedido em análise...</p>
+                      <div className="bg-white/[0.02] p-4 rounded-2xl border border-white/5">
+                        <p className="text-[10px] text-gray-400 font-medium leading-relaxed italic">&quot;{req.message}&quot;</p>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+
+                      {req.status === "ANSWERED" || req.response ? (
+                        <button
+                          onClick={() => handleOpenResponse(req)}
+                          className="flex items-center justify-center gap-2 w-full bg-brand-green/10 text-brand-green font-black py-4 rounded-xl uppercase text-[10px] tracking-widest border border-brand-green/20 active:scale-95 transition-all"
+                        >
+                          <Eye size={14} />
+                          Ver Resposta do Suporte
+                        </button>
+                      ) : (
+                        <div className="text-center py-2 bg-white/5 rounded-xl">
+                          <p className="text-[9px] font-black uppercase text-gray-600 tracking-widest">Pedido em análise...</p>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
 
             <div className="bg-brand-blue/5 p-6 md:p-8 flex items-start gap-4 border-t border-white/5">
@@ -237,16 +240,22 @@ export default function MyOrdersPage() {
         </div>
       </div>
 
-      <SupportModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSuccess={fetchRequests} 
-      />
+      <SupportModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={fetchRequests} />
 
       <OrderResponseModal
         isOpen={isResponseModalOpen}
         onClose={() => setIsResponseModalOpen(false)}
-        order={selectedOrder}
+        order={
+          selectedOrder
+            ? {
+                id: selectedOrder.id,
+                service_type: selectedOrder.subject,
+                description: selectedOrder.message,
+                status: selectedOrder.status,
+                admin_response: selectedOrder.response || undefined,
+              }
+            : null
+        }
         onSuccess={fetchRequests}
       />
 
@@ -254,4 +263,3 @@ export default function MyOrdersPage() {
     </main>
   );
 }
-

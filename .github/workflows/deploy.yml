@@ -1,44 +1,32 @@
-name: SFL Stream CI/CD
+name: Deploy CI/CD
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout Código
         uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: 20
+          cache: "npm"
 
-      - name: Install Dependencies
+      - name: Instalar Dependências
         run: npm ci
 
-      - name: Build Application
+      - name: Gerar Prisma Client
+        run: npx prisma generate
+
+      - name: Build do Next.js
         run: npm run build
         env:
-          DATABASE_URL: "${{ secrets.DATABASE_URL }}"
-          NEXTAUTH_SECRET: "${{ secrets.NEXTAUTH_SECRET }}"
-          NEXTAUTH_URL: "${{ secrets.NEXTAUTH_URL }}"
-          NEXT_PUBLIC_SUPABASE_URL: "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
-          SUPABASE_SERVICE_ROLE_KEY: "${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}"
-          TMDB_API_KEY: "${{ secrets.TMDB_API_KEY }}"
-          STRIPE_API_KEY: "${{ secrets.STRIPE_API_KEY }}"
-          NEXT_PUBLIC_SUPPORT_WHATSAPP: "${{ secrets.NEXT_PUBLIC_SUPPORT_WHATSAPP }}"
-
-      - name: Deploy to Vercel (Production)
-        if: github.ref == 'refs/heads/main'
-        run: npx vercel --token "${{ secrets.VERCEL_TOKEN }}" --prod --yes
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
+          POSTGRES_URL_NON_POOLING: ${{ secrets.POSTGRES_URL_NON_POOLING }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}

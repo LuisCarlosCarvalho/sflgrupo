@@ -1,18 +1,17 @@
 "use server";
 
-import { supabase } from "@/lib/supabase";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function activateUser(userId: string) {
   try {
-    const { error } = await supabase
-      .from('User')
-      .update({ isActive: true, planType: "PREMIUM" })
-      .eq('id', userId);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: "ACTIVE", plan: "VIP" },
+    });
 
-    if (error) throw error;
-    
     revalidatePath("/sfl-admin");
+    revalidatePath("/admin/users");
     return { success: true };
   } catch (error) {
     return { success: false, error: "Falha ao ativar usuário" };
@@ -21,14 +20,13 @@ export async function activateUser(userId: string) {
 
 export async function deactivateUser(userId: string) {
   try {
-    const { error } = await supabase
-      .from('User')
-      .update({ isActive: false })
-      .eq('id', userId);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: "SUSPENDED" },
+    });
 
-    if (error) throw error;
-    
     revalidatePath("/sfl-admin");
+    revalidatePath("/admin/users");
     return { success: true };
   } catch (error) {
     return { success: false, error: "Falha ao desativar usuário" };

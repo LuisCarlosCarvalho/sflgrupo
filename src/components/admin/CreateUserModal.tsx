@@ -1,10 +1,6 @@
-// src/components/admin/CreateUserModal.tsx
-"use client";
-
 import { useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { createUser } from "@/app/actions/admin";
 import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe } from "lucide-react";
-import bcrypt from "bcryptjs";
 
 export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -14,7 +10,7 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
     email: "",
     whatsapp: "",
     password: "",
-    planType: "PREMIUM",
+    planType: "VIP",
     amount: "",
     currency: "BRL",
     connections: 1,
@@ -30,50 +26,15 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
     setLoading(true);
 
     try {
-      // 1. Hash the password
-      const hashedPassword = await bcrypt.hash(formData.password, 10);
-
-      // 2. Definir vencimento inicial (+30 dias)
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
-
-      // 3. Create the user in the User table
-      const userId = crypto.randomUUID();
-
-      const { error: userError } = await supabase.from("User").insert({
-        id: userId,
+      await createUser({
         name: formData.name,
-        username: formData.username,
         email: formData.email,
-        password: hashedPassword,
-        whatsapp: formData.whatsapp,
-        planType: formData.planType,
-        plan_price: parseFloat(formData.amount) || 0,
-        lastPaymentAmount: parseFloat(formData.amount) || 0,
-        lastPaymentCurrency: formData.currency,
-        connections: Number(formData.connections),
-        app_name: formData.app_name,
-        device_type: formData.device_type,
-        location: formData.location,
-        isActive: true,
+        password: formData.password,
         role: "USER",
-        expires_at: expiresAt.toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        plan: formData.planType,
+        whatsapp: formData.whatsapp,
+        amount: parseFloat(formData.amount) || 0,
       });
-
-      if (userError) throw userError;
-
-      // 3. Registrar Transação Financeira Inicial (Se houver valor)
-      if (parseFloat(formData.amount) > 0) {
-        await supabase.from("transactions").insert({
-          type: 'INCOME',
-          category: 'PLAN_RENEWAL',
-          amount: parseFloat(formData.amount),
-          description: `Primeiro pagamento: ${formData.email}`,
-          user_id: userId
-        });
-      }
 
       onSuccess();
       onClose();

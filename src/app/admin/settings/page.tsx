@@ -1,9 +1,8 @@
-// src/app/admin/settings/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase/client";
-import { Save, Loader2, Tv, RefreshCcw, ExternalLink, Plus, Trash2 } from "lucide-react";
+import { getSettingsData, updatePricingPlan, updateSiteFeature, saveSystemSetting } from "@/app/actions/settings";
+import { Save, Loader2, Tv, RefreshCcw } from "lucide-react";
 
 export default function SiteSettingsPage() {
   const [plans, setPlans] = useState<any[]>([]);
@@ -23,40 +22,35 @@ export default function SiteSettingsPage() {
   }, []);
 
   async function fetchData() {
-    const { data: plansData } = await supabase.from("pricing_plans").select("*").order("name");
-    const { data: featuresData } = await supabase.from("site_features").select("*").order("title");
-    const { data: settingsData } = await supabase.from("system_settings").select("*").eq("key", "epg_url").single();
-    
-    if (plansData) setPlans(plansData);
-    if (featuresData) setFeatures(featuresData);
-    if (settingsData) setEpgUrl(settingsData.value);
-    
+    const data = await getSettingsData();
+    if (data.plans) setPlans(data.plans);
+    if (data.features) setFeatures(data.features);
+    if (data.epgUrl) setEpgUrl(data.epgUrl);
     setLoading(false);
   }
 
-  async function updatePlan(id: string, updates: any) {
+  async function handleUpdatePlan(id: string, updates: any) {
     setSaving(true);
-    await supabase.from("pricing_plans").update(updates).eq("id", id);
-    fetchData();
+    await updatePricingPlan(id, updates);
+    await fetchData();
     setSaving(false);
   }
 
-  async function updateFeature(id: string, updates: any) {
+  async function handleUpdateFeature(id: string, updates: any) {
     setSaving(true);
-    await supabase.from("site_features").update(updates).eq("id", id);
-    fetchData();
+    await updateSiteFeature(id, updates);
+    await fetchData();
     setSaving(false);
   }
 
-  async function saveEpgUrl() {
+  async function handleSaveEpgUrl() {
     setSaving(true);
-    const { error } = await supabase
-      .from("system_settings")
-      .update({ value: epgUrl })
-      .eq("key", "epg_url");
-    
-    if (error) alert("Erro ao salvar URL: " + error.message);
-    else fetchData();
+    try {
+      await saveSystemSetting("epg_url", epgUrl);
+      await fetchData();
+    } catch (error: any) {
+      alert("Erro ao salvar URL: " + error.message);
+    }
     setSaving(false);
   }
 
@@ -109,7 +103,7 @@ export default function SiteSettingsPage() {
                 onChange={(e) => setEpgUrl(e.target.value)}
               />
               <button 
-                onClick={saveEpgUrl}
+                onClick={handleSaveEpgUrl}
                 disabled={saving}
                 className="bg-brand-yellow hover:bg-white text-black px-6 py-3 rounded-xl text-xs font-black uppercase transition-all disabled:opacity-50 flex items-center gap-2"
               >
@@ -151,35 +145,26 @@ export default function SiteSettingsPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] text-gray-500 font-black uppercase">Preço</label>
-                <div className="flex items-center gap-3">
-                  <select 
-                    className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs font-bold focus:outline-none"
-                    value={plan.currency}
-                    onChange={(e) => updatePlan(plan.id, { currency: e.target.value })}
-                  >
-                    <option value="BRL" className="bg-[#15192A]">R$ (BRL)</option>
-                    <option value="EUR" className="bg-[#15192A]">€ (EUR)</option>
-                  </select>
-                  <input 
-                    className="bg-transparent text-3xl font-black w-full focus:outline-none"
-                    value={plan.price}
-                    onChange={(e) => setPlans(plans.map(p => p.id === plan.id ? {...p, price: e.target.value} : p))}
-                  />
-                </div>
+                <label className="text-[10px] text-gray-500 font-black uppercase">Preço BRL (R$)</label>
+                <input 
+                  className="bg-transparent text-3xl font-black w-full focus:outline-none"
+                  value={plan.priceBrl ?? 0}
+                  type="number"
+                  onChange={(e) => setPlans(plans.map(p => p.id === plan.id ? {...p, priceBrl: parseFloat(e.target.value) || 0} : p))}
+                />
               </div>
 
               <div className="space-y-3">
                 <label className="text-[10px] text-gray-500 font-black uppercase">Recursos (Um por linha)</label>
                 <textarea 
                   className="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-xs font-medium min-h-[120px]"
-                  value={plan.features.join("\n")}
+                  value={(plan.features || []).join("\n")}
                   onChange={(e) => setPlans(plans.map(p => p.id === plan.id ? {...p, features: e.target.value.split("\n")} : p))}
                 />
               </div>
 
               <button 
-                onClick={() => updatePlan(plan.id, plan)}
+                onClick={() => handleUpdatePlan(plan.id, plan)}
                 disabled={saving}
                 className="w-full flex items-center justify-center gap-2 bg-brand-yellow hover:bg-white text-black px-4 py-3 rounded-xl text-xs font-black uppercase transition-all"
               >
@@ -212,7 +197,7 @@ export default function SiteSettingsPage() {
                 onChange={(e) => setFeatures(features.map(f => f.id === feature.id ? {...f, description: e.target.value} : f))}
               />
               <button 
-                onClick={() => updateFeature(feature.id, feature)}
+                onClick={() => handleUpdateFeature(feature.id, feature)}
                 disabled={saving}
                 className="w-full flex items-center justify-center gap-2 bg-brand-green hover:bg-white text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all"
               >

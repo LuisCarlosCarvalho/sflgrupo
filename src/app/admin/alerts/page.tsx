@@ -1,8 +1,7 @@
-// src/app/admin/alerts/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { getAlerts, dismissAlert as dismissAlertAction } from "@/app/actions/alerts";
 import AlertCard from "@/components/admin/AlertCard";
 import { Loader2, BellOff } from "lucide-react";
 
@@ -15,7 +14,7 @@ interface Alert {
   User?: {
     email: string;
     name: string | null;
-  };
+  } | null;
   [key: string]: unknown;
 }
 
@@ -25,20 +24,16 @@ export default function AdminAlertsPage() {
 
   async function fetchAlerts() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("alerts")
-      .select("*, User(email, name)")
-      .order("sent_at", { ascending: false });
-
-    if (error) console.error("Erro ao buscar alertas:", error);
-    else setAlerts(data || []);
+    const data = await getAlerts();
+    setAlerts(data);
     setLoading(false);
   }
 
   async function dismissAlert(id: string) {
-    const { error } = await supabase.from("alerts").delete().eq("id", id);
-    if (error) console.error("Erro ao remover alerta:", error);
-    else setAlerts((prev) => prev.filter((a) => a.id !== id));
+    const res = await dismissAlertAction(id);
+    if (res.success) {
+      setAlerts((prev) => prev.filter((a) => a.id !== id));
+    }
   }
 
   useEffect(() => {
@@ -72,7 +67,7 @@ export default function AdminAlertsPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4 max-w-4xl">
             {alerts.map((alert: Alert) => (
-              <AlertCard key={alert.id} alert={alert} onDismiss={dismissAlert} />
+              <AlertCard key={alert.id} alert={alert as any} onDismiss={dismissAlert} />
             ))}
           </div>
         )}

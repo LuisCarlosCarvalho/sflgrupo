@@ -1,50 +1,56 @@
 "use server";
 
-import { createClient } from "@supabase/supabase-js";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function getAvailableApps() {
-  const { data, error } = await supabaseAdmin
-    .from("available_apps")
-    .select("*")
-    .order("name", { ascending: true });
+  try {
+    const apps = await prisma.availableApp.findMany({
+      orderBy: { name: "asc" },
+    });
 
-  if (error) {
+    return apps.map((app) => ({
+      id: app.id,
+      name: app.name,
+      platform: app.platform,
+      download_url: app.downloadUrl,
+      downloadUrl: app.downloadUrl,
+      icon_url: app.iconUrl,
+      iconUrl: app.iconUrl,
+      description: app.description,
+      createdAt: app.createdAt,
+    }));
+  } catch (error) {
     console.error("Error fetching apps:", error);
     return [];
   }
-  return data;
 }
 
 export async function addApp(formData: FormData) {
   const name = formData.get("name") as string;
   const platform = formData.get("platform") as string;
-  const download_url = formData.get("download_url") as string;
-  const icon_url = formData.get("icon_url") as string;
-  const description = formData.get("description") as string;
+  const downloadUrl = (formData.get("download_url") || formData.get("downloadUrl")) as string;
+  const iconUrl = (formData.get("icon_url") || formData.get("iconUrl")) as string;
+  const description = (formData.get("description") as string) || "";
 
-  const { error } = await supabaseAdmin
-    .from("available_apps")
-    .insert([{ name, platform, download_url, icon_url, description }]);
-
-  if (error) throw error;
+  await prisma.availableApp.create({
+    data: {
+      name,
+      platform,
+      downloadUrl,
+      iconUrl,
+      description,
+    },
+  });
 
   revalidatePath("/admin/apps");
   revalidatePath("/dashboard/perfil");
 }
 
 export async function deleteApp(id: string) {
-  const { error } = await supabaseAdmin
-    .from("available_apps")
-    .delete()
-    .match({ id });
-
-  if (error) throw error;
+  await prisma.availableApp.delete({
+    where: { id },
+  });
 
   revalidatePath("/admin/apps");
   revalidatePath("/dashboard/perfil");
