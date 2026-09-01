@@ -4,12 +4,37 @@ import bcrypt from "bcryptjs";
 
 export async function GET() {
   try {
-    const adminPasswordHash = await bcrypt.hash("Admin@SFL2026", 10);
+    const adminPasswordHash = await bcrypt.hash("S@l798412", 10);
     const testUserPasswordHash = await bcrypt.hash("User@SFL2026", 10);
 
+    // Upsert Admin Principal
     const admin = await prisma.user.upsert({
+      where: { email: "brasilviptv@gmail.com" },
+      update: {
+        role: "ADMIN",
+        status: "ACTIVE",
+        plan: "VIP",
+        passwordHash: adminPasswordHash,
+      },
+      create: {
+        email: "brasilviptv@gmail.com",
+        name: "Administrador SFL",
+        role: "ADMIN",
+        status: "ACTIVE",
+        plan: "VIP",
+        passwordHash: adminPasswordHash,
+      },
+    });
+
+    // Upsert Admin secundário / legado
+    await prisma.user.upsert({
       where: { email: "admin@sflgrupo.store" },
-      update: {},
+      update: {
+        role: "ADMIN",
+        status: "ACTIVE",
+        plan: "VIP",
+        passwordHash: adminPasswordHash,
+      },
       create: {
         email: "admin@sflgrupo.store",
         name: "Administrador SFL",
@@ -20,9 +45,14 @@ export async function GET() {
       },
     });
 
+    // Upsert Usuário Teste
     await prisma.user.upsert({
       where: { email: "teste@sflgrupo.store" },
-      update: {},
+      update: {
+        status: "ACTIVE",
+        plan: "PRO",
+        passwordHash: testUserPasswordHash,
+      },
       create: {
         email: "teste@sflgrupo.store",
         name: "Usuário Teste",
@@ -62,8 +92,9 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Banco inicializado com sucesso!",
-      adminEmail: admin.email,
+      message: "Usuário administrativo configurado com sucesso!",
+      admin: admin.email,
+      role: admin.role,
     });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -9,16 +9,19 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credenciais",
       credentials: {
+        identifier: { label: "E-mail ou Usuário", type: "text" },
         email: { label: "Email", type: "email" },
         password: { label: "Senha", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const loginIdentifier = (credentials?.identifier || credentials?.email || "").toLowerCase().trim();
+
+        if (!loginIdentifier || !credentials?.password) {
           throw new Error("Preencha todos os campos.");
         }
 
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email.toLowerCase().trim() },
+          where: { email: loginIdentifier },
         });
 
         if (!user || !user.passwordHash) {
