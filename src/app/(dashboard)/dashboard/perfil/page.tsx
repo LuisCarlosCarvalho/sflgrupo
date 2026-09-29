@@ -20,6 +20,8 @@ export default async function PerfilPage() {
       role: true,
       plan: true,
       planExpiresAt: true,
+      favoriteCountry: true,
+      favoriteTeam: true,
     },
   });
 
@@ -34,6 +36,8 @@ export default async function PerfilPage() {
           planType: user?.plan || "FREE",
           expires_at: user?.planExpiresAt?.toISOString(),
           notification_active: true,
+          favoriteCountry: user?.favoriteCountry || "",
+          favoriteTeam: user?.favoriteTeam || "",
         }}
       />
     </div>

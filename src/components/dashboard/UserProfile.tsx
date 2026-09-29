@@ -15,6 +15,8 @@ interface UserProfileProps {
     app_name?: string;
     device_type?: string;
     location?: string;
+    favoriteCountry?: string;
+    favoriteTeam?: string;
   };
   plan?: {
     expires_at: string;
@@ -30,7 +32,34 @@ interface DashboardApp {
   icon_url?: string;
 }
 
+import { useState } from "react";
+import { updateFavoriteTeam } from "@/app/actions/user";
+
+const TEAMS_DB = {
+  "Brasil": ["Seleção Brasileira", "Flamengo", "Palmeiras", "São Paulo", "Corinthians", "Grêmio", "Cruzeiro", "Atlético Mineiro"],
+  "Inglaterra": ["Seleção Inglesa", "Arsenal", "Manchester City", "Liverpool", "Chelsea", "Manchester United", "Tottenham"],
+  "Espanha": ["Seleção Espanhola", "Real Madrid", "Barcelona", "Atlético de Madrid", "Sevilla"],
+  "Itália": ["Seleção Italiana", "Juventus", "Milan", "Inter de Milão", "Napoli", "Roma"],
+  "França": ["Seleção Francesa", "PSG", "Marseille", "Lyon", "Monaco"],
+  "Alemanha": ["Seleção Alemã", "Bayern de Munique", "Borussia Dortmund", "Bayer Leverkusen"]
+};
+
 export default function UserProfile({ user, plan, apps = [] }: UserProfileProps & { apps?: DashboardApp[] }) {
+  const [selectedCountry, setSelectedCountry] = useState(user.favoriteCountry || "");
+  const [selectedTeam, setSelectedTeam] = useState(user.favoriteTeam || "");
+  const [savingTeam, setSavingTeam] = useState(false);
+
+  const handleSaveTeam = async () => {
+    setSavingTeam(true);
+    try {
+      await updateFavoriteTeam(selectedCountry, selectedTeam);
+      alert("Time salvo com sucesso! O SFL Stream dará prioridade para seus jogos.");
+    } catch (e) {
+      alert("Erro ao salvar time.");
+    }
+    setSavingTeam(false);
+  };
+
   // Priorizar o vencimento do objeto user (que é o que o admin edita agora)
   const finalExpiryDate = user.expires_at || plan?.expires_at;
 
@@ -223,6 +252,84 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
           <p className="text-[9px] text-gray-600 font-bold uppercase tracking-widest text-center pt-4 border-t border-white/5">
             Clique no ícone para baixar e instalar em seu dispositivo.
           </p>
+        </div>
+
+        {/* Favorite Team Card */}
+        <div className="glass-panel p-8 rounded-[2.5rem] border-white/5 flex flex-col space-y-6 min-h-[400px]">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-black text-brand-green uppercase tracking-[0.2em] mb-1">Esportes</p>
+              <h3 className="text-xl font-black text-white uppercase italic">Time do Coração</h3>
+            </div>
+            <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center">
+              <span className="text-xl">⚽</span>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <p className="text-xs text-gray-400">
+              Selecione seu país e time. O aplicativo dará prioridade ao seu time na grade esportiva e enviará alertas de jogos!
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">País / Seleção</label>
+              <select 
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold text-white focus:outline-none focus:border-brand-green transition-colors appearance-none"
+                value={selectedCountry}
+                onChange={(e) => {
+                  setSelectedCountry(e.target.value);
+                  setSelectedTeam("");
+                }}
+              >
+                <option value="" disabled className="bg-black">Selecione o País</option>
+                {Object.keys(TEAMS_DB).map(country => (
+                  <option key={country} value={country} className="bg-black">{country}</option>
+                ))}
+              </select>
+            </div>
+
+            {selectedCountry && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Time</label>
+                <select 
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold text-white focus:outline-none focus:border-brand-green transition-colors appearance-none"
+                  value={selectedTeam}
+                  onChange={(e) => setSelectedTeam(e.target.value)}
+                >
+                  <option value="" disabled className="bg-black">Selecione o Time</option>
+                  {TEAMS_DB[selectedCountry as keyof typeof TEAMS_DB].map(team => (
+                    <option key={team} value={team} className="bg-black">{team}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <button
+              onClick={handleSaveTeam}
+              disabled={!selectedTeam || savingTeam}
+              className="w-full bg-brand-green hover:bg-white text-black font-black py-3 rounded-xl transition-all disabled:opacity-50 mt-4 text-xs uppercase"
+            >
+              {savingTeam ? "Salvando..." : "Salvar Time do Coração"}
+            </button>
+          </div>
+
+          {/* Fake Match Alert (Simulated Data) */}
+          {user.favoriteTeam && (
+            <div className="mt-4 pt-4 border-t border-white/5">
+              <div className="bg-brand-green/10 border border-brand-green/20 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    Próximo Jogo (Simulado)
+                  </p>
+                  <p className="text-xs font-bold text-white mt-1">
+                    {user.favoriteTeam} vs Rival FC
+                  </p>
+                  <p className="text-[10px] text-gray-400 mt-1">Hoje, 21:30 - Canal ESPN</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
