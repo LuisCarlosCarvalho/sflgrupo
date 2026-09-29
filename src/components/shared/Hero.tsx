@@ -72,6 +72,27 @@ export default function Hero() {
         </motion.div>
       </div>
 
+      {/* Floating Logo on Right Side */}
+      <motion.div
+        animate={{ y: [0, -20, 0], rotate: [-2, 2, -2] }}
+        transition={{ 
+          repeat: Infinity, 
+          duration: 6, 
+          ease: "easeInOut" 
+        }}
+        className="hidden lg:block absolute right-10 xl:right-32 top-[40%] -translate-y-1/2 z-10 pointer-events-none"
+      >
+        <div className="relative">
+          {/* Outer glow effect */}
+          <div className="absolute inset-0 bg-brand-yellow/20 blur-[100px] rounded-full" />
+          <img 
+            src="https://i.imgur.com/Ax3LqvG.png" 
+            alt="SFL Stream Logo" 
+            className="w-[300px] xl:w-[450px] object-contain relative z-10 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] opacity-90"
+          />
+        </div>
+      </motion.div>
+
       {/* WhatsApp Lead Modal Integration */}
       <LeadModal 
         isOpen={isModalOpen} 
