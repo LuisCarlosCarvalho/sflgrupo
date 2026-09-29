@@ -42,6 +42,18 @@ Plataforma completa de entretenimento, streaming IPTV, guia de programação ao 
 - Atualização do workflow `.github/workflows/deploy.yml` com **Node.js 22**, geração automática do Prisma Client e fallbacks de ambiente para compilação estática.
 - Adicionado script `"postinstall": "prisma generate"` no `package.json`.
 
+### 4. Funcionalidade "Time do Coração" (Perfil & SFL SPORT'S)
+- Inserido suporte a `favoriteCountry` e `favoriteTeam` no modelo `User` do Prisma.
+- Painel de Perfil do usuário atualizado com seletor interativo em camadas (País -> Time).
+- Integração de UI inteligente no painel esportivo (`/dashboard?category=sports`) com alertas de "Próximo Jogo" baseados no time favorito.
+- Escudos oficiais carregados de forma dinâmica para times populares (substituindo ícones padrão).
+
+### 5. Segurança Avançada, Otimização e Cache (Backend)
+- **Headers de Segurança Rigorosos:** Adicionados em `next.config.ts` e `src/proxy.ts` (HSTS, SAMEORIGIN, nosniff, Referrer-Policy strict).
+- **Proteção do Setup (`/api/setup`):** Bloqueio de acesso na produção (403 Forbidden) via token de segurança (`x-setup-secret`).
+- **Cache de Alta Performance no EPG:** Aplicação de `unstable_cache` do Next.js nos métodos `getTVChannels` e `getLiveTVHome` (TTL de 60s) aliviando consultas pesadas ao Prisma.
+- **Webhook Idempotente e Transacional (Stripe):** Refatorado `/api/webhooks/stripe` para verificar assinatura da API e processar inserções através do `prisma.$transaction` protegendo o banco contra inserções duplas.
+
 ---
 
 ## ⚙️ Variáveis de Ambiente (`.env` / `.env.local`)
