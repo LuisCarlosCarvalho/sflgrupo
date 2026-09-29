@@ -134,20 +134,6 @@ export async function GET() {
             category: dbChannel.category,
           });
         }
-      } else {
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-
-        programsToInsert.push({
-          channelId: dbChannel.id,
-          title: `${dbChannel.name} - Ao Vivo`,
-          description: "Programação contínua.",
-          startTime: startOfDay,
-          endTime: endOfDay,
-          isLive: true,
-          category: dbChannel.category,
-        });
       }
 
       if (programsToInsert.length > 0) {
