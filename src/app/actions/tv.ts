@@ -95,8 +95,8 @@ export async function getLiveTVHome(): Promise<Category[]> {
       if (!categoriesMap[catName]) categoriesMap[catName] = [];
 
       const programs: Program[] = ch.programs.map((p) => {
-        const start = p.startTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-        const end = p.endTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+        const start = p.startTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+        const end = p.endTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
         return {
           title: p.title,
           start,

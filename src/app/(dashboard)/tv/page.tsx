@@ -138,6 +138,7 @@ export default function TVPage() {
            id: ch.id,
            name: ch.name,
            logo_url: ch.logo_url,
+           streamUrl: ch.streamUrl,
            programs: ch.programs || []
         }))
     })).filter(cat => cat.channels.length > 0);
