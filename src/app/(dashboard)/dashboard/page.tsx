@@ -50,7 +50,8 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     kidsContent, 
     animes,
     documentaries,
-    watchlistData
+    watchlistData,
+    user
   ] = await Promise.all([
     getTrendingMovies(),
     getTrendingSeries(),
@@ -60,6 +61,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     getAnimes(),
     getDocumentaries(),
     getWatchlist().catch(() => []), // Se o banco falhar, retorna lista vazia e não trava a página
+    import("@/lib/prisma").then(m => m.prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { favoriteTeam: true }
+    }))
   ]);
 
   const watchlistIds = new Set((watchlistData || []).map((item: { mediaId: string }) => item.mediaId));
@@ -119,18 +124,54 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </>
         )}
 
-        {category === "sports" && (
-          <div className="px-2 sm:px-4 md:px-12 space-y-8 md:space-y-12 mt-6 md:mt-0">
-            <div className="px-2">
-              <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-2 md:mb-4">
-                SFL <span className="text-brand-green">SPORT&apos;S</span>
-              </h1>
-              <p className="text-gray-400 text-sm md:text-base max-w-xl font-bold">Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em tempo real.</p>
-            </div>
+        {category === "sports" && (() => {
+          // Temporariamente buscar o user de novo aqui (poderia ser feito no início do componente)
+          // Mas como estamos no JSX, o Next.js lida bem.
+          return (
+            <div className="px-2 sm:px-4 md:px-12 space-y-8 md:space-y-12 mt-6 md:mt-0">
+              <div className="px-2 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative">
+                <div>
+                  <h1 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-2 md:mb-4">
+                    SFL <span className="text-brand-green">SPORT&apos;S</span>
+                  </h1>
+                  <p className="text-gray-400 text-sm md:text-base max-w-xl font-bold">
+                    Onde a emoção acontece. Assista aos maiores eventos esportivos do mundo em tempo real.
+                  </p>
+                </div>
 
-            <LiveScoreboard />
-          </div>
-        )}
+                {/* Team Alert Box (Right Side) */}
+                {user?.favoriteTeam && (
+                  <div className="glass-panel p-4 rounded-2xl border-white/5 bg-gradient-to-r from-brand-green/10 to-transparent min-w-[300px] w-full md:w-auto relative overflow-hidden group hover:border-brand-green/30 transition-all">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-green/20 blur-[40px] rounded-full group-hover:bg-brand-green/30 transition-all" />
+                    <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2 mb-2">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                      Alerta Time do Coração
+                    </p>
+                    
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-2xl shadow-xl">
+                        ⚽
+                      </div>
+                      <div>
+                        <p className="text-sm font-black text-white uppercase tracking-tighter">
+                          O {user.favoriteTeam} joga hoje!
+                        </p>
+                        <p className="text-xs text-brand-yellow font-bold mt-0.5">
+                          Libertadores • 21:30
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">
+                          Transmissão: ESPN
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <LiveScoreboard />
+            </div>
+          );
+        })()}
 
         {category === "trending" && (
           <>
