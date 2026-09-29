@@ -6,7 +6,8 @@ import EPGGrid, { Program, Channel } from "@/components/tv/EPGGrid";
 import { getLiveTVHome } from "@/app/actions/tv";
 import { Search, RefreshCw, ChevronDown, Filter, Play } from "lucide-react";
 import { motion } from "framer-motion";
-import ReactPlayer from "react-player";
+import dynamic from "next/dynamic";
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 interface TVChannel extends Channel {}
 interface TVCategory {

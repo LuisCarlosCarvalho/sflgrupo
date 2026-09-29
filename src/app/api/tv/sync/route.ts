@@ -71,12 +71,15 @@ export async function GET() {
       } else {
         // Fallback program if no EPG is available
         const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
         programsToInsert.push({
           channelId: dbChannel.id,
           title: `${dbChannel.name} - Ao Vivo`,
           description: "Programação contínua.",
-          startTime: new Date(now.getTime() - 12 * 60 * 60 * 1000), // 12 hours ago
-          endTime: new Date(now.getTime() + 12 * 60 * 60 * 1000), // 12 hours ahead
+          startTime: startOfDay, // 00:00
+          endTime: endOfDay,     // 23:59
           isLive: true,
           category: dbChannel.category,
         });
