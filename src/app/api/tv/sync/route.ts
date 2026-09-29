@@ -5,7 +5,7 @@ import { fetchAndParseEPG } from "@/lib/epgParser";
 
 export const dynamic = "force-dynamic";
 
-const M3U_URL = "https://m3upt.com/iptv";
+const M3U_URL = "https://github.com/iptv-com/iptv/raw/refs/heads/main/lists/brazil.m3u";
 const EPG_URL = "https://m3upt.com/epg";
 
 export async function GET() {
