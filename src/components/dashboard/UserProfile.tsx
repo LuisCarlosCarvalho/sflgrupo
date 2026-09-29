@@ -314,22 +314,37 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
           </div>
 
           {/* Fake Match Alert (Simulated Data) */}
-          {user.favoriteTeam && (
-            <div className="mt-4 pt-4 border-t border-white/5">
-              <div className="bg-brand-green/10 border border-brand-green/20 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                    Próximo Jogo (Simulado)
-                  </p>
-                  <p className="text-xs font-bold text-white mt-1">
-                    {user.favoriteTeam} vs Rival FC
-                  </p>
-                  <p className="text-[10px] text-gray-400 mt-1">Hoje, 21:30 - Canal ESPN</p>
+          {user.favoriteTeam && (() => {
+            const teamLogos: Record<string, string> = {
+              "Palmeiras": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
+              "Flamengo": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Flamengo_braz_logo.svg",
+              "São Paulo": "https://upload.wikimedia.org/wikipedia/commons/4/4b/S%C3%A3o_Paulo_Futebol_Clube.png",
+              "Corinthians": "https://upload.wikimedia.org/wikipedia/en/5/5a/Sport_Club_Corinthians_Paulista_crest.svg",
+              "Real Madrid": "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
+              "Barcelona": "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+            };
+            const logo = teamLogos[user.favoriteTeam] || "https://upload.wikimedia.org/wikipedia/commons/a/ad/Football_in_flat_style.svg";
+
+            return (
+              <div className="mt-4 pt-4 border-t border-white/5">
+                <div className="bg-brand-green/10 border border-brand-green/20 rounded-xl p-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-black/50 border border-white/10 flex items-center justify-center shadow-xl p-2 shrink-0">
+                    <img src={logo} alt={user.favoriteTeam} className="w-full h-full object-contain" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                      Próximo Jogo (Simulado)
+                    </p>
+                    <p className="text-xs font-bold text-white mt-1">
+                      {user.favoriteTeam} vs Rival FC
+                    </p>
+                    <p className="text-[10px] text-gray-400 mt-1">Hoje, 21:30 - Canal ESPN</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
       </div>
     </div>

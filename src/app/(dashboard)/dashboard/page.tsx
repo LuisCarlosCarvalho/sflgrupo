@@ -140,32 +140,44 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 </div>
 
                 {/* Team Alert Box (Right Side) */}
-                {user?.favoriteTeam && (
-                  <div className="glass-panel p-4 rounded-2xl border-white/5 bg-gradient-to-r from-brand-green/10 to-transparent min-w-[300px] w-full md:w-auto relative overflow-hidden group hover:border-brand-green/30 transition-all">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-brand-green/20 blur-[40px] rounded-full group-hover:bg-brand-green/30 transition-all" />
-                    <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2 mb-2">
-                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                      Alerta Time do Coração
-                    </p>
-                    
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-black/50 border border-white/10 flex items-center justify-center text-2xl shadow-xl">
-                        ⚽
-                      </div>
-                      <div>
-                        <p className="text-sm font-black text-white uppercase tracking-tighter">
-                          O {user.favoriteTeam} joga hoje!
-                        </p>
-                        <p className="text-xs text-brand-yellow font-bold mt-0.5">
-                          Libertadores • 21:30
-                        </p>
-                        <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">
-                          Transmissão: ESPN
-                        </p>
+                {user?.favoriteTeam && (() => {
+                  const teamLogos: Record<string, string> = {
+                    "Palmeiras": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
+                    "Flamengo": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Flamengo_braz_logo.svg",
+                    "São Paulo": "https://upload.wikimedia.org/wikipedia/commons/4/4b/S%C3%A3o_Paulo_Futebol_Clube.png",
+                    "Corinthians": "https://upload.wikimedia.org/wikipedia/en/5/5a/Sport_Club_Corinthians_Paulista_crest.svg",
+                    "Real Madrid": "https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg",
+                    "Barcelona": "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+                  };
+                  const logo = teamLogos[user.favoriteTeam] || "https://upload.wikimedia.org/wikipedia/commons/a/ad/Football_in_flat_style.svg";
+
+                  return (
+                    <div className="glass-panel p-4 rounded-2xl border-white/5 bg-gradient-to-r from-brand-green/10 to-transparent min-w-[300px] w-full md:w-auto relative overflow-hidden group hover:border-brand-green/30 transition-all">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-brand-green/20 blur-[40px] rounded-full group-hover:bg-brand-green/30 transition-all" />
+                      <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2 mb-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                        Alerta Time do Coração
+                      </p>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-black/50 border border-white/10 flex items-center justify-center shadow-xl p-2">
+                          <img src={logo} alt={user.favoriteTeam} className="w-full h-full object-contain" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-white uppercase tracking-tighter">
+                            O {user.favoriteTeam} joga hoje!
+                          </p>
+                          <p className="text-xs text-brand-yellow font-bold mt-0.5">
+                            Libertadores • 21:30
+                          </p>
+                          <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">
+                            Transmissão: ESPN
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
               </div>
 
               <LiveScoreboard />
