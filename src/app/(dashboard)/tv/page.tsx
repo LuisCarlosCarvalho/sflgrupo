@@ -16,7 +16,7 @@ interface TVCategory {
 
 export default function TVPage() {
   const [categories, setCategories] = useState<TVCategory[]>([]);
-  const [activeCategory, setActiveCategory] = useState("Todos");
+  const [activeCategory, setActiveCategory] = useState("TODOS");
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,8 +27,12 @@ export default function TVPage() {
   const [selectedProgram, setSelectedProgram] = useState<{ program: Program, channel: Channel } | null>(null);
   const [playingStream, setPlayingStream] = useState<string | null>(null);
 
-  // Extrair categorias dinamicamente dos dados (mantendo "Todos" fixo na frente)
-  const availableCategories = ["TODOS", ...Array.from(new Set(categories.map(c => c.name.toUpperCase())))].sort();
+  // Extrair categorias dinamicamente dos dados (mantendo "TODOS" fixo na frente)
+  const dynamicCategories = categories
+    .map((c) => c.name?.trim().toUpperCase())
+    .filter((cat): cat is string => Boolean(cat) && cat !== "TODOS");
+
+  const availableCategories = ["TODOS", ...Array.from(new Set(dynamicCategories)).sort()];
 
   async function loadData() {
     setIsRefreshing(true);
@@ -214,22 +218,22 @@ export default function TVPage() {
            </div>
         )}
 
-        {/* Category Tabs Bar */}
-        <div className="flex items-center gap-6 mb-6 overflow-x-auto no-scrollbar pb-2 border-b border-white/5">
-           {availableCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`whitespace-nowrap pb-2 text-[11px] font-bold tracking-widest uppercase transition-all ${
-                  activeCategory === cat 
-                    ? "text-brand-green border-b-2 border-brand-green" 
-                    : "text-gray-500 hover:text-white"
-                }`}
-              >
-                {cat}
-              </button>
-           ))}
-        </div>
+         {/* Category Tabs Bar */}
+         <div className="flex items-center gap-6 mb-6 overflow-x-auto no-scrollbar pb-2 border-b border-white/5">
+            {availableCategories.map((cat, index) => (
+               <button
+                 key={`cat-${cat}-${index}`}
+                 onClick={() => setActiveCategory(cat)}
+                 className={`whitespace-nowrap pb-2 text-[11px] font-bold tracking-widest uppercase transition-all ${
+                   activeCategory === cat 
+                     ? "text-brand-green border-b-2 border-brand-green" 
+                     : "text-gray-500 hover:text-white"
+                 }`}
+               >
+                 {cat}
+               </button>
+            ))}
+         </div>
 
         {/* Grid Block */}
         <div className="flex-1 w-full">
