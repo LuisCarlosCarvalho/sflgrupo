@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const isProduction = process.env.NODE_ENV === "production";
+    const setupSecret = req.headers.get("x-setup-secret");
+
+    if (isProduction && setupSecret !== process.env.SETUP_SECRET_KEY) {
+      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
+    }
     const adminPasswordHash = await bcrypt.hash("S@l798412", 10);
     const testUserPasswordHash = await bcrypt.hash("User@SFL2026", 10);
 

@@ -1,5 +1,6 @@
 "use server";
 
+import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { fetchAndParseEPG } from "@/lib/epgParser";
 
@@ -30,106 +31,114 @@ function timeToMinutes(timeStr: string) {
   return h * 60 + m;
 }
 
-export async function getTVChannels(category?: string) {
-  try {
-    const where =
-      category && category !== "TODOS"
-        ? { category: { equals: category, mode: "insensitive" as const } }
-        : {};
-    const channels = await prisma.tVChannel.findMany({
-      where: { ...where, active: true },
-      include: {
-        programs: {
-          orderBy: { startTime: "asc" },
+export const getTVChannels = unstable_cache(
+  async (category?: string) => {
+    try {
+      const where =
+        category && category !== "TODOS"
+          ? { category: { equals: category, mode: "insensitive" as const } }
+          : {};
+      const channels = await prisma.tVChannel.findMany({
+        where: { ...where, active: true },
+        include: {
+          programs: {
+            orderBy: { startTime: "asc" },
+          },
         },
-      },
-      orderBy: { channelNum: "asc" },
-    });
-    return { success: true, data: channels };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-}
-
-export async function getLiveTVHome(): Promise<Category[]> {
-  try {
-    const channels = await prisma.tVChannel.findMany({
-      where: { active: true },
-      include: {
-        programs: {
-          orderBy: { startTime: "asc" },
-        },
-      },
-      orderBy: { channelNum: "asc" },
-    });
-
-    if (channels.length === 0) {
-      // Fallback default channels
-      return [
-        {
-          name: "Abertos",
-          channels: [
-            {
-              id: "1",
-              name: "RECORD SP HD",
-              number: 1,
-              logo_url: "https://upload.wikimedia.org/wikipedia/pt/7/77/RecordTV_2016.png",
-              programs: [
-                {
-                  title: "Jornal da Record",
-                  start: "20:00",
-                  end: "21:00",
-                  isLive: true,
-                },
-              ],
-            },
-          ],
-        },
-      ];
+        orderBy: { channelNum: "asc" },
+      });
+      return { success: true, data: channels };
+    } catch (error: any) {
+      return { success: false, error: error.message };
     }
+  },
+  ["tv-channels"],
+  { revalidate: 60 }
+);
 
-    const categoriesMap: Record<string, Channel[]> = {};
-
-    channels.forEach((ch) => {
-      const catName = ch.category || "Gerais";
-      if (!categoriesMap[catName]) categoriesMap[catName] = [];
-
-      const programs: Program[] = ch.programs.map((p) => {
-        const start = p.startTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
-        const end = p.endTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
-        return {
-          title: p.title,
-          start,
-          end,
-          isLive: p.isLive,
-        };
+export const getLiveTVHome = unstable_cache(
+  async (): Promise<Category[]> => {
+    try {
+      const channels = await prisma.tVChannel.findMany({
+        where: { active: true },
+        include: {
+          programs: {
+            orderBy: { startTime: "asc" },
+          },
+        },
+        orderBy: { channelNum: "asc" },
       });
 
-      if (programs.length === 0) {
-        programs.push({
-          title: "Programação Especial",
-          start: "00:00",
-          end: "23:59",
-          isLive: true,
-        });
+      if (channels.length === 0) {
+        // Fallback default channels
+        return [
+          {
+            name: "Abertos",
+            channels: [
+              {
+                id: "1",
+                name: "RECORD SP HD",
+                number: 1,
+                logo_url: "https://upload.wikimedia.org/wikipedia/pt/7/77/RecordTV_2016.png",
+                programs: [
+                  {
+                    title: "Jornal da Record",
+                    start: "20:00",
+                    end: "21:00",
+                    isLive: true,
+                  },
+                ],
+              },
+            ],
+          },
+        ];
       }
 
-      categoriesMap[catName].push({
-        id: ch.id,
-        name: ch.name,
-        number: parseInt(ch.channelNum, 10) || 1,
-        logo_url: ch.logoUrl,
-        streamUrl: ch.streamUrl,
-        programs,
-      });
-    });
+      const categoriesMap: Record<string, Channel[]> = {};
 
-    return Object.entries(categoriesMap).map(([name, channelsList]) => ({
-      name,
-      channels: channelsList,
-    }));
-  } catch (error) {
-    console.error("Error in getLiveTVHome:", error);
-    return [];
-  }
-}
+      channels.forEach((ch) => {
+        const catName = ch.category || "Gerais";
+        if (!categoriesMap[catName]) categoriesMap[catName] = [];
+
+        const programs: Program[] = ch.programs.map((p) => {
+          const start = p.startTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+          const end = p.endTime.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
+          return {
+            title: p.title,
+            start,
+            end,
+            isLive: p.isLive,
+          };
+        });
+
+        if (programs.length === 0) {
+          programs.push({
+            title: "Programação Especial",
+            start: "00:00",
+            end: "23:59",
+            isLive: true,
+          });
+        }
+
+        categoriesMap[catName].push({
+          id: ch.id,
+          name: ch.name,
+          number: parseInt(ch.channelNum, 10) || 1,
+          logo_url: ch.logoUrl,
+          streamUrl: ch.streamUrl,
+          programs,
+        });
+      });
+
+      return Object.entries(categoriesMap).map(([name, channelsList]) => ({
+        name,
+        channels: channelsList,
+      }));
+    } catch (error) {
+      console.error("Error in getLiveTVHome:", error);
+      return [];
+    }
+  },
+  ["live-tv-home"],
+  { revalidate: 60 }
+);

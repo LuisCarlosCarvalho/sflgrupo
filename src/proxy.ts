@@ -11,7 +11,16 @@ export default withAuth(
       return NextResponse.redirect(new URL("/", req.url));
     }
 
-    return NextResponse.next();
+    const res = NextResponse.next();
+    
+    // Headers de segurança HTTP
+    res.headers.set("X-Frame-Options", "SAMEORIGIN");
+    res.headers.set("X-Content-Type-Options", "nosniff");
+    res.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
+    res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+
+    return res;
   },
   {
     callbacks: {

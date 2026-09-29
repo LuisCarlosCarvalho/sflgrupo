@@ -8,6 +8,10 @@ export async function POST(req: Request) {
   const body = await req.text();
   const signature = (await headers()).get("stripe-signature") as string;
 
+  if (!signature) {
+    return NextResponse.json({ error: "Missing Stripe signature" }, { status: 400 });
+  }
+
   let event: Stripe.Event;
 
   try {
@@ -26,31 +30,40 @@ export async function POST(req: Request) {
     const stripeCustomerId = session.customer as string;
 
     if (userEmail) {
-      await prisma.user.upsert({
-        where: { email: userEmail },
-        update: {
-          status: "ACTIVE",
-          stripeCustomerId,
-          plan: "VIP",
-          planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-        create: {
-          email: userEmail,
-          name: session.customer_details?.name || "Cliente SFL",
-          status: "ACTIVE",
-          plan: "VIP",
-          stripeCustomerId,
-          planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        },
-      });
+      await prisma.$transaction(async (tx) => {
+        // Idempotência: verificar se transação do checkout já existe
+        const existingTx = await tx.transaction.findFirst({
+          where: { description: { contains: session.id } }
+        });
 
-      await prisma.transaction.create({
-        data: {
-          description: `Assinatura Stripe (${session.amount_total ? session.amount_total / 100 : 0} ${session.currency?.toUpperCase()})`,
-          amount: session.amount_total ? session.amount_total / 100 : 0,
-          type: "INCOME",
-          category: "ASSINATURA",
-        },
+        if (existingTx) return; // Já foi processado
+
+        await tx.user.upsert({
+          where: { email: userEmail },
+          update: {
+            status: "ACTIVE",
+            stripeCustomerId,
+            plan: "VIP",
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+          create: {
+            email: userEmail,
+            name: session.customer_details?.name || "Cliente SFL",
+            status: "ACTIVE",
+            plan: "VIP",
+            stripeCustomerId,
+            planExpiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          },
+        });
+
+        await tx.transaction.create({
+          data: {
+            description: `Assinatura Stripe [${session.id}] (${session.amount_total ? session.amount_total / 100 : 0} ${session.currency?.toUpperCase()})`,
+            amount: session.amount_total ? session.amount_total / 100 : 0,
+            type: "INCOME",
+            category: "ASSINATURA",
+          },
+        });
       });
     }
   }
