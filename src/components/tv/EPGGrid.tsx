@@ -197,7 +197,7 @@ export default function EPGGrid({ categories, onSelectProgram, onSelectChannel, 
                   {category.channels.map((channel) => {
                     const globalIdx = allChannels.findIndex(c => c.id === channel.id);
                     const colorClass = BORDER_COLORS[globalIdx % 5];
-                    const activeBgColor = colorClass.replace('border-', 'bg-').replace(']', '/10]'); // Simulate background
+                    const activeBgColor = colorClass.replace('border-', ''); // Use inline style for bg
 
                     return (
                       <div key={channel.id} className="h-[80px] border-b border-white/5 relative group flex items-center">
@@ -213,16 +213,17 @@ export default function EPGGrid({ categories, onSelectProgram, onSelectChannel, 
                           const width = duration * PIXELS_PER_MINUTE;
                           
                           return (
-                            <motion.div
+                            <div
                               onClick={() => onSelectProgram && onSelectProgram(program, channel)}
                               key={pIdx}
                               className={`absolute top-1 bottom-1 rounded-lg p-3 overflow-hidden flex flex-col justify-center transition-all ${isDragging ? 'pointer-events-none' : 'cursor-pointer'} ${
-                                isSelected ? `border ${colorClass} ${activeBgColor} z-10 scale-[1.02] shadow-lg` : 
+                                isSelected ? `border ${colorClass} z-10 scale-[1.02] shadow-lg` : 
                                 'bg-[#191A23] border border-transparent hover:bg-[#20222D] hover:border-white/10'
                               }`}
                               style={{ 
                                 left: startMin * PIXELS_PER_MINUTE + 4, 
-                                width: width - 8 
+                                width: width - 8,
+                                backgroundColor: isSelected ? activeBgColor.replace('[', '').replace(']', '') + '1A' : undefined
                               }}
                             >
                               <span className={`block w-full truncate text-[13px] font-semibold mb-1 ${isSelected ? 'text-white' : 'text-gray-300'}`}>
@@ -240,7 +241,7 @@ export default function EPGGrid({ categories, onSelectProgram, onSelectChannel, 
                                   {program.start} - {program.end}
                                 </span>
                               </div>
-                            </motion.div>
+                            </div>
                           );
                         })}
                       </div>

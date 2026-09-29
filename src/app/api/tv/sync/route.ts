@@ -6,22 +6,6 @@ import { fetchAndParseEPG } from "@/lib/epgParser";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // Vercel pro max duration
 
-const M3U_URLS = [
-  { url: "http://bit.ly/Will-Canais", group: "Canais" },
-  { url: "http://bit.ly/Will-Filmes", group: "Filmes" },
-  { url: "http://bit.ly/Will-Sports", group: "Esportes" },
-  { url: "http://bit.ly/Will-Series", group: "Séries" },
-  { url: "http://bit.ly/Will-Desenhos", group: "Desenhos" },
-  { url: "http://bit.ly/Will-Adultos", group: "Adultos" },
-  { url: "http://bit.ly/Will-Simpsons", group: "Simpsons" },
-  { url: "http://bit.ly/Will-PicaPau", group: "Pica-Pau" },
-  { url: "http://bit.ly/Will-ChavesDesenhos", group: "Chaves Desenho" },
-  { url: "http://bit.ly/Will-DesenhosBiblico", group: "Desenhos Bíblicos" },
-  { url: "http://bit.ly/Will-TomGerry", group: "Tom e Jerry" }
-];
-
-const EPG_URL = "https://m3upt.com/epg";
-
 // Função para testar se o stream está online (timeout de 2 segundos)
 async function isStreamOnline(url: string): Promise<boolean> {
   try {
@@ -43,10 +27,27 @@ async function isStreamOnline(url: string): Promise<boolean> {
 
 export async function GET() {
   try {
+    const [m3uSetting, epgSetting] = await Promise.all([
+      prisma.systemSetting.findUnique({ where: { key: "m3u_url" } }),
+      prisma.systemSetting.findUnique({ where: { key: "epg_url" } })
+    ]);
+
+    const m3uText = m3uSetting?.value || "http://bit.ly/Will-Canais";
+    const epgUrl = epgSetting?.value || "https://m3upt.com/epg";
+
+    // Extrair URLs do texto separado por quebra de linha
+    const m3uUrlsList = m3uText.split("\n").map(u => u.trim()).filter(u => u.length > 0);
+    const m3uUrls = m3uUrlsList.map(url => {
+        // Tentar inferir grupo pela URL (ex: Will-Filmes -> Filmes)
+        const match = url.match(/-([A-Za-z]+)$/);
+        const group = match ? match[1] : "GERAL";
+        return { url, group };
+    });
+
     const allM3uChannels: M3UChannel[] = [];
     
     // 1. Fetch todas as listas M3U em paralelo
-    const m3uPromises = M3U_URLS.map(async (list) => {
+    const m3uPromises = m3uUrls.map(async (list) => {
        const parsed = await fetchAndParseM3U(list.url);
        // Sobrescrever o grupo com o nome da lista se não vier no M3U
        return parsed.map(c => ({ ...c, group: c.group && c.group !== "GERAL" ? c.group : list.group }));
@@ -55,7 +56,7 @@ export async function GET() {
     m3uResults.forEach(res => allM3uChannels.push(...res));
     
     // 2. Parse EPG
-    const epgData = await fetchAndParseEPG(EPG_URL);
+    const epgData = await fetchAndParseEPG(epgUrl);
     const epgMap = new Map(epgData.map((c) => [c.id, c]));
 
     // Limpa banco de dados para nova sincronização
