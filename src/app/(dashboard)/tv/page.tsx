@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import EPGGrid, { Program, Channel } from "@/components/tv/EPGGrid";
 import { getLiveTVHome } from "@/app/actions/tv";
-import { Search, RefreshCw, ChevronDown, Filter } from "lucide-react";
+import { Search, RefreshCw, ChevronDown, Filter, Play } from "lucide-react";
 import { motion } from "framer-motion";
+import ReactPlayer from "react-player";
 
 interface TVChannel extends Channel {}
 interface TVCategory {
@@ -24,6 +25,7 @@ export default function TVPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const [selectedProgram, setSelectedProgram] = useState<{ program: Program, channel: Channel } | null>(null);
+  const [playingStream, setPlayingStream] = useState<string | null>(null);
 
   // Extrair categorias dinamicamente dos dados (mantendo "Todos" fixo na frente)
   const availableCategories = ["TODOS", ...Array.from(new Set(categories.map(c => c.name.toUpperCase())))].sort();
@@ -255,13 +257,49 @@ export default function TVPage() {
         <div className="fixed bottom-0 left-0 right-0 h-[160px] bg-[#0C0E14] border-t border-white/5 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] z-50 flex items-center px-6 md:px-12">
            <div className="flex items-center gap-8 md:gap-12 w-full max-w-[1920px] mx-auto">
               
-              {/* Canal Logo Expandido */}
-              <div className="hidden md:flex w-[240px] h-[120px] bg-[#050505] rounded-xl border border-white/5 items-center justify-center p-4 shadow-inner">
-                 {selectedProgram.channel.logo_url ? (
-                   <img src={selectedProgram.channel.logo_url} alt={selectedProgram.channel.name} className="max-w-full max-h-full object-contain drop-shadow-2xl" />
-                 ) : (
-                   <span className="text-2xl font-black text-white/20 uppercase">{selectedProgram.channel.name}</span>
-                 )}
+              {/* Canal Logo Expandido / Player */}
+              <div 
+                onClick={() => setPlayingStream(selectedProgram.channel.streamUrl || "")}
+                className="relative hidden md:flex w-[240px] h-[120px] bg-[#050505] rounded-xl border border-white/5 items-center justify-center overflow-hidden shadow-inner cursor-pointer group"
+              >
+                {playingStream === selectedProgram.channel.streamUrl ? (
+                  <ReactPlayer 
+                    url={playingStream} 
+                    playing 
+                    controls 
+                    width="100%" 
+                    height="100%" 
+                    className="absolute inset-0"
+                  />
+                ) : (
+                  <>
+                    {selectedProgram.channel.logo_url ? (
+                      <img 
+                        src={selectedProgram.channel.logo_url} 
+                        alt={selectedProgram.channel.name} 
+                        className="max-w-full max-h-full p-4 object-contain drop-shadow-2xl group-hover:scale-105 transition-transform" 
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const nextSibling = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (nextSibling) nextSibling.style.display = "block";
+                        }}
+                      />
+                    ) : null}
+                    
+                    <span 
+                      className="text-2xl font-black text-white/20 uppercase text-center p-2"
+                      style={{ display: selectedProgram.channel.logo_url ? "none" : "block" }}
+                    >
+                      {selectedProgram.channel.name}
+                    </span>
+
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-brand-yellow text-black flex items-center justify-center shadow-lg">
+                        <Play fill="currentColor" size={20} className="ml-1" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Informações do Programa */}

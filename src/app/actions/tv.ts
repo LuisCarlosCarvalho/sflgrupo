@@ -15,6 +15,7 @@ export interface Channel {
   name: string;
   number?: number;
   logo_url?: string;
+  streamUrl?: string;
   programs: Program[];
 }
 
@@ -118,6 +119,7 @@ export async function getLiveTVHome(): Promise<Category[]> {
         name: ch.name,
         number: parseInt(ch.channelNum, 10) || 1,
         logo_url: ch.logoUrl,
+        streamUrl: ch.streamUrl,
         programs,
       });
     });

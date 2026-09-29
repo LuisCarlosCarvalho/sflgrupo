@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Lock, User as UserIcon, Loader2, AlertCircle } from "lucide-react";
+import { Lock, User as UserIcon, Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -85,13 +86,21 @@ export default function LoginPage() {
             <div className="relative group">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-gray-500 group-focus-within:text-brand-green transition-colors" />
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"} 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-10 md:px-12 py-3 md:py-4 focus:outline-none focus:border-brand-green transition-all placeholder:text-gray-700 text-sm md:text-base text-white"
+                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl pl-10 md:pl-12 pr-12 md:pr-14 py-3 md:py-4 focus:outline-none focus:border-brand-green transition-all placeholder:text-gray-700 text-sm md:text-base text-white"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-white transition-colors"
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4 md:w-5 md:h-5" /> : <Eye className="w-4 h-4 md:w-5 md:h-5" />}
+              </button>
             </div>
           </div>
 
