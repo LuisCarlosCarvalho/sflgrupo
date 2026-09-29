@@ -18,38 +18,9 @@ export default function PricingTable() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [isBR, setIsBR] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
-
-    async function detectLocation() {
-      try {
-        const res = await fetch("https://ipapi.co/json/");
-        const data = await res.json();
-        if (data.country_code === "BR" && isMounted) {
-          setIsBR(true);
-        }
-      } catch (error) {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-        if (
-          (tz.includes("Sao_Paulo") ||
-            tz.includes("Bahia") ||
-            tz.includes("Belem") ||
-            tz.includes("Fortaleza") ||
-            tz.includes("Maceio") ||
-            tz.includes("Manaus") ||
-            tz.includes("Cuiaba") ||
-            tz.includes("Porto_Velho") ||
-            tz.includes("Boa_Vista") ||
-            tz.includes("Campo_Grande") ||
-            tz.includes("Rio_Branco")) &&
-          isMounted
-        ) {
-          setIsBR(true);
-        }
-      }
-    }
 
     async function fetchPlans() {
       const data = await getLandingPricingPlans();
@@ -57,7 +28,6 @@ export default function PricingTable() {
       if (isMounted) setLoading(false);
     }
 
-    detectLocation();
     fetchPlans();
 
     return () => {
@@ -66,20 +36,8 @@ export default function PricingTable() {
   }, []);
 
   const getDisplayPrice = (plan: PricingPlan) => {
-    if (!isBR) return { price: plan.price, currency: plan.currency === "BRL" ? "R$" : plan.currency === "EUR" ? "€" : "$" };
-
-    let convertedPrice: number | string = plan.price;
-    const name = plan.name.toUpperCase();
-
-    if (name.includes("VIP") || name.includes("MÊS")) convertedPrice = 40;
-    else if (name.includes("SEMESTRAL")) convertedPrice = 225;
-    else if (name.includes("SAAS") || name.includes("GESTÃO")) convertedPrice = 50;
-    else {
-      const num = typeof plan.price === "string" ? parseFloat((plan.price as string).replace(",", ".")) : Number(plan.price);
-      convertedPrice = isNaN(num) ? plan.price : Math.round(num * 4.5);
-    }
-
-    return { price: convertedPrice, currency: "R$" };
+    const symbol = plan.currency === "BRL" ? "R$" : plan.currency === "EUR" ? "€" : "$";
+    return { price: plan.price, currency: symbol };
   };
 
   const handleSubscribe = (planName: string) => {

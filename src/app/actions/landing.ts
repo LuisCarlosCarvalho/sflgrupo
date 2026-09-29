@@ -83,8 +83,15 @@ export async function getLandingFeatures() {
   }
 }
 
+import { headers } from "next/headers";
+
 export async function getLandingPricingPlans() {
   try {
+    const headersList = await headers();
+    const country = headersList.get("x-vercel-ip-country") || "BR";
+    const isEuro = ["PT", "ES", "FR", "IT", "DE", "GB", "IE", "CH", "AT"].includes(country.toUpperCase());
+    const currency = isEuro ? "EUR" : "BRL";
+
     const plans = await prisma.pricingPlan.findMany({
       where: { active: true },
       orderBy: { priceBrl: "asc" },
@@ -95,8 +102,8 @@ export async function getLandingPricingPlans() {
         {
           id: "1",
           name: "MENSAL VIP",
-          price: 40,
-          currency: "BRL",
+          price: isEuro ? 9 : 40,
+          currency,
           features: ["Todos os canais liberados", "Filmes e Séries On-Demand", "Guia de Programação (EPG)", "1 Tela Simultânea"],
           color_theme: "green",
           is_popular: false,
@@ -104,8 +111,8 @@ export async function getLandingPricingPlans() {
         {
           id: "2",
           name: "TRIMESTRAL VIP",
-          price: 110,
-          currency: "BRL",
+          price: isEuro ? 24 : 110,
+          currency,
           features: ["Todos os canais liberados", "Filmes e Séries On-Demand", "Guia de Programação (EPG)", "2 Telas Simultâneas", "Suporte Prioritário"],
           color_theme: "yellow",
           is_popular: true,
@@ -113,8 +120,8 @@ export async function getLandingPricingPlans() {
         {
           id: "3",
           name: "ANUAL VIP",
-          price: 360,
-          currency: "BRL",
+          price: isEuro ? 85 : 360,
+          currency,
           features: ["Acesso Completo por 12 meses", "Melhor Custo-Benefício", "3 Telas Simultâneas", "Suporte VIP via WhatsApp"],
           color_theme: "blue",
           is_popular: false,
@@ -125,8 +132,8 @@ export async function getLandingPricingPlans() {
     return plans.map((p) => ({
       id: p.id,
       name: p.name,
-      price: p.priceBrl,
-      currency: "BRL",
+      price: isEuro && p.priceEur ? p.priceEur : p.priceBrl,
+      currency,
       features: p.features,
       color_theme: p.popular ? "yellow" : "green",
       is_popular: p.popular,
