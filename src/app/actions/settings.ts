@@ -30,7 +30,7 @@ export async function updatePricingPlan(id: string, data: { name?: string; price
   return updated;
 }
 
-export async function updateSiteFeature(id: string, data: { title?: string; description?: string }) {
+export async function updateSiteFeature(id: string, data: { title?: string; description?: string; icon?: string }) {
   const updated = await prisma.siteFeature.update({
     where: { id },
     data,

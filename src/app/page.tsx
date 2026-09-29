@@ -54,6 +54,7 @@ export default function LandingPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
               {features.map((feature) => {
+                const isUrl = feature.icon_name.startsWith("http") || feature.icon_name.startsWith("/");
                 const Icon = iconMap[feature.icon_name] || Tv;
                 const colorClass =
                   feature.color_theme === "green"
@@ -65,7 +66,7 @@ export default function LandingPage() {
                 return (
                   <FeatureCard
                     key={feature.id}
-                    icon={<Icon className={`w-8 h-8 ${colorClass}`} />}
+                    icon={isUrl ? feature.icon_name : <Icon className={`w-8 h-8 ${colorClass}`} />}
                     title={feature.title}
                     description={feature.description}
                   />
@@ -130,11 +131,22 @@ export default function LandingPage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode | string; title: string; description: string }) {
+  const isUrl = typeof icon === "string" && (icon.startsWith("http") || icon.startsWith("/"));
+  const isVideo = isUrl && (icon.endsWith(".mp4") || icon.endsWith(".webm") || icon.endsWith(".mov"));
+
   return (
     <div className="space-y-4 p-6 md:p-8 rounded-3xl hover:bg-white/5 transition-all duration-300 group border border-transparent hover:border-white/10">
-      <div className="p-4 bg-white/5 rounded-2xl w-fit group-hover:scale-110 group-hover:bg-white/10 transition-all duration-500">
-        {icon}
+      <div className="p-4 bg-white/5 rounded-2xl w-fit group-hover:scale-110 group-hover:bg-white/10 transition-all duration-500 overflow-hidden flex items-center justify-center">
+        {isUrl ? (
+          isVideo ? (
+            <video src={icon} autoPlay loop muted playsInline className="w-16 h-16 object-cover rounded-xl" />
+          ) : (
+            <img src={icon} alt={title} className="w-16 h-16 object-cover rounded-xl" />
+          )
+        ) : (
+          icon
+        )}
       </div>
       <h3 className="text-lg md:text-xl font-black uppercase tracking-tighter">{title}</h3>
       <p className="text-gray-400 text-xs md:text-sm leading-relaxed">{description}</p>

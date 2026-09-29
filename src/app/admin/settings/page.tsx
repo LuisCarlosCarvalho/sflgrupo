@@ -265,6 +265,12 @@ export default function SiteSettingsPage() {
                 value={feature.title}
                 onChange={(e) => setFeatures(features.map(f => f.id === feature.id ? {...f, title: e.target.value} : f))}
               />
+              <input 
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-medium focus:outline-none focus:border-brand-green"
+                placeholder="Ícone Lucide ou URL de Imagem/Vídeo/GIF"
+                value={feature.icon}
+                onChange={(e) => setFeatures(features.map(f => f.id === feature.id ? {...f, icon: e.target.value} : f))}
+              />
               <textarea 
                 className="w-full bg-transparent text-xs text-gray-500 leading-relaxed h-20"
                 value={feature.description}
