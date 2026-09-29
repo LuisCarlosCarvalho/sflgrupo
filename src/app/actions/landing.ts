@@ -50,7 +50,36 @@ export async function getLandingFeatures() {
     }));
   } catch (error) {
     console.error("Error fetching landing features:", error);
-    return [];
+    return [
+      {
+        id: "1",
+        icon_name: "Tv",
+        title: "TV Ao Vivo & Esportes",
+        description: "Canais em alta definição com guia de programação interativo e sem travamentos.",
+        color_theme: "green",
+      },
+      {
+        id: "2",
+        icon_name: "Smartphone",
+        title: "Multiplataforma",
+        description: "Disponível em Android, Smart TV, TV Box, iOS e computadores Windows.",
+        color_theme: "yellow",
+      },
+      {
+        id: "3",
+        icon_name: "Globe",
+        title: "Servidores Globais",
+        description: "Infraestrutura de baixa latência distribuída para máxima estabilidade.",
+        color_theme: "blue",
+      },
+      {
+        id: "4",
+        icon_name: "ShieldCheck",
+        title: "Ativação Imediata",
+        description: "Suporte dedicado com liberação rápida e teste sem compromisso.",
+        color_theme: "green",
+      },
+    ];
   }
 }
 
@@ -104,6 +133,34 @@ export async function getLandingPricingPlans() {
     }));
   } catch (error) {
     console.error("Error fetching pricing plans:", error);
-    return [];
+    return [
+      {
+        id: "1",
+        name: "MENSAL VIP",
+        price: 40,
+        currency: "BRL",
+        features: ["Todos os canais liberados", "Filmes e Séries On-Demand", "Guia de Programação (EPG)", "1 Tela Simultânea"],
+        color_theme: "green",
+        is_popular: false,
+      },
+      {
+        id: "2",
+        name: "TRIMESTRAL VIP",
+        price: 110,
+        currency: "BRL",
+        features: ["Todos os canais liberados", "Filmes e Séries On-Demand", "Guia de Programação (EPG)", "2 Telas Simultâneas", "Suporte Prioritário"],
+        color_theme: "yellow",
+        is_popular: true,
+      },
+      {
+        id: "3",
+        name: "ANUAL VIP",
+        price: 360,
+        currency: "BRL",
+        features: ["Acesso Completo por 12 meses", "Melhor Custo-Benefício", "3 Telas Simultâneas", "Suporte VIP via WhatsApp"],
+        color_theme: "blue",
+        is_popular: false,
+      },
+    ];
   }
 }
