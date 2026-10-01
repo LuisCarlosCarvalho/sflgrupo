@@ -243,8 +243,8 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
           </div>
 
           {/* Plano e Valor */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-1">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div className="space-y-1 md:col-span-2">
               <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Plano Atual</label>
               <div className="relative">
                 <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
@@ -260,7 +260,7 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
               </div>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-1 md:col-span-3">
               <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
                 Mensalidade
               </label>
