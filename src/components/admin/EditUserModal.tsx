@@ -242,8 +242,23 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
             </div>
           </div>
 
+          {/* Status */}
+          <div className="space-y-1">
+            <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Status da Conta</label>
+            <div className="relative">
+              <select 
+                value={formData.isActive ? "true" : "false"}
+                onChange={e => setFormData({...formData, isActive: e.target.value === "true"})}
+                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-6 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none"
+              >
+                <option value="true" className="bg-[#15192A]">ATIVO</option>
+                <option value="false" className="bg-[#15192A]">BLOQUEADO</option>
+              </select>
+            </div>
+          </div>
+
           {/* Plano e Valor */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 md:col-span-2">
             <div className="space-y-1 md:col-span-2">
               <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Plano Atual</label>
               <div className="relative">
@@ -289,21 +304,6 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Status */}
-          <div className="space-y-1">
-            <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Status da Conta</label>
-            <div className="relative">
-              <select 
-                value={formData.isActive ? "true" : "false"}
-                onChange={e => setFormData({...formData, isActive: e.target.value === "true"})}
-                className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-6 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none"
-              >
-                <option value="true" className="bg-[#15192A]">ATIVO</option>
-                <option value="false" className="bg-[#15192A]">BLOQUEADO</option>
-              </select>
             </div>
           </div>
           
