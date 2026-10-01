@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { editUser } from "@/app/actions/admin";
-import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe } from "lucide-react";
+import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe, ChevronDown } from "lucide-react";
 import { User as UserType } from "./UserTable";
 
 interface EditUserModalProps {
@@ -272,20 +272,21 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
                   <input 
                     type="number" step="0.01" value={formData.plan_price}
                     onChange={e => setFormData({...formData, plan_price: Number(e.target.value)})}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl pl-10 pr-4 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     placeholder="0.00"
                   />
                 </div>
-                <div className="relative w-1/3">
+                <div className="relative w-28">
                   <select 
                     value={formData.currency}
                     onChange={e => setFormData({...formData, currency: e.target.value})}
-                    className="w-full h-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-4 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none"
+                    className="w-full h-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl pl-4 pr-10 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none font-bold text-gray-300"
                   >
                     <option value="BRL" className="bg-[#15192A]">BRL</option>
                     <option value="EUR" className="bg-[#15192A]">EUR</option>
                     <option value="USD" className="bg-[#15192A]">USD</option>
                   </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                 </div>
               </div>
             </div>

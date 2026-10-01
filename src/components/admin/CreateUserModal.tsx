@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createUser } from "@/app/actions/admin";
-import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe } from "lucide-react";
+import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe, ChevronDown } from "lucide-react";
 
 export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
@@ -237,29 +237,33 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
           </div>
 
           {/* Valor e Moeda */}
-          <div className="space-y-1 md:col-span-2 grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Valor</label>
-              <input 
-                type="number" step="0.01" required value={formData.amount}
-                onChange={e => setFormData({...formData, amount: e.target.value})}
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
-                placeholder="0,00"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Moeda</label>
-              <div className="relative">
-                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+          <div className="space-y-1 md:col-span-2">
+            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+              Mensalidade
+            </label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-600">
+                  {formData.currency === "EUR" ? "€" : formData.currency === "USD" ? "$" : "R$"}
+                </div>
+                <input 
+                  type="number" step="0.01" required value={formData.amount}
+                  onChange={e => setFormData({...formData, amount: e.target.value})}
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-4 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="relative w-28">
                 <select 
                   value={formData.currency}
                   onChange={e => setFormData({...formData, currency: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none"
+                  className="w-full h-full bg-white/5 border border-white/10 rounded-2xl pl-4 pr-10 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none font-bold text-gray-300"
                 >
-                  <option value="BRL" className="bg-[#15192A]">Real (R$)</option>
-                  <option value="EUR" className="bg-[#15192A]">Euro (€)</option>
-                  <option value="USD" className="bg-[#15192A]">Dólar ($)</option>
+                  <option value="BRL" className="bg-[#15192A]">BRL</option>
+                  <option value="EUR" className="bg-[#15192A]">EUR</option>
+                  <option value="USD" className="bg-[#15192A]">USD</option>
                 </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
               </div>
             </div>
           </div>
