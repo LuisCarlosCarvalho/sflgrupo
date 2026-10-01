@@ -57,7 +57,7 @@ export default function Navbar() {
       >
         <div className="w-full px-4 md:px-12 mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-3 group">
+            <Link href={session ? "/dashboard" : "/"} className="flex items-center gap-3 group">
               <img 
                 src="https://i.imgur.com/2ex0N3R.png" 
                 alt="SFL Grupo Logo" 

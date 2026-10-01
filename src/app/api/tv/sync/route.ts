@@ -50,7 +50,6 @@ export async function GET() {
     await prisma.tVProgram.deleteMany();
     await prisma.tVChannel.deleteMany();
 
-    const resultChannels = [];
     let channelCounter = 1;
 
     // Remove duplicates based on URL to avoid testing same stream twice
@@ -69,23 +68,24 @@ export async function GET() {
     console.log(`Inserindo ${onlineChannels.length} canais no banco...`);
 
     // Inserir os canais online no banco
+    const channelData = [];
+    const programData: any[] = [];
+    const crypto = require('crypto');
+
     for (const m3u of onlineChannels) {
       const epgChannel = m3u.id ? epgMap.get(m3u.id) : null;
+      const channelId = crypto.randomUUID();
       
-      const dbChannel = await prisma.tVChannel.create({
-        data: {
-          channelNum: channelCounter.toString().padStart(3, "0"),
-          name: m3u.name,
-          logoUrl: m3u.logo || epgChannel?.logo || "",
-          streamUrl: m3u.url,
-          category: m3u.group?.toUpperCase() || "GERAL",
-        },
+      channelData.push({
+        id: channelId,
+        channelNum: channelCounter.toString().padStart(3, "0"),
+        name: m3u.name,
+        logoUrl: m3u.logo || epgChannel?.logo || "",
+        streamUrl: m3u.url,
+        category: m3u.group?.toUpperCase() || "GERAL",
       });
 
       channelCounter++;
-      resultChannels.push(dbChannel);
-
-      const programsToInsert = [];
 
       if (epgChannel && epgChannel.programas && epgChannel.programas.length > 0) {
         for (const prog of epgChannel.programas) {
@@ -99,30 +99,43 @@ export async function GET() {
              return new Date(year, month, day, hour, min, sec);
           };
 
-          programsToInsert.push({
-            channelId: dbChannel.id,
+          programData.push({
+            channelId: channelId,
             title: prog.titulo || "Programa Sem Nome",
             description: prog.desc || "",
             startTime: parseEpgDate(prog.inicio),
             endTime: parseEpgDate(prog.fim),
             isLive: false,
-            category: dbChannel.category,
+            category: m3u.group?.toUpperCase() || "GERAL",
           });
         }
       }
+    }
 
-      if (programsToInsert.length > 0) {
-        await prisma.tVProgram.createMany({
-          data: programsToInsert,
-        });
-      }
+    // Insert em batch (5.000 por vez)
+    const CHUNK_SIZE = 5000;
+    
+    console.log(`Fazendo bulk insert de ${channelData.length} canais...`);
+    for (let i = 0; i < channelData.length; i += CHUNK_SIZE) {
+      await prisma.tVChannel.createMany({
+        data: channelData.slice(i, i + CHUNK_SIZE),
+        skipDuplicates: true,
+      });
+    }
+
+    console.log(`Fazendo bulk insert de ${programData.length} programas...`);
+    for (let i = 0; i < programData.length; i += CHUNK_SIZE) {
+      await prisma.tVProgram.createMany({
+        data: programData.slice(i, i + CHUNK_SIZE),
+        skipDuplicates: true,
+      });
     }
 
     return NextResponse.json({
       success: true,
       message: "Sincronização concluída com sucesso!",
       totalChannelsTested: uniqueChannels.length,
-      totalChannelsOnline: resultChannels.length,
+      totalChannelsOnline: channelData.length,
     });
   } catch (error: any) {
     console.error("Sync Error:", error);

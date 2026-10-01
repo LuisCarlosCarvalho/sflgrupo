@@ -21,7 +21,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   return (
     <nav className="flex flex-col p-8 h-full bg-admin-sidebar">
       <div className="flex items-center justify-between mb-12">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <Link href="/admin" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <img src="https://i.imgur.com/2ex0N3R.png" alt="Logo" className="h-9 w-auto" />
           <h2 className="text-xl font-black text-brand-yellow tracking-tighter uppercase">SFL Admin</h2>
         </Link>
