@@ -49,10 +49,15 @@ export async function createUser(data: {
   deviceType?: string;
   planPrice?: number;
   currency?: string;
+  planExpiresAt?: Date;
 }) {
   const passwordHash = await bcrypt.hash(data.password, 10);
-  const expiresAt = new Date();
-  expiresAt.setDate(expiresAt.getDate() + 30);
+  
+  let expiresAt = data.planExpiresAt;
+  if (!expiresAt) {
+    expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
+  }
 
   const user = await prisma.user.create({
     data: {

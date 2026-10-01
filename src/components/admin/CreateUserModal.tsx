@@ -1,22 +1,27 @@
 import { useState } from "react";
 import { createUser } from "@/app/actions/admin";
-import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe, ChevronDown } from "lucide-react";
+import { X, User, Mail, Phone, Shield, Lock, CreditCard, Loader2, Globe, ChevronDown, Calendar } from "lucide-react";
 
 export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    username: "",
-    email: "",
-    whatsapp: "",
-    password: "",
-    planType: "VIP",
-    amount: "",
-    currency: "BRL",
-    connections: 1,
-    app_name: "",
-    device_type: "SMART TV",
-    location: ""
+  const [formData, setFormData] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return {
+      name: "",
+      username: "",
+      email: "",
+      whatsapp: "",
+      password: "",
+      planType: "VIP",
+      amount: "",
+      currency: "BRL",
+      connections: 1,
+      app_name: "",
+      device_type: "SMART TV",
+      location: "",
+      planExpiresAt: d.toISOString().split('T')[0]
+    };
   });
 
   if (!isOpen) return null;
@@ -40,23 +45,29 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
         appName: formData.app_name,
         deviceType: formData.device_type,
         planPrice: parseFloat(formData.amount) || 0,
+        planExpiresAt: new Date(formData.planExpiresAt),
       });
 
       onSuccess();
       onClose();
-      setFormData({
-        name: "",
-        username: "",
-        email: "",
-        whatsapp: "",
-        password: "",
-        planType: "PREMIUM",
-        amount: "",
-        currency: "BRL",
-        connections: 1,
-        app_name: "",
-        device_type: "SMART TV",
-        location: ""
+      setFormData(() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        return {
+          name: "",
+          username: "",
+          email: "",
+          whatsapp: "",
+          password: "",
+          planType: "PREMIUM",
+          amount: "",
+          currency: "BRL",
+          connections: 1,
+          app_name: "",
+          device_type: "SMART TV",
+          location: "",
+          planExpiresAt: d.toISOString().split('T')[0]
+        };
       });
     } catch (err) {
       const error = err as Error;
@@ -184,6 +195,19 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
                 <option value="PREMIUM" className="bg-[#15192A]">PREMIUM</option>
                 <option value="VIP" className="bg-[#15192A]">VIP</option>
               </select>
+            </div>
+          </div>
+
+          {/* Vencimento */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Data de Vencimento</label>
+            <div className="relative">
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
+              <input 
+                type="date" required value={formData.planExpiresAt}
+                onChange={e => setFormData({...formData, planExpiresAt: e.target.value})}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm text-gray-300"
+              />
             </div>
           </div>
 
