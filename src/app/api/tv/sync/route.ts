@@ -6,24 +6,7 @@ import { fetchAndParseEPG } from "@/lib/epgParser";
 export const dynamic = "force-dynamic";
 export const maxDuration = 300; // Vercel pro max duration
 
-// Função para testar se o stream está online (timeout de 2 segundos)
-async function isStreamOnline(url: string): Promise<boolean> {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch(url, { 
-        method: 'HEAD', 
-        signal: controller.signal,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-    });
-    clearTimeout(timeoutId);
-    return res.ok || res.status === 403 || res.status === 401; // Aceitamos 403/401 pois pode requerer tokens, mas o servidor existe.
-  } catch (e) {
-    return false;
-  }
-}
+// Stream checking removed to improve sync speed
 
 export async function GET() {
   try {
@@ -79,24 +62,11 @@ export async function GET() {
     }
 
     const uniqueChannels = Array.from(uniqueStreams.values());
-    console.log(`Testando ${uniqueChannels.length} canais... isso pode demorar.`);
+    console.log(`Processando ${uniqueChannels.length} canais...`);
 
-    // Batch test streams to avoid exhausting connection pools (test in chunks of 50)
-    const BATCH_SIZE = 50;
-    const onlineChannels: M3UChannel[] = [];
-    
-    for (let i = 0; i < uniqueChannels.length; i += BATCH_SIZE) {
-        const batch = uniqueChannels.slice(i, i + BATCH_SIZE);
-        const testPromises = batch.map(async (channel) => {
-            const isOnline = await isStreamOnline(channel.url);
-            if (isOnline) {
-                onlineChannels.push(channel);
-            }
-        });
-        await Promise.all(testPromises);
-    }
-    
-    console.log(`Canais online encontrados: ${onlineChannels.length} de ${uniqueChannels.length}`);
+    const onlineChannels = uniqueChannels; // Bypass online check for speed and reliability
+
+    console.log(`Inserindo ${onlineChannels.length} canais no banco...`);
 
     // Inserir os canais online no banco
     for (const m3u of onlineChannels) {
