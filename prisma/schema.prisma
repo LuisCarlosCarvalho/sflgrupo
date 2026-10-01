@@ -29,6 +29,14 @@ model User {
   status                SubStatus         @default(TRIAL)
   plan                  String            @default("FREE")
   whatsapp              String?
+  username              String?           @unique
+  location              String?
+  connections           Int               @default(1)
+  appName               String?
+  deviceType            String?
+  planPrice             Float?
+  currency              String?           @default("BRL")
+  notificationActive    Boolean           @default(true)
   stripeCustomerId      String?           @unique
   stripeSubscriptionId  String?           @unique
   planExpiresAt         DateTime?

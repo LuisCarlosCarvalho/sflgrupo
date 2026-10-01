@@ -34,6 +34,12 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
         plan: formData.planType,
         whatsapp: formData.whatsapp,
         amount: parseFloat(formData.amount) || 0,
+        username: formData.username,
+        location: formData.location,
+        connections: Number(formData.connections) || 1,
+        appName: formData.app_name,
+        deviceType: formData.device_type,
+        planPrice: parseFloat(formData.amount) || 0,
       });
 
       onSuccess();
@@ -137,7 +143,13 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
               <input 
                 type="text" value={formData.location}
-                onChange={e => setFormData({...formData, location: e.target.value})}
+                onChange={e => {
+                  const location = e.target.value;
+                  let newCurrency = formData.currency;
+                  if (location.toLowerCase().includes("portugal")) newCurrency = "EUR";
+                  if (location.toLowerCase().includes("brasil")) newCurrency = "BRL";
+                  setFormData({...formData, location, currency: newCurrency});
+                }}
                 className="w-full bg-white/5 border border-white/10 rounded-2xl px-12 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
                 placeholder="Ex: Portugal"
               />

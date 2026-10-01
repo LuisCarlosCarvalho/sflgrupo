@@ -1,7 +1,7 @@
 // src/components/dashboard/UserProfile.tsx
 "use client";
 
-import { User, Mail, CreditCard, Calendar, MessageCircle, ShieldCheck, Monitor, Tv, LayoutGrid, Globe, Download, Plus } from "lucide-react";
+import { User, Mail, CreditCard, Calendar, MessageCircle, ShieldCheck, Monitor, Tv, LayoutGrid, Globe, Download, Plus, X } from "lucide-react";
 
 interface UserProfileProps {
   user: {
@@ -48,6 +48,7 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
   const [selectedCountry, setSelectedCountry] = useState(user.favoriteCountry || "");
   const [selectedTeam, setSelectedTeam] = useState(user.favoriteTeam || "");
   const [savingTeam, setSavingTeam] = useState(false);
+  const [selectedInstruction, setSelectedInstruction] = useState<{name: string, text: string} | null>(null);
 
   const handleSaveTeam = async () => {
     setSavingTeam(true);
@@ -217,29 +218,51 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
           </div>
 
           <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
-            {apps.map((app) => (
-              <a 
-                key={app.id}
-                href={app.download_url}
-                target="_blank"
-                className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center overflow-hidden border border-white/5">
-                  {app.icon_url ? (
-                    <img src={app.icon_url} alt={app.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <Download className="w-5 h-5 text-gray-700" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-black text-white uppercase group-hover:text-brand-yellow transition-colors">{app.name}</p>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{app.platform}</p>
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center group-hover:bg-brand-yellow group-hover:text-black transition-all">
-                  <Plus size={14} />
-                </div>
-              </a>
-            ))}
+            {apps.map((app) => {
+              const isTV = app.platform === "Smart TV LG" || app.platform === "Smart TV Samsung";
+              
+              const CardContent = (
+                <>
+                  <div className="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center overflow-hidden border border-white/5">
+                    {app.icon_url ? (
+                      <img src={app.icon_url} alt={app.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Download className="w-5 h-5 text-gray-700" />
+                    )}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className="text-xs font-black text-white uppercase group-hover:text-brand-yellow transition-colors">{app.name}</p>
+                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{app.platform}</p>
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center group-hover:bg-brand-yellow group-hover:text-black transition-all">
+                    {isTV ? <Monitor size={14} /> : <Plus size={14} />}
+                  </div>
+                </>
+              );
+
+              if (isTV) {
+                return (
+                  <button 
+                    key={app.id}
+                    onClick={() => setSelectedInstruction({ name: app.name, text: app.download_url })}
+                    className="flex w-full items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group"
+                  >
+                    {CardContent}
+                  </button>
+                );
+              }
+
+              return (
+                <a 
+                  key={app.id}
+                  href={app.download_url}
+                  target="_blank"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group"
+                >
+                  {CardContent}
+                </a>
+              );
+            })}
 
             {apps.length === 0 && (
               <div className="flex flex-col items-center justify-center py-10 text-gray-600">
@@ -347,6 +370,33 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
           })()}
         </div>
       </div>
+      {selectedInstruction && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#111] border border-white/10 rounded-[2rem] w-full max-w-lg p-8 relative shadow-2xl">
+            <button
+              onClick={() => setSelectedInstruction(null)}
+              className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
+            >
+              <X size={24} />
+            </button>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-2xl bg-brand-yellow/10 flex items-center justify-center text-brand-yellow">
+                <Tv size={20} />
+              </div>
+              <h2 className="text-xl font-bold text-white uppercase tracking-tight">Como Instalar - {selectedInstruction.name}</h2>
+            </div>
+            <div className="p-6 bg-black/40 border border-white/5 rounded-2xl">
+              <p className="text-gray-300 text-sm whitespace-pre-wrap leading-relaxed">{selectedInstruction.text}</p>
+            </div>
+            <button
+              onClick={() => setSelectedInstruction(null)}
+              className="w-full bg-brand-yellow text-black font-black uppercase tracking-widest py-4 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(255,215,0,0.2)] mt-6"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

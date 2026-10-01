@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { updateApp } from "@/app/actions/apps";
 import { Pencil, X } from "lucide-react";
+import { APP_PLATFORMS } from "./AddAppForm";
 
 type App = {
   id: string;
@@ -15,6 +16,9 @@ type App = {
 
 export default function EditAppModal({ app }: { app: App }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [platform, setPlatform] = useState(app.platform || APP_PLATFORMS[0]);
+
+  const isInstructionPlatform = platform === "Smart TV LG" || platform === "Smart TV Samsung";
 
   async function handleSubmit(formData: FormData) {
     await updateApp(app.id, formData);
@@ -64,15 +68,16 @@ export default function EditAppModal({ app }: { app: App }) {
                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Plataforma</label>
                 <select
                   name="platform"
-                  defaultValue={app.platform}
+                  value={platform}
+                  onChange={(e) => setPlatform(e.target.value)}
                   required
                   className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-brand-yellow/50 transition-colors appearance-none"
                 >
-                  <option value="ANDROID">ANDROID</option>
-                  <option value="IOS">IOS</option>
-                  <option value="SMART TV">SMART TV</option>
-                  <option value="WINDOWS">WINDOWS</option>
-                  <option value="LINUX">LINUX</option>
+                  {APP_PLATFORMS.map((p) => (
+                    <option key={p} value={p}>
+                      {p}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -87,14 +92,26 @@ export default function EditAppModal({ app }: { app: App }) {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">Link de Download</label>
-                <input
-                  name="download_url"
-                  defaultValue={app.download_url}
-                  required
-                  placeholder="https://..."
-                  className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-yellow/50 transition-colors"
-                />
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 ml-4">
+                  {isInstructionPlatform ? "Instrução de Instalação" : "Link de Download"}
+                </label>
+                {isInstructionPlatform ? (
+                  <textarea
+                    name="download_url"
+                    defaultValue={app.download_url}
+                    required
+                    placeholder="Digite o passo a passo para instalar na TV..."
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-yellow/50 transition-colors min-h-[100px]"
+                  />
+                ) : (
+                  <input
+                    name="download_url"
+                    defaultValue={app.download_url}
+                    required
+                    placeholder="https://..."
+                    className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white placeholder:text-gray-600 focus:outline-none focus:border-brand-yellow/50 transition-colors"
+                  />
+                )}
               </div>
 
               <div className="space-y-2">

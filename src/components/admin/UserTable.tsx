@@ -24,6 +24,7 @@ export interface User {
   connections?: number;
   app_name?: string;
   device_type?: string;
+  currency?: string;
 }
 
 export default function UserTable({
@@ -46,6 +47,11 @@ export default function UserTable({
         isActive: u.status === "ACTIVE",
         planType: u.plan,
         expires_at: u.planExpiresAt ? new Date(u.planExpiresAt).toISOString() : undefined,
+        app_name: (u as any).appName,
+        device_type: (u as any).deviceType,
+        plan_price: (u as any).planPrice,
+        currency: (u as any).currency,
+        notification_active: (u as any).notificationActive,
       })) as User[]
     );
     setLoading(false);

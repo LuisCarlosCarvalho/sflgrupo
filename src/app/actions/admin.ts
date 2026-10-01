@@ -18,6 +18,14 @@ export async function getUsers() {
         whatsapp: true,
         planExpiresAt: true,
         createdAt: true,
+        username: true,
+        location: true,
+        connections: true,
+        appName: true,
+        deviceType: true,
+        planPrice: true,
+        currency: true,
+        notificationActive: true,
       },
     });
   } catch (error) {
@@ -34,6 +42,13 @@ export async function createUser(data: {
   plan: string;
   whatsapp?: string;
   amount?: number;
+  username?: string;
+  location?: string;
+  connections?: number;
+  appName?: string;
+  deviceType?: string;
+  planPrice?: number;
+  currency?: string;
 }) {
   const passwordHash = await bcrypt.hash(data.password, 10);
   const expiresAt = new Date();
@@ -49,6 +64,14 @@ export async function createUser(data: {
       whatsapp: data.whatsapp,
       status: "ACTIVE",
       planExpiresAt: expiresAt,
+      username: data.username,
+      location: data.location,
+      connections: data.connections || 1,
+      appName: data.appName,
+      deviceType: data.deviceType,
+      planPrice: data.planPrice || 0,
+      currency: data.currency || "BRL",
+      notificationActive: true,
     },
   });
 
@@ -79,6 +102,14 @@ export async function editUser(
     whatsapp?: string;
     status?: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "TRIAL";
     planExpiresAt?: Date;
+    username?: string;
+    location?: string;
+    connections?: number;
+    appName?: string;
+    deviceType?: string;
+    planPrice?: number;
+    currency?: string;
+    notificationActive?: boolean;
   }
 ) {
   const updateData: any = {
@@ -89,6 +120,14 @@ export async function editUser(
     whatsapp: data.whatsapp,
     status: data.status,
     planExpiresAt: data.planExpiresAt,
+    username: data.username,
+    location: data.location,
+    connections: data.connections,
+    appName: data.appName,
+    deviceType: data.deviceType,
+    planPrice: data.planPrice,
+    currency: data.currency,
+    notificationActive: data.notificationActive,
   };
 
   if (data.password && data.password.trim()) {

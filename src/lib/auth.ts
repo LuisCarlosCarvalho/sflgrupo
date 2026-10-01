@@ -20,8 +20,13 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Preencha todos os campos.");
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: loginIdentifier },
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: loginIdentifier },
+              { username: loginIdentifier },
+            ],
+          },
         });
 
         if (!user || !user.passwordHash) {

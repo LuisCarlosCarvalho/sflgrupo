@@ -26,6 +26,7 @@ interface EditUserFormData {
   app_name: string;
   device_type: string;
   location: string;
+  currency: string;
 }
 
 export default function EditUserModal({ user, isOpen, onClose, onSuccess }: EditUserModalProps) {
@@ -45,7 +46,8 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
     connections: user.connections || 1,
     app_name: user.app_name || "",
     device_type: user.device_type || "SMART TV",
-    location: user.location || ""
+    location: user.location || "",
+    currency: user.currency || "BRL"
   });
 
   useEffect(() => {
@@ -66,7 +68,8 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
           connections: user.connections || 1,
           app_name: user.app_name || "",
           device_type: user.device_type || "SMART TV",
-          location: user.location || ""
+          location: user.location || "",
+          currency: user.currency || "BRL"
         });
       }, 0);
       return () => clearTimeout(timer);
@@ -89,6 +92,14 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
         whatsapp: formData.whatsapp,
         status: formData.isActive ? "ACTIVE" : "SUSPENDED",
         planExpiresAt: new Date(formData.expires_at),
+        username: formData.username,
+        location: formData.location,
+        connections: Number(formData.connections) || 1,
+        appName: formData.app_name,
+        deviceType: formData.device_type,
+        planPrice: Number(formData.plan_price) || 0,
+        currency: formData.currency,
+        notificationActive: formData.notification_active,
       });
 
       onSuccess();
@@ -188,7 +199,13 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600" />
               <input 
                 type="text" value={formData.location}
-                onChange={e => setFormData({...formData, location: e.target.value})}
+                onChange={e => {
+                  const location = e.target.value;
+                  let newCurrency = formData.currency;
+                  if (location.toLowerCase().includes("portugal")) newCurrency = "EUR";
+                  if (location.toLowerCase().includes("brasil")) newCurrency = "BRL";
+                  setFormData({...formData, location, currency: newCurrency});
+                }}
                 className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
                 placeholder="Ex: Portugal"
               />
@@ -244,15 +261,32 @@ export default function EditUserModal({ user, isOpen, onClose, onSuccess }: Edit
             </div>
 
             <div className="space-y-1">
-              <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">Valor Mensalidade (R$)</label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-600">R$</div>
-                <input 
-                  type="number" step="0.01" value={formData.plan_price}
-                  onChange={e => setFormData({...formData, plan_price: Number(e.target.value)})}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
-                  placeholder="0.00"
-                />
+              <label className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1">
+                Mensalidade
+              </label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-600">
+                    {formData.currency === "EUR" ? "€" : formData.currency === "USD" ? "$" : "R$"}
+                  </div>
+                  <input 
+                    type="number" step="0.01" value={formData.plan_price}
+                    onChange={e => setFormData({...formData, plan_price: Number(e.target.value)})}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-12 py-3 md:py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="relative w-1/3">
+                  <select 
+                    value={formData.currency}
+                    onChange={e => setFormData({...formData, currency: e.target.value})}
+                    className="w-full h-full bg-white/5 border border-white/10 rounded-xl md:rounded-2xl px-4 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none"
+                  >
+                    <option value="BRL" className="bg-[#15192A]">BRL</option>
+                    <option value="EUR" className="bg-[#15192A]">EUR</option>
+                    <option value="USD" className="bg-[#15192A]">USD</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
