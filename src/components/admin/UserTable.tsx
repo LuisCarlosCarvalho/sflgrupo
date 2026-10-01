@@ -80,6 +80,42 @@ export default function UserTable({
     }
   }
 
+  const [renewModalUser, setRenewModalUser] = useState<User | null>(null);
+
+  async function handleRenew(user: User) {
+    setActionLoading(user.id);
+    try {
+      await renewUserPlan(user.id, 30, 0);
+      await fetchUsers();
+      setRenewModalUser(null);
+      
+      if (user.whatsapp) {
+        const msg = encodeURIComponent(`Olá ${user.name || ''}, sua assinatura do SFL STREAM foi renovada com sucesso por mais 30 dias! Agradecemos a preferência!`);
+        window.open(`https://wa.me/${user.whatsapp.replace(/\D/g, '')}?text=${msg}`, '_blank');
+      } else {
+        alert("Assinatura renovada com sucesso!");
+      }
+    } catch (error) {
+      console.error("Erro ao renovar usuário:", error);
+      alert("Erro ao renovar assinatura.");
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
+  function getDaysLeft(date?: string | Date | null) {
+    if (!date) return null;
+    const diff = new Date(date).getTime() - new Date().getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+  
+  function getExpirationColor(daysLeft: number | null) {
+    if (daysLeft === null) return "text-gray-400";
+    if (daysLeft > 7) return "text-brand-green";
+    if (daysLeft >= 5 && daysLeft <= 7) return "text-brand-yellow";
+    return "text-red-500";
+  }
+
   async function toggleStatus(userId: string, currentIsActive: boolean) {
     setActionLoading(userId);
     try {
@@ -93,6 +129,7 @@ export default function UserTable({
   }
 
   return (
+    <>
     <div className="overflow-x-auto rounded-xl border border-white/5 bg-[#15192A]/50 backdrop-blur-md">
       <table className="min-w-full divide-y divide-white/5 text-sm">
         <thead>
@@ -120,6 +157,9 @@ export default function UserTable({
           ) : (
             users.map((u) => {
               const isActive = u.status === "ACTIVE" || u.isActive === true;
+              const daysLeft = getDaysLeft(u.planExpiresAt || u.expires_at);
+              const dateColor = getExpirationColor(daysLeft);
+              
               return (
                 <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-6 py-4">
@@ -144,13 +184,22 @@ export default function UserTable({
                     <span className="font-mono text-xs font-black uppercase text-brand-yellow">{u.plan || u.planType || "FREE"}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs text-gray-400 font-medium">
+                    <button 
+                      onClick={() => setRenewModalUser(u)}
+                      className={`text-xs font-medium hover:underline flex flex-col items-start ${dateColor}`}
+                      title="Clique para renovar"
+                    >
                       {u.planExpiresAt
                         ? new Date(u.planExpiresAt).toLocaleDateString("pt-BR")
                         : u.expires_at
                         ? new Date(u.expires_at).toLocaleDateString("pt-BR")
                         : "Indeterminado"}
-                    </span>
+                      {daysLeft !== null && (
+                        <span className="text-[10px] opacity-70">
+                          {daysLeft < 0 ? `Vencido há ${Math.abs(daysLeft)} dias` : `Faltam ${daysLeft} dias`}
+                        </span>
+                      )}
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
@@ -186,5 +235,38 @@ export default function UserTable({
         </tbody>
       </table>
     </div>
+
+    {renewModalUser && (
+      <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRenewModalUser(null)} />
+        <div className="relative bg-[#15192A] border border-white/10 rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl">
+          <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Renovar Assinatura</h3>
+          <p className="text-sm text-gray-400 mb-8">
+            Deseja renovar o plano de <strong className="text-brand-yellow font-black">{renewModalUser.name}</strong> por mais 30 dias?
+            {renewModalUser.whatsapp && (
+              <span className="block mt-2 text-xs text-brand-green/80">O WhatsApp do cliente abrirá automaticamente após confirmar.</span>
+            )}
+          </p>
+          <div className="flex gap-3 justify-end">
+            <button 
+              onClick={() => setRenewModalUser(null)} 
+              className="px-5 py-3 rounded-xl text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+            >
+              CANCELAR
+            </button>
+            <button 
+              onClick={() => handleRenew(renewModalUser)}
+              disabled={actionLoading === renewModalUser.id}
+              className="bg-brand-green hover:bg-brand-yellow text-black px-6 py-3 rounded-xl text-xs font-black transition-all transform active:scale-95 flex items-center gap-2"
+            >
+              {actionLoading === renewModalUser.id ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> RENOVANDO...</>
+              ) : "CONFIRMAR"}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
