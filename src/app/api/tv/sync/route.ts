@@ -53,7 +53,11 @@ export async function GET() {
        return parsed.map(c => ({ ...c, group: c.group && c.group !== "GERAL" ? c.group : list.group }));
     });
     const m3uResults = await Promise.all(m3uPromises);
-    m3uResults.forEach(res => allM3uChannels.push(...res));
+    m3uResults.forEach(res => {
+      for (const channel of res) {
+        allM3uChannels.push(channel);
+      }
+    });
     
     // 2. Parse EPG
     const epgData = await fetchAndParseEPG(epgUrl);
