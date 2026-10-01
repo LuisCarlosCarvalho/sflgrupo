@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, TrendingUp, TrendingDown, Wallet, Plus, Calendar, ArrowUpRight, ArrowDownRight } from "lucide-react";
-import { getFinanceOverview } from "@/app/actions/admin";
+import { getFinanceOverview, deleteTransaction } from "@/app/actions/admin";
 import AddExpenseModal from "./AddExpenseModal";
+import { Trash2 } from "lucide-react";
 
 interface Transaction {
   id: string;
   type: string;
   category: string;
   amount: number;
+  currency?: string;
   description: string;
   createdAt: Date | string;
 }
@@ -49,6 +51,18 @@ export default function FinanceTable() {
       isMounted = false;
     };
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Deseja realmente excluir esta transação?")) {
+      try {
+        await deleteTransaction(id);
+        await fetchTransactions();
+      } catch (e) {
+        console.error(e);
+        alert("Erro ao excluir transação");
+      }
+    }
+  };
 
   const formatCurrency = (val: number, currency: string = "BRL") => {
     const formatter = new Intl.NumberFormat(currency === "BRL" ? "pt-BR" : currency === "EUR" ? "de-DE" : "en-US", {
@@ -149,6 +163,7 @@ export default function FinanceTable() {
               <th className="px-8 py-5">Descrição</th>
               <th className="px-8 py-5">Data</th>
               <th className="px-8 py-5 text-right">Valor</th>
+              <th className="px-8 py-5 text-right">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -165,7 +180,9 @@ export default function FinanceTable() {
                 </td>
               </tr>
             ) : (
-              transactions.map((t) => {
+              transactions
+                .filter(t => (t.currency || "BRL") === activeCurrency)
+                .map((t) => {
                 const isIncome = t.type === "INCOME";
                 return (
                   <tr key={t.id} className="hover:bg-white/[0.01] transition-colors group">
@@ -198,8 +215,17 @@ export default function FinanceTable() {
                     </td>
                     <td className="px-8 py-5 text-right font-black text-sm">
                       <span className={isIncome ? "text-brand-green" : "text-red-500"}>
-                        {isIncome ? "+" : "-"} {formatCurrency(Number(t.amount))}
+                        {isIncome ? "+" : "-"} {formatCurrency(Number(t.amount), activeCurrency)}
                       </span>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <button
+                        onClick={() => handleDelete(t.id)}
+                        className="p-2 hover:bg-red-500/20 rounded-lg text-gray-500 hover:text-red-500 transition-colors"
+                        title="Excluir Transação"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
                 );
