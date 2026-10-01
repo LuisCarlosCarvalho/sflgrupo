@@ -241,12 +241,23 @@ export default function UserTable({
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setRenewModalUser(null)} />
         <div className="relative bg-[#15192A] border border-white/10 rounded-2xl p-6 sm:p-8 max-w-sm w-full shadow-2xl">
           <h3 className="text-xl font-black text-white uppercase tracking-tight mb-2">Renovar Assinatura</h3>
-          <p className="text-sm text-gray-400 mb-8">
+          <p className="text-sm text-gray-400 mb-6">
             Deseja renovar o plano de <strong className="text-brand-yellow font-black">{renewModalUser.name}</strong> por mais 30 dias?
             {renewModalUser.whatsapp && (
-              <span className="block mt-2 text-xs text-brand-green/80">O WhatsApp do cliente abrirá automaticamente após confirmar.</span>
+              <span className="block mt-2 text-xs text-brand-green/80">O WhatsApp abrirá automaticamente após confirmar.</span>
             )}
           </p>
+          
+          <div className="mb-6">
+            <label className="block text-xs font-black uppercase text-gray-500 mb-2">Valor da Renovação (R$)</label>
+            <input 
+              type="number" 
+              id="renewAmount"
+              defaultValue={renewModalUser.plan_price || 35}
+              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-brand-green focus:outline-none transition-colors"
+            />
+          </div>
+
           <div className="flex gap-3 justify-end">
             <button 
               onClick={() => setRenewModalUser(null)} 
@@ -255,7 +266,12 @@ export default function UserTable({
               CANCELAR
             </button>
             <button 
-              onClick={() => handleRenew(renewModalUser)}
+              onClick={() => {
+                const val = parseFloat((document.getElementById("renewAmount") as HTMLInputElement).value);
+                const amt = isNaN(val) ? (renewModalUser.plan_price || 35) : val;
+                const updatedUser = { ...renewModalUser, plan_price: amt };
+                handleRenew(updatedUser);
+              }}
               disabled={actionLoading === renewModalUser.id}
               className="bg-brand-green hover:bg-brand-yellow text-black px-6 py-3 rounded-xl text-xs font-black transition-all transform active:scale-95 flex items-center gap-2"
             >
