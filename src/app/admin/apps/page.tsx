@@ -1,6 +1,8 @@
 import { getAvailableApps, addApp, deleteApp } from "@/app/actions/apps";
 import { Download, Plus, Trash2, Globe } from "lucide-react";
 
+import EditAppModal from "@/components/admin/EditAppModal";
+
 export const dynamic = "force-dynamic";
 
 export default async function AdminAppsPage() {
@@ -117,11 +119,21 @@ export default async function AdminAppsPage() {
                     </div>
                   </div>
                   
-                  <form action={async () => { "use server"; await deleteApp(app.id); }}>
-                    <button className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
-                      <Trash2 size={18} />
-                    </button>
-                  </form>
+                  <div className="flex items-center gap-2">
+                    <EditAppModal app={{
+                      id: app.id,
+                      name: app.name,
+                      platform: app.platform,
+                      download_url: app.download_url,
+                      icon_url: app.icon_url,
+                      description: app.description
+                    }} />
+                    <form action={async () => { "use server"; await deleteApp(app.id); }}>
+                      <button className="p-2 text-gray-600 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all">
+                        <Trash2 size={18} />
+                      </button>
+                    </form>
+                  </div>
                 </div>
 
                 <p className="text-gray-400 text-xs line-clamp-2 mb-4 leading-relaxed">

@@ -29,11 +29,33 @@ export async function getAvailableApps() {
 export async function addApp(formData: FormData) {
   const name = formData.get("name") as string;
   const platform = formData.get("platform") as string;
-  const downloadUrl = (formData.get("download_url") || formData.get("downloadUrl")) as string;
-  const iconUrl = (formData.get("icon_url") || formData.get("iconUrl")) as string;
+  const downloadUrl = (formData.get("download_url") as string) || (formData.get("downloadUrl") as string) || "";
+  const iconUrl = (formData.get("icon_url") as string) || (formData.get("iconUrl") as string) || "";
   const description = (formData.get("description") as string) || "";
 
   await prisma.availableApp.create({
+    data: {
+      name,
+      platform,
+      downloadUrl,
+      iconUrl,
+      description,
+    },
+  });
+
+  revalidatePath("/admin/apps");
+  revalidatePath("/dashboard/perfil");
+}
+
+export async function updateApp(id: string, formData: FormData) {
+  const name = formData.get("name") as string;
+  const platform = formData.get("platform") as string;
+  const downloadUrl = (formData.get("download_url") as string) || (formData.get("downloadUrl") as string) || "";
+  const iconUrl = (formData.get("icon_url") as string) || (formData.get("iconUrl") as string) || "";
+  const description = (formData.get("description") as string) || "";
+
+  await prisma.availableApp.update({
+    where: { id },
     data: {
       name,
       platform,
