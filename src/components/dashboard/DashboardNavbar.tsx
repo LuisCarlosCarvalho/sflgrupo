@@ -398,7 +398,7 @@ export default function DashboardNavbar() {
 
               <div className="pt-6 border-t border-white/5">
                 <a
-                  href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || '5511928485483'}`}
+                  href={`https://wa.me/${process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || '351928485483'}`}
                   target="_blank"
                   className="flex items-center gap-4 px-5 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-brand-green hover:bg-brand-green/5 transition-all"
                 >

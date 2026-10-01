@@ -8,7 +8,7 @@ export default function ContaSuspensaPage() {
   const { data: session } = useSession();
 
   const handleWhatsApp = () => {
-    const phoneNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "5511999999999";
+    const phoneNumber = process.env.NEXT_PUBLIC_SUPPORT_WHATSAPP || "351928485483";
     const message = encodeURIComponent(`Olá, meu acesso foi suspenso e gostaria de regularizar meu plano SFL Stream. Usuário: ${session?.user?.name || "Cliente"}`);
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, "_blank");
   };
