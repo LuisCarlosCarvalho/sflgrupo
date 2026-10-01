@@ -68,10 +68,10 @@ export default function UserTable({
     };
   }, [refreshKey]);
 
-  async function activateAndRenew(userId: string) {
-    setActionLoading(userId);
+  async function activateAndRenew(user: User) {
+    setActionLoading(user.id);
     try {
-      await renewUserPlan(userId, 30, 0);
+      await renewUserPlan(user.id, 30, user.plan_price || 0);
       await fetchUsers();
     } catch (error) {
       console.error("Erro ao renovar usuário:", error);
@@ -85,7 +85,7 @@ export default function UserTable({
   async function handleRenew(user: User) {
     setActionLoading(user.id);
     try {
-      await renewUserPlan(user.id, 30, 0);
+      await renewUserPlan(user.id, 30, user.plan_price || 0);
       await fetchUsers();
       setRenewModalUser(null);
       
@@ -211,7 +211,7 @@ export default function UserTable({
                         <Edit size={16} />
                       </button>
                       <button
-                        onClick={() => activateAndRenew(u.id)}
+                        onClick={() => activateAndRenew(u)}
                         disabled={actionLoading === u.id}
                         className="p-2 hover:bg-brand-green/20 rounded-lg text-brand-green transition-colors"
                         title="Renovar +30 Dias"

@@ -163,7 +163,7 @@ export async function updateUserStatus(
   return user;
 }
 
-export async function renewUserPlan(userId: string, days: number = 30, amount: number = 0) {
+export async function renewUserPlan(userId: string, days: number = 30, amount?: number) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   const currentExpiry = user?.planExpiresAt && user.planExpiresAt > new Date() ? user.planExpiresAt : new Date();
   const newExpiry = new Date(currentExpiry.getTime() + days * 24 * 60 * 60 * 1000);
@@ -176,12 +176,14 @@ export async function renewUserPlan(userId: string, days: number = 30, amount: n
     },
   });
 
-  if (amount > 0 && user?.email) {
+  const transactionAmount = amount || user?.planPrice || 0;
+
+  if (transactionAmount > 0 && user?.email) {
     await prisma.transaction.create({
       data: {
         type: "INCOME",
         category: "PLAN_RENEWAL",
-        amount,
+        amount: transactionAmount,
         description: `Renovação de Plano: ${user.email}`,
       },
     });
