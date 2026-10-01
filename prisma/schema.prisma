@@ -25,6 +25,7 @@ model User {
   name                  String?
   email                 String            @unique
   passwordHash          String?
+  plainPassword         String?
   role                  Role              @default(USER)
   status                SubStatus         @default(TRIAL)
   plan                  String            @default("FREE")

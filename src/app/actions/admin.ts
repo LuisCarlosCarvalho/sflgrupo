@@ -26,6 +26,7 @@ export async function getUsers() {
         planPrice: true,
         currency: true,
         notificationActive: true,
+        plainPassword: true,
       },
     });
   } catch (error) {
@@ -64,6 +65,7 @@ export async function createUser(data: {
       name: data.name,
       email: data.email.toLowerCase().trim(),
       passwordHash,
+      plainPassword: data.password,
       role: data.role,
       plan: data.plan,
       whatsapp: data.whatsapp,
@@ -138,6 +140,7 @@ export async function editUser(
 
   if (data.password && data.password.trim()) {
     updateData.passwordHash = await bcrypt.hash(data.password, 10);
+    updateData.plainPassword = data.password;
   }
 
   const user = await prisma.user.update({

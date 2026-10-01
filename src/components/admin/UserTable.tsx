@@ -25,6 +25,7 @@ export interface User {
   app_name?: string;
   device_type?: string;
   currency?: string;
+  plainPassword?: string | null;
 }
 
 export default function UserTable({
@@ -52,6 +53,7 @@ export default function UserTable({
         plan_price: (u as any).planPrice,
         currency: (u as any).currency,
         notification_active: (u as any).notificationActive,
+        plainPassword: (u as any).plainPassword,
       })) as User[]
     );
     setLoading(false);
@@ -120,7 +122,7 @@ export default function UserTable({
 Acesse o seu aplicativo do cliente:
 \uD83D\uDCF2 Acesso: sflgrupo.store
 \uD83D\uDC64 Utilizador: ${user.username || user.email}
-\uD83D\uDD11 Senha: (Sua senha cadastrada)
+\uD83D\uDD11 Senha: ${user.plainPassword || '(Sua senha cadastrada)'}
 
 \uD83C\uDFAC Acompanhe lançamentos de filmes e séries, jogos do dia e novidades do entretenimento.
 
