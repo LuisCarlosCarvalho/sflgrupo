@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check, X, Loader2, Edit } from "lucide-react";
+import { Check, X, Loader2, Edit, MessageCircle } from "lucide-react";
 import { getUsers, renewUserPlan, updateUserStatus } from "@/app/actions/admin";
 
 export interface User {
@@ -109,6 +109,31 @@ export default function UserTable({
     return "text-red-500";
   }
 
+  function handleSendWelcomeMessage(user: User) {
+    if (!user.whatsapp) {
+      alert("Este usuário não possui WhatsApp cadastrado.");
+      return;
+    }
+    const cleanNumber = user.whatsapp.replace(/\D/g, "");
+    const msg = `🔐 Bem-vindo ao SFL miTV – Central do Cliente!
+
+Acesse o seu aplicativo do cliente:
+📲 Acesso: sflgrupo.store
+👤 Utilizador: ${user.username || user.email}
+🔑 Senha: (Sua senha cadastrada)
+
+🎬 Acompanhe lançamentos de filmes e séries, jogos do dia e novidades do entretenimento.
+
+⚽ Cadastre o seu time do coração e fique ainda mais próximo das principais notícias, jogos e novidades da sua equipa!
+
+🔎 Pesquise conteúdos, crie a sua playlist e envie listas de filmes, séries e jogos diretamente para o seu WhatsApp.
+
+⚠️ Mantenha os seus dados de acesso em segurança e não os partilhe com terceiros.
+
+✨ SFL miTV — entretenimento e informação mais perto de você.`;
+    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
   async function toggleStatus(userId: string, currentIsActive: boolean) {
     setActionLoading(userId);
     try {
@@ -177,22 +202,32 @@ export default function UserTable({
                     <span className="font-mono text-xs font-black uppercase text-brand-yellow">{u.plan || u.planType || "FREE"}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <button 
-                      onClick={() => setRenewModalUser(u)}
-                      className={`text-xs font-medium hover:underline flex flex-col items-start ${dateColor}`}
-                      title="Clique para renovar"
-                    >
-                      {u.planExpiresAt
-                        ? new Date(u.planExpiresAt).toLocaleDateString("pt-BR")
-                        : u.expires_at
-                        ? new Date(u.expires_at).toLocaleDateString("pt-BR")
-                        : "Indeterminado"}
-                      {daysLeft !== null && (
-                        <span className="text-[10px] opacity-70">
-                          {daysLeft < 0 ? `Vencido há ${Math.abs(daysLeft)} dias` : `Faltam ${daysLeft} dias`}
-                        </span>
-                      )}
-                    </button>
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => setRenewModalUser(u)}
+                        className={`text-xs font-medium hover:underline flex flex-col items-start ${dateColor}`}
+                        title="Clique para renovar"
+                      >
+                        {u.planExpiresAt
+                          ? new Date(u.planExpiresAt).toLocaleDateString("pt-BR")
+                          : u.expires_at
+                          ? new Date(u.expires_at).toLocaleDateString("pt-BR")
+                          : "Indeterminado"}
+                        {daysLeft !== null && (
+                          <span className="text-[10px] opacity-70">
+                            {daysLeft < 0 ? `Vencido há ${Math.abs(daysLeft)} dias` : `Faltam ${daysLeft} dias`}
+                          </span>
+                        )}
+                      </button>
+                      
+                      <button 
+                        onClick={() => handleSendWelcomeMessage(u)}
+                        className="p-1.5 bg-brand-green/10 text-brand-green rounded-full hover:bg-brand-green hover:text-black transition-colors"
+                        title="Enviar mensagem de boas vindas"
+                      >
+                        <MessageCircle size={14} />
+                      </button>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
