@@ -112,8 +112,9 @@ export async function GET() {
       }
     }
 
-    // Insert em batch (5.000 por vez)
-    const CHUNK_SIZE = 5000;
+    // Insert em batch (2.000 por vez para não sobrecarregar o DB)
+    const CHUNK_SIZE = 2000;
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
     
     console.log(`[SYNC] Fazendo bulk insert de ${channelData.length} canais...`);
     for (let i = 0; i < channelData.length; i += CHUNK_SIZE) {
@@ -122,6 +123,7 @@ export async function GET() {
         data: channelData.slice(i, i + CHUNK_SIZE),
         skipDuplicates: true,
       });
+      await sleep(100);
     }
 
     console.log(`[SYNC] Fazendo bulk insert de ${programData.length} programas...`);
@@ -131,6 +133,7 @@ export async function GET() {
         data: programData.slice(i, i + CHUNK_SIZE),
         skipDuplicates: true,
       });
+      await sleep(150); // Pausa breve para o banco respirar
     }
 
     return NextResponse.json({
