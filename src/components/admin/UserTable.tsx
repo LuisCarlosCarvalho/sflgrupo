@@ -115,22 +115,22 @@ export default function UserTable({
       return;
     }
     const cleanNumber = user.whatsapp.replace(/\D/g, "");
-    const msg = `🔐 Bem-vindo ao SFL miTV – Central do Cliente!
+    const msg = `\uD83D\uDD10 Bem-vindo ao SFL miTV \u2013 Central do Cliente!
 
 Acesse o seu aplicativo do cliente:
-📲 Acesso: sflgrupo.store
-👤 Utilizador: ${user.username || user.email}
-🔑 Senha: (Sua senha cadastrada)
+\uD83D\uDCF2 Acesso: sflgrupo.store
+\uD83D\uDC64 Utilizador: ${user.username || user.email}
+\uD83D\uDD11 Senha: (Sua senha cadastrada)
 
-🎬 Acompanhe lançamentos de filmes e séries, jogos do dia e novidades do entretenimento.
+\uD83C\uDFAC Acompanhe lançamentos de filmes e séries, jogos do dia e novidades do entretenimento.
 
-⚽ Cadastre o seu time do coração e fique ainda mais próximo das principais notícias, jogos e novidades da sua equipa!
+\u26BD Cadastre o seu time do coração e fique ainda mais próximo das principais notícias, jogos e novidades da sua equipa!
 
-🔎 Pesquise conteúdos, crie a sua playlist e envie listas de filmes, séries e jogos diretamente para o seu WhatsApp.
+\uD83D\uDD0E Pesquise conteúdos, crie a sua playlist e envie listas de filmes, séries e jogos diretamente para o seu WhatsApp.
 
-⚠️ Mantenha os seus dados de acesso em segurança e não os partilhe com terceiros.
+\u26A0\uFE0F Mantenha os seus dados de acesso em segurança e não os partilhe com terceiros.
 
-✨ SFL miTV — entretenimento e informação mais perto de você.`;
+\u2728 SFL miTV \u2014 entretenimento e informação mais perto de você.`;
     window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
