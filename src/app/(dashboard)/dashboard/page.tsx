@@ -70,6 +70,33 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const watchlistIds = new Set((watchlistData || []).map((item: { mediaId: string }) => item.mediaId));
   const isSports = category === "sports";
 
+  let nextGame = null;
+  if (isSports && user?.favoriteTeam) {
+    try {
+      const searchRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(user.favoriteTeam)}`, { cache: 'no-store' });
+      const searchData = await searchRes.json();
+      const teamId = searchData?.teams?.[0]?.idTeam;
+      if (teamId) {
+         const eventsRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${teamId}`, { cache: 'no-store' });
+         const eventsData = await eventsRes.json();
+         if (eventsData?.events && eventsData.events.length > 0) {
+            const event = eventsData.events[0];
+            const matchDate = new Date(event.strTimestamp + "Z");
+            const isInvalidDate = isNaN(matchDate.getTime());
+            
+            nextGame = {
+              title: `${event.strHomeTeam} vs ${event.strAwayTeam}`,
+              date: isInvalidDate ? event.dateEvent : matchDate.toLocaleDateString("pt-BR"),
+              time: isInvalidDate ? event.strTime.substring(0, 5) : matchDate.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' }),
+              broadcast: event.strLeague || "Esportes"
+            };
+         }
+      }
+    } catch(e) {
+      console.error("Erro ao buscar jogo do TheSportsDB:", e);
+    }
+  }
+
   // Escolher o Hero dinamicamente baseado na categoria (top 5 para o carrossel)
   let currentHeroArray = trendingMovies.slice(0, 5);
   if (category === "series") currentHeroArray = trendingSeries.slice(0, 5);
@@ -165,13 +192,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                         </div>
                         <div>
                           <p className="text-sm font-black text-white uppercase tracking-tighter">
-                            O {user.favoriteTeam} joga hoje!
+                            {nextGame ? nextGame.title : `O ${user.favoriteTeam} joga hoje!`}
                           </p>
                           <p className="text-xs text-brand-yellow font-bold mt-0.5">
-                            Libertadores • 21:30
+                            {nextGame ? `${nextGame.date} • ${nextGame.time}` : "Fim de campeonato"}
                           </p>
                           <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-widest">
-                            Transmissão: ESPN
+                            Transmissão: {nextGame ? nextGame.broadcast : "Aguardando"}
                           </p>
                         </div>
                       </div>
