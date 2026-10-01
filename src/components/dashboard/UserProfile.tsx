@@ -57,16 +57,50 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
     const fetchMatch = async () => {
       setLoadingMatch(true);
       try {
-        const res = await fetch("/api/games/upcoming");
-        const games = await res.json();
-        if (Array.isArray(games)) {
-          const teamLower = user.favoriteTeam!.toLowerCase();
-          const nextGame = games.find((g: any) => 
-            (g.home && g.home.toLowerCase().includes(teamLower)) || 
-            (g.away && g.away.toLowerCase().includes(teamLower))
-          );
-          setUpcomingMatch(nextGame || null);
+        let nextGame = null;
+        
+        // 1. Tentar buscar direto no TheSportsDB pelo nome do time
+        try {
+          const teamSearchRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(user.favoriteTeam)}`);
+          const teamSearchData = await teamSearchRes.json();
+          const teamId = teamSearchData?.teams?.[0]?.idTeam;
+
+          if (teamId) {
+            const eventsRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsnext.php?id=${teamId}`);
+            const eventsData = await eventsRes.json();
+            
+            if (eventsData?.events && eventsData.events.length > 0) {
+              const event = eventsData.events[0];
+              const matchDate = new Date(event.strTimestamp + "Z");
+              const isInvalidDate = isNaN(matchDate.getTime());
+              
+              nextGame = {
+                home: event.strHomeTeam,
+                away: event.strAwayTeam,
+                date: isInvalidDate ? event.dateEvent : matchDate.toISOString().split('T')[0],
+                time: isInvalidDate ? event.strTime.substring(0, 5) : matchDate.toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' }),
+                broadcast: [event.strLeague || "Esportes"]
+              };
+            }
+          }
+        } catch (dbErr) {
+          console.error("TheSportsDB error:", dbErr);
         }
+
+        // 2. Fallback para a API interna caso falhe
+        if (!nextGame) {
+          const res = await fetch("/api/games/upcoming");
+          const games = await res.json();
+          if (Array.isArray(games)) {
+            const teamLower = user.favoriteTeam!.toLowerCase();
+            nextGame = games.find((g: any) => 
+              (g.home && g.home.toLowerCase().includes(teamLower)) || 
+              (g.away && g.away.toLowerCase().includes(teamLower))
+            );
+          }
+        }
+
+        setUpcomingMatch(nextGame || null);
       } catch (err) {
         console.error(err);
       } finally {
