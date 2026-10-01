@@ -69,15 +69,8 @@ export default function UserTable({
   }, [refreshKey]);
 
   async function activateAndRenew(user: User) {
-    setActionLoading(user.id);
-    try {
-      await renewUserPlan(user.id, 30, user.plan_price || 0);
-      await fetchUsers();
-    } catch (error) {
-      console.error("Erro ao renovar usuário:", error);
-    } finally {
-      setActionLoading(null);
-    }
+    // Agora sempre abre o modal para confirmar o valor, ao invés de lançar o valor zero "escondido"
+    setRenewModalUser(user);
   }
 
   const [renewModalUser, setRenewModalUser] = useState<User | null>(null);
@@ -85,7 +78,7 @@ export default function UserTable({
   async function handleRenew(user: User) {
     setActionLoading(user.id);
     try {
-      await renewUserPlan(user.id, 30, user.plan_price || 0);
+      await renewUserPlan(user.id, 30, user.plan_price || 0, user.currency);
       await fetchUsers();
       setRenewModalUser(null);
       

@@ -18,22 +18,20 @@ export default function FinanceTable() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [totals, setTotals] = useState({
-    income: 0,
-    expense: 0,
-    balance: 0,
-  });
+  const [totalsByCurrency, setTotalsByCurrency] = useState<Record<string, { income: number; expense: number; balance: number }>>({});
+  const [activeCurrency, setActiveCurrency] = useState("BRL");
 
   const fetchTransactions = async () => {
     setLoading(true);
     try {
       const data = await getFinanceOverview();
       setTransactions(data.transactions as any);
-      setTotals({
-        income: data.income,
-        expense: data.expense,
-        balance: data.balance,
-      });
+      setTotalsByCurrency(data.totalsByCurrency || { "BRL": { income: 0, expense: 0, balance: 0 } });
+      
+      // Auto-select BRL se existir, senão pega a primeira disponível
+      if (data.totalsByCurrency && !data.totalsByCurrency["BRL"] && Object.keys(data.totalsByCurrency).length > 0) {
+        setActiveCurrency(Object.keys(data.totalsByCurrency)[0]);
+      }
     } catch (error) {
       console.error("Erro ao buscar transações:", error);
     } finally {
@@ -52,48 +50,74 @@ export default function FinanceTable() {
     };
   }, []);
 
-  const formatCurrency = (val: number) => {
-    return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatCurrency = (val: number, currency: string = "BRL") => {
+    const formatter = new Intl.NumberFormat(currency === "BRL" ? "pt-BR" : currency === "EUR" ? "de-DE" : "en-US", {
+      style: "currency",
+      currency: currency,
+    });
+    return formatter.format(val);
   };
+
+  const currentTotals = totalsByCurrency[activeCurrency] || { income: 0, expense: 0, balance: 0 };
+  const availableCurrencies = Object.keys(totalsByCurrency);
 
   return (
     <div className="space-y-8">
+      {/* Moeda Selector */}
+      {availableCurrencies.length > 1 && (
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {availableCurrencies.map(curr => (
+            <button
+              key={curr}
+              onClick={() => setActiveCurrency(curr)}
+              className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                activeCurrency === curr 
+                  ? "bg-brand-yellow text-black shadow-lg" 
+                  : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              Moeda: {curr}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Receita Total */}
         <div className="p-8 rounded-[2rem] bg-[#15192A]/60 border border-brand-green/20 backdrop-blur-xl relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
-            <span className="text-xs font-black uppercase tracking-widest text-brand-green">Entradas</span>
+            <span className="text-xs font-black uppercase tracking-widest text-brand-green">Entradas ({activeCurrency})</span>
             <div className="p-2 rounded-xl bg-brand-green/10 text-brand-green">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-3xl font-black text-white">{formatCurrency(totals.income)}</p>
+          <p className="text-3xl font-black text-white">{formatCurrency(currentTotals.income, activeCurrency)}</p>
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2">Total de faturamento</p>
         </div>
 
         {/* Despesas Total */}
         <div className="p-8 rounded-[2rem] bg-[#15192A]/60 border border-red-500/20 backdrop-blur-xl relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
-            <span className="text-xs font-black uppercase tracking-widest text-red-500">Saídas</span>
+            <span className="text-xs font-black uppercase tracking-widest text-red-500">Saídas ({activeCurrency})</span>
             <div className="p-2 rounded-xl bg-red-500/10 text-red-500">
               <TrendingDown className="w-5 h-5" />
             </div>
           </div>
-          <p className="text-3xl font-black text-white">{formatCurrency(totals.expense)}</p>
+          <p className="text-3xl font-black text-white">{formatCurrency(currentTotals.expense, activeCurrency)}</p>
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2">Custos operacionais</p>
         </div>
 
         {/* Lucro Líquido */}
         <div className="p-8 rounded-[2rem] bg-[#15192A]/60 border border-brand-yellow/20 backdrop-blur-xl relative overflow-hidden group">
           <div className="flex justify-between items-start mb-4">
-            <span className="text-xs font-black uppercase tracking-widest text-brand-yellow">Lucro Líquido</span>
+            <span className="text-xs font-black uppercase tracking-widest text-brand-yellow">Lucro Líquido ({activeCurrency})</span>
             <div className="p-2 rounded-xl bg-brand-yellow/10 text-brand-yellow">
               <Wallet className="w-5 h-5" />
             </div>
           </div>
-          <p className={`text-3xl font-black ${totals.balance >= 0 ? "text-white" : "text-red-500"}`}>
-            {formatCurrency(totals.balance)}
+          <p className={`text-3xl font-black ${currentTotals.balance >= 0 ? "text-white" : "text-red-500"}`}>
+            {formatCurrency(currentTotals.balance, activeCurrency)}
           </p>
           <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mt-2">Balanço geral</p>
         </div>

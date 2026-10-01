@@ -81,6 +81,7 @@ export async function createUser(data: {
         type: "INCOME",
         category: "PLAN_RENEWAL",
         amount: data.amount,
+        currency: data.currency || "BRL",
         description: `Primeiro pagamento: ${data.email}`,
       },
     });
@@ -163,7 +164,7 @@ export async function updateUserStatus(
   return user;
 }
 
-export async function renewUserPlan(userId: string, days: number = 30, amount?: number) {
+export async function renewUserPlan(userId: string, days: number = 30, amount?: number, currency?: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   const currentExpiry = user?.planExpiresAt && user.planExpiresAt > new Date() ? user.planExpiresAt : new Date();
   const newExpiry = new Date(currentExpiry.getTime() + days * 24 * 60 * 60 * 1000);
@@ -176,7 +177,8 @@ export async function renewUserPlan(userId: string, days: number = 30, amount?: 
     },
   });
 
-  const transactionAmount = amount || user?.planPrice || 0;
+  const transactionAmount = amount ?? user?.planPrice ?? 0;
+  const transactionCurrency = currency || user?.currency || "BRL";
 
   if (transactionAmount > 0 && user?.email) {
     await prisma.transaction.create({
@@ -184,6 +186,7 @@ export async function renewUserPlan(userId: string, days: number = 30, amount?: 
         type: "INCOME",
         category: "PLAN_RENEWAL",
         amount: transactionAmount,
+        currency: transactionCurrency,
         description: `Renovação de Plano: ${user.email}`,
       },
     });
@@ -200,18 +203,25 @@ export async function getFinanceOverview() {
       orderBy: { createdAt: "desc" },
     });
 
-    const income = transactions
-      .filter((t) => t.type === "INCOME")
-      .reduce((acc, curr) => acc + curr.amount, 0);
+    // Agrupar por moeda
+    const totalsByCurrency: Record<string, { income: number; expense: number; balance: number }> = {};
 
-    const expense = transactions
-      .filter((t) => t.type === "EXPENSE")
-      .reduce((acc, curr) => acc + curr.amount, 0);
+    transactions.forEach((t) => {
+      const c = t.currency || "BRL";
+      if (!totalsByCurrency[c]) totalsByCurrency[c] = { income: 0, expense: 0, balance: 0 };
+      
+      if (t.type === "INCOME") {
+        totalsByCurrency[c].income += t.amount;
+      } else {
+        totalsByCurrency[c].expense += t.amount;
+      }
+      totalsByCurrency[c].balance = totalsByCurrency[c].income - totalsByCurrency[c].expense;
+    });
 
-    return { transactions, income, expense, balance: income - expense };
+    return { transactions, totalsByCurrency };
   } catch (error) {
     console.error("Error fetching finance overview:", error);
-    return { transactions: [], income: 0, expense: 0, balance: 0 };
+    return { transactions: [], totalsByCurrency: {} };
   }
 }
 
@@ -219,6 +229,7 @@ export async function addTransaction(data: {
   type: "INCOME" | "EXPENSE";
   category: string;
   amount: number;
+  currency?: string;
   description: string;
 }) {
   const transaction = await prisma.transaction.create({
@@ -226,6 +237,7 @@ export async function addTransaction(data: {
       type: data.type,
       category: data.category,
       amount: data.amount,
+      currency: data.currency || "BRL",
       description: data.description,
     },
   });
