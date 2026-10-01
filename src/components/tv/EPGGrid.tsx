@@ -16,6 +16,7 @@ export interface Channel {
   id: string;
   name: string;
   logo_url?: string;
+  streamUrl?: string;
   programs: Program[];
 }
 

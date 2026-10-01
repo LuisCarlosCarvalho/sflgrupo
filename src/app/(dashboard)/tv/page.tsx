@@ -291,12 +291,14 @@ export default function TVPage() {
               >
                 {playingStream === selectedProgram.channel.streamUrl ? (
                   <ReactPlayer 
-                    url={playingStream} 
-                    playing 
-                    controls 
-                    width="100%" 
-                    height="100%" 
-                    className="absolute inset-0"
+                    {...({
+                      url: playingStream,
+                      playing: true,
+                      controls: true,
+                      width: "100%",
+                      height: "100%",
+                      className: "absolute inset-0"
+                    } as any)}
                   />
                 ) : (
                   <>

@@ -61,7 +61,7 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
         
         // 1. Tentar buscar direto no TheSportsDB pelo nome do time
         try {
-          const teamSearchRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(user.favoriteTeam)}`);
+          const teamSearchRes = await fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(user.favoriteTeam as string)}`);
           const teamSearchData = await teamSearchRes.json();
           const teamId = teamSearchData?.teams?.[0]?.idTeam;
 
