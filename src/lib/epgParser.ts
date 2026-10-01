@@ -17,9 +17,13 @@ export interface XMLChannel {
 
 export async function fetchAndParseEPG(url: string): Promise<XMLChannel[]> {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
     const response = await fetch(url, {
       next: { revalidate: 3600 }, // Cache for 1 hour
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch EPG: ${response.status}`);

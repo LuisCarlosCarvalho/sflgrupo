@@ -92,7 +92,7 @@ export default function SiteSettingsPage() {
     try {
       const response = await fetch("/api/tv/sync", { method: "GET" });
       const data = await response.json();
-      if (data.ok) alert("Grade de TV atualizada com sucesso!");
+      if (data.success) alert("Grade de TV atualizada com sucesso!");
       else alert("Erro no serviço: " + data.error);
     } catch (err) {
       console.error(err);

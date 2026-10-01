@@ -8,7 +8,11 @@ export interface M3UChannel {
 
 export async function fetchAndParseM3U(url: string): Promise<M3UChannel[]> {
   try {
-    const response = await fetch(url);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (!response.ok) {
       throw new Error(`Failed to fetch M3U: ${response.status}`);
     }

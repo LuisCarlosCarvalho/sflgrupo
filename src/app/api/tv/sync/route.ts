@@ -115,16 +115,18 @@ export async function GET() {
     // Insert em batch (5.000 por vez)
     const CHUNK_SIZE = 5000;
     
-    console.log(`Fazendo bulk insert de ${channelData.length} canais...`);
+    console.log(`[SYNC] Fazendo bulk insert de ${channelData.length} canais...`);
     for (let i = 0; i < channelData.length; i += CHUNK_SIZE) {
+      console.log(`[SYNC] Inserindo canais chunk ${i / CHUNK_SIZE + 1}...`);
       await prisma.tVChannel.createMany({
         data: channelData.slice(i, i + CHUNK_SIZE),
         skipDuplicates: true,
       });
     }
 
-    console.log(`Fazendo bulk insert de ${programData.length} programas...`);
+    console.log(`[SYNC] Fazendo bulk insert de ${programData.length} programas...`);
     for (let i = 0; i < programData.length; i += CHUNK_SIZE) {
+      console.log(`[SYNC] Inserindo programas chunk ${i / CHUNK_SIZE + 1} de ${Math.ceil(programData.length / CHUNK_SIZE)}...`);
       await prisma.tVProgram.createMany({
         data: programData.slice(i, i + CHUNK_SIZE),
         skipDuplicates: true,
