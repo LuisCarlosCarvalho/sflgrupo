@@ -249,15 +249,15 @@ export default function CreateUserModal({ isOpen, onClose, onSuccess }: { isOpen
                 <input 
                   type="number" step="0.01" required value={formData.amount}
                   onChange={e => setFormData({...formData, amount: e.target.value})}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-10 pr-4 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-8 pr-3 py-3.5 focus:outline-none focus:border-brand-yellow transition-all text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   placeholder="0.00"
                 />
               </div>
-              <div className="relative w-28">
+              <div className="relative w-24">
                 <select 
                   value={formData.currency}
                   onChange={e => setFormData({...formData, currency: e.target.value})}
-                  className="w-full h-full bg-white/5 border border-white/10 rounded-2xl pl-4 pr-10 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none font-bold text-gray-300"
+                  className="w-full h-full bg-white/5 border border-white/10 rounded-2xl pl-3 pr-8 focus:outline-none focus:border-brand-yellow transition-all text-sm appearance-none font-bold text-gray-300"
                 >
                   <option value="BRL" className="bg-[#15192A]">BRL</option>
                   <option value="EUR" className="bg-[#15192A]">EUR</option>
