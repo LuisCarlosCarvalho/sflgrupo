@@ -22,9 +22,20 @@ interface Feature {
   color_theme?: string;
 }
 
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+
 export default function LandingPage() {
   const [features, setFeatures] = useState<Feature[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.push("/dashboard");
+    }
+  }, [status, router]);
 
   useEffect(() => {
     let isMounted = true;
