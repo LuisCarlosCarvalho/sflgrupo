@@ -2,5 +2,11 @@
   "installCommand": "npm install",
   "buildCommand": "next build",
   "framework": "nextjs",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "crons": [
+    {
+      "path": "/api/tv/sync",
+      "schedule": "0 4 * * *"
+    }
+  ]
 }
