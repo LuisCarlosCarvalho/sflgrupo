@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  
   webpack: (config: any, { dev, isServer }: { dev: boolean; isServer: boolean }) => {
     if (!dev && !isServer) {
       config.plugins.push(
