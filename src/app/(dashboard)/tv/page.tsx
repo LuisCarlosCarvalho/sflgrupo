@@ -35,6 +35,27 @@ export default function TVPage() {
 
   const availableCategories = ["TODOS", ...Array.from(new Set(dynamicCategories)).sort()];
 
+  if (process.env.NODE_ENV === "production") {
+    return (
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center animate-in fade-in">
+        <DashboardNavbar />
+        <div className="max-w-lg text-center space-y-6 px-4">
+          <div className="w-24 h-24 bg-brand-yellow/10 text-brand-yellow rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_40px_rgba(255,215,0,0.2)]">
+             <RefreshCw className="w-12 h-12 animate-spin-slow" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-brand-yellow">
+            Em Manutenção
+          </h1>
+          <p className="text-gray-400 font-bold md:text-lg">
+            Nossa equipe está trabalhando nos bastidores para aprimorar o Guia de Programação (EPG). 
+            <br/><br/>
+            Esta seção voltará ao ar em breve, ainda mais rápida e com mais canais!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   async function loadData() {
     setIsRefreshing(true);
     const data = await getLiveTVHome();
