@@ -32,7 +32,7 @@ interface DashboardApp {
   icon_url?: string;
 }
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { updateFavoriteTeam } from "@/app/actions/user";
 
 const TEAMS_DB = {
@@ -49,6 +49,32 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
   const [selectedTeam, setSelectedTeam] = useState(user.favoriteTeam || "");
   const [savingTeam, setSavingTeam] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState<{name: string, text: string} | null>(null);
+  const [upcomingMatch, setUpcomingMatch] = useState<any>(null);
+  const [loadingMatch, setLoadingMatch] = useState(false);
+
+  useEffect(() => {
+    if (!user.favoriteTeam) return;
+    const fetchMatch = async () => {
+      setLoadingMatch(true);
+      try {
+        const res = await fetch("/api/games/upcoming");
+        const games = await res.json();
+        if (Array.isArray(games)) {
+          const teamLower = user.favoriteTeam!.toLowerCase();
+          const nextGame = games.find((g: any) => 
+            (g.home && g.home.toLowerCase().includes(teamLower)) || 
+            (g.away && g.away.toLowerCase().includes(teamLower))
+          );
+          setUpcomingMatch(nextGame || null);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingMatch(false);
+      }
+    };
+    fetchMatch();
+  }, [user.favoriteTeam]);
 
   const handleSaveTeam = async () => {
     setSavingTeam(true);
@@ -336,7 +362,7 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
             </button>
           </div>
 
-          {/* Fake Match Alert (Simulated Data) */}
+          {/* Match Alert (Real Data) */}
           {user.favoriteTeam && (() => {
             const teamLogos: Record<string, string> = {
               "Palmeiras": "https://upload.wikimedia.org/wikipedia/commons/1/10/Palmeiras_logo.svg",
@@ -355,14 +381,36 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
                     <img src={logo} alt={user.favoriteTeam} className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                      Próximo Jogo (Simulado)
-                    </p>
-                    <p className="text-xs font-bold text-white mt-1">
-                      {user.favoriteTeam} vs Rival FC
-                    </p>
-                    <p className="text-[10px] text-gray-400 mt-1">Hoje, 21:30 - Canal ESPN</p>
+                    {loadingMatch ? (
+                      <p className="text-xs font-bold text-gray-400">Buscando próximos jogos...</p>
+                    ) : upcomingMatch ? (
+                      <>
+                        <p className="text-[10px] font-black text-brand-green uppercase tracking-widest flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                          PRÓXIMO JOGO
+                        </p>
+                        <p className="text-xs font-bold text-white mt-1">
+                          {upcomingMatch.home} vs {upcomingMatch.away}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          {(() => {
+                            const matchDate = new Date(upcomingMatch.date + 'T' + upcomingMatch.time);
+                            return matchDate.toLocaleDateString("pt-BR", { day: '2-digit', month: '2-digit' }) + ' às ' + upcomingMatch.time;
+                          })()}
+                          {upcomingMatch.broadcast && upcomingMatch.broadcast.length > 0 && ` - ${upcomingMatch.broadcast.join(', ')}`}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                          SEM JOGOS PRÓXIMOS
+                        </p>
+                        <p className="text-xs font-bold text-white mt-1">
+                          Nenhuma partida agendada
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-1">Para os próximos 7 dias</p>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
