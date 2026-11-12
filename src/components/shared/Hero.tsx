@@ -74,12 +74,12 @@ export default function Hero() {
             </motion.button>
 
             <motion.a 
-              href="/dashboard/catalogo"
+              href="#pricing"
               whileHover={{ backgroundColor: "rgba(74, 144, 226, 0.1)", borderColor: "#4a90e2" }}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md"
+              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md uppercase"
             >
               <Info className="w-5 h-5" />
-              VER CATÁLOGO
+              PLANOS
             </motion.a>
           </div>
 
