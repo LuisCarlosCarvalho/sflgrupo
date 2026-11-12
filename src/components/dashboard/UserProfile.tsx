@@ -1,7 +1,7 @@
 // src/components/dashboard/UserProfile.tsx
 "use client";
 
-import { User, Mail, CreditCard, Calendar, MessageCircle, ShieldCheck, Monitor, Tv, LayoutGrid, Globe, Download, Plus, X } from "lucide-react";
+import { User, Mail, CreditCard, Calendar, MessageCircle, ShieldCheck, Monitor, Tv, LayoutGrid, Globe, Download, Plus, X, Clock, BookOpen, ExternalLink } from "lucide-react";
 
 interface UserProfileProps {
   user: {
@@ -30,6 +30,9 @@ interface DashboardApp {
   platform: string;
   download_url: string;
   icon_url?: string;
+  description?: string;
+  status?: string;
+  gradient?: string;
 }
 
 import { useState, useEffect } from "react";
@@ -277,50 +280,108 @@ export default function UserProfile({ user, plan, apps = [] }: UserProfileProps 
             </div>
           </div>
 
-          <div className="space-y-3 overflow-y-auto max-h-[400px] pr-2 custom-scrollbar">
+          <div className="space-y-3 overflow-y-auto max-h-[440px] pr-2 custom-scrollbar">
             {apps.map((app) => {
               const isTV = app.platform === "Smart TV LG" || app.platform === "Smart TV Samsung";
+              const isHowToInstall = app.status === "HOW_TO_INSTALL";
+              const isComingSoon = app.status === "COMING_SOON";
+              const isAvailable = app.status === "AVAILABLE" || (!app.status && Boolean(app.download_url));
               
+              const statusBadge = isComingSoon ? (
+                <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                  <Clock size={10} /> Breve
+                </span>
+              ) : isHowToInstall ? (
+                <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 flex items-center gap-1">
+                  <BookOpen size={10} /> Instalar
+                </span>
+              ) : (
+                <span className="text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <Download size={10} /> Baixar
+                </span>
+              );
+
               const CardContent = (
                 <>
-                  <div className="w-12 h-12 rounded-xl bg-black/40 flex items-center justify-center overflow-hidden border border-white/5">
+                  <div className={`w-12 h-12 rounded-xl ${app.gradient ? `bg-gradient-to-br ${app.gradient}` : 'bg-black/40'} flex items-center justify-center overflow-hidden border border-white/10 flex-shrink-0 p-2`}>
                     {app.icon_url ? (
-                      <img src={app.icon_url} alt={app.name} className="w-full h-full object-cover" />
+                      <img src={app.icon_url} alt={app.name} className="w-full h-full object-contain drop-shadow" />
                     ) : (
                       <Download className="w-5 h-5 text-gray-700" />
                     )}
                   </div>
-                  <div className="flex-1 text-left">
-                    <p className="text-xs font-black text-white uppercase group-hover:text-brand-yellow transition-colors">{app.name}</p>
-                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{app.platform}</p>
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-xs font-black text-white uppercase group-hover:text-brand-yellow transition-colors truncate">{app.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      {statusBadge}
+                    </div>
                   </div>
-                  <div className="w-8 h-8 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center group-hover:bg-brand-yellow group-hover:text-black transition-all">
-                    {isTV ? <Monitor size={14} /> : <Plus size={14} />}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                    isComingSoon
+                      ? "bg-white/5 text-gray-500 group-hover:bg-white/10"
+                      : isHowToInstall
+                      ? "bg-sky-500/10 text-sky-400 group-hover:bg-sky-500 group-hover:text-black"
+                      : "bg-brand-yellow/10 text-brand-yellow group-hover:bg-brand-yellow group-hover:text-black"
+                  }`}>
+                    {isTV || isHowToInstall ? <Monitor size={14} /> : isComingSoon ? <Clock size={14} /> : <Download size={14} />}
                   </div>
                 </>
               );
 
-              if (isTV) {
+              // Para apps com instruções (LG, Samsung ou status Como Instalar)
+              if (isTV || isHowToInstall) {
+                const instructionText = app.description || app.download_url || "Siga as orientações para instalar este aplicativo na sua TV.";
                 return (
                   <button 
                     key={app.id}
-                    onClick={() => setSelectedInstruction({ name: app.name, text: app.download_url })}
-                    className="flex w-full items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group"
+                    type="button"
+                    onClick={() => setSelectedInstruction({ name: app.name, text: instructionText })}
+                    className="flex w-full items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group cursor-pointer"
                   >
                     {CardContent}
                   </button>
                 );
               }
 
+              // Para apps em desenvolvimento (Breve)
+              if (isComingSoon) {
+                return (
+                  <button
+                    key={app.id}
+                    type="button"
+                    onClick={() => setSelectedInstruction({ 
+                      name: app.name, 
+                      text: app.description || "Este aplicativo está em fase de desenvolvimento e será liberado em breve para todos os assinantes." 
+                    })}
+                    className="flex w-full items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-amber-400/30 hover:bg-white/10 transition-all group cursor-pointer"
+                  >
+                    {CardContent}
+                  </button>
+                );
+              }
+
+              // Para apps disponíveis para download
+              if (app.download_url) {
+                return (
+                  <a 
+                    key={app.id}
+                    href={app.download_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group"
+                  >
+                    {CardContent}
+                  </a>
+                );
+              }
+
               return (
-                <a 
+                <div 
                   key={app.id}
-                  href={app.download_url}
-                  target="_blank"
-                  className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-brand-yellow/30 hover:bg-white/10 transition-all group"
+                  className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 opacity-60"
                 >
                   {CardContent}
-                </a>
+                </div>
               );
             })}
 
