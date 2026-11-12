@@ -120,7 +120,7 @@ export default function HomePlatformCarousel({ platforms }: HomePlatformCarousel
             }
           }
           .animate-carousel-scroll {
-            animation: carousel-scroll 22s linear infinite;
+            animation: carousel-scroll 45s linear infinite;
           }
         `}</style>
       </div>
