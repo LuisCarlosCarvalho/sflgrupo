@@ -37,83 +37,85 @@ export default function Hero() {
 
       {/* Content */}
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-        <motion.div 
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="max-w-3xl"
-        >
-          <motion.span 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="inline-block bg-brand-blue/20 text-brand-blue text-xs md:text-sm font-black px-4 py-1.5 rounded-full mb-6 border border-brand-blue/30 uppercase tracking-[0.2em]"
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="max-w-2xl xl:max-w-3xl"
           >
-            SFL Grupo Original
-          </motion.span>
-          
-          <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter uppercase">
-            SFL Stream: <br className="hidden sm:block" />
-            <span className="text-brand-yellow">O melhor do entretenimento</span> <br className="hidden sm:block" />
-            no seu controle.
-          </h1>
-          
-          <p className="text-gray-300 text-sm sm:text-base md:text-xl mb-10 max-w-xl leading-relaxed">
-            Filmes, canais ao vivo e séries premium em um só lugar. Ativação instantânea via WhatsApp para você não perder nenhum segundo.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 items-center w-full sm:w-auto">
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsModalOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-black px-6 sm:px-10 py-4 sm:py-5 rounded-2xl transition-all shadow-xl shadow-brand-yellow/20 group"
+            <motion.span 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="inline-block bg-brand-blue/20 text-brand-blue text-xs md:text-sm font-black px-4 py-1.5 rounded-full mb-6 border border-brand-blue/30 uppercase tracking-[0.2em]"
             >
-              <Play className="w-5 h-5 fill-current group-hover:scale-110 transition-transform" />
-              ASSINAR AGORA
-            </motion.button>
+              SFL Grupo Original
+            </motion.span>
+            
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white leading-[1.1] mb-6 tracking-tighter uppercase">
+              SFL Stream: <br className="hidden sm:block" />
+              <span className="text-brand-yellow">O melhor do entretenimento</span> <br className="hidden sm:block" />
+              no seu controle.
+            </h1>
+            
+            <p className="text-gray-300 text-sm sm:text-base md:text-xl mb-10 max-w-xl leading-relaxed">
+              Filmes, canais ao vivo e séries premium em um só lugar. Ativação instantânea via WhatsApp para você não perder nenhum segundo.
+            </p>
 
-            <motion.a 
-              href="#pricing"
-              whileHover={{ backgroundColor: "rgba(74, 144, 226, 0.1)", borderColor: "#4a90e2" }}
-              className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md uppercase"
+            <div className="flex flex-col sm:flex-row gap-4 items-center w-full sm:w-auto">
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setIsModalOpen(true)}
+                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-brand-yellow hover:bg-brand-yellow/90 text-black font-black px-6 sm:px-10 py-4 sm:py-5 rounded-2xl transition-all shadow-xl shadow-brand-yellow/20 group"
+              >
+                <Play className="w-5 h-5 fill-current group-hover:scale-110 transition-transform" />
+                ASSINAR AGORA
+              </motion.button>
+
+              <motion.a 
+                href="#pricing"
+                whileHover={{ backgroundColor: "rgba(74, 144, 226, 0.1)", borderColor: "#4a90e2" }}
+                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-white/10 text-white font-bold px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border border-white/20 transition-all backdrop-blur-md uppercase"
+              >
+                <Info className="w-5 h-5" />
+                PLANOS
+              </motion.a>
+            </div>
+
+            {/* Mobile / Tablet Carousel */}
+            <div className="mt-8 lg:hidden max-w-md">
+              <HomePlatformCarousel platforms={platforms} />
+            </div>
+          </motion.div>
+
+          {/* Floating Logo + Carousel on Right Side (aligned to bottom of left buttons, shifted ~15% left) */}
+          <div className="hidden lg:flex flex-col items-center w-[380px] xl:w-[480px] lg:-translate-x-[15%] flex-shrink-0">
+            <motion.div
+              animate={{ y: [0, -16, 0], rotate: [-2, 2, -2] }}
+              transition={{ 
+                repeat: Infinity, 
+                duration: 6, 
+                ease: "easeInOut" 
+              }}
+              className="pointer-events-none mb-6"
             >
-              <Info className="w-5 h-5" />
-              PLANOS
-            </motion.a>
-          </div>
+              <div className="relative">
+                {/* Outer glow effect */}
+                <div className="absolute inset-0 bg-brand-yellow/20 blur-[100px] rounded-full" />
+                <img 
+                  src="https://i.imgur.com/Ax3LqvG.png" 
+                  alt="SFL Stream Logo" 
+                  className="w-[260px] xl:w-[360px] object-contain relative z-10 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] opacity-90"
+                />
+              </div>
+            </motion.div>
 
-          {/* Mobile / Tablet Carousel */}
-          <div className="mt-8 lg:hidden max-w-md">
-            <HomePlatformCarousel platforms={platforms} />
+            <div className="w-full -mb-3">
+              <HomePlatformCarousel platforms={platforms} />
+            </div>
           </div>
-        </motion.div>
-      </div>
-
-      {/* Floating Logo + Carousel on Right Side */}
-      <div className="hidden lg:flex flex-col items-center absolute right-8 xl:right-24 top-1/2 -translate-y-1/2 z-10 w-[400px] xl:w-[500px]">
-        <motion.div
-          animate={{ y: [0, -16, 0], rotate: [-2, 2, -2] }}
-          transition={{ 
-            repeat: Infinity, 
-            duration: 6, 
-            ease: "easeInOut" 
-          }}
-          className="pointer-events-none mb-4"
-        >
-          <div className="relative">
-            {/* Outer glow effect */}
-            <div className="absolute inset-0 bg-brand-yellow/20 blur-[100px] rounded-full" />
-            <img 
-              src="https://i.imgur.com/Ax3LqvG.png" 
-              alt="SFL Stream Logo" 
-              className="w-[280px] xl:w-[390px] object-contain relative z-10 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] opacity-90"
-            />
-          </div>
-        </motion.div>
-
-        <div className="w-full">
-          <HomePlatformCarousel platforms={platforms} />
         </div>
       </div>
 
