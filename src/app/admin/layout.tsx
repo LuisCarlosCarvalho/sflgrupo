@@ -1,6 +1,7 @@
 "use client";
 
 import Sidebar from "@/components/admin/Sidebar";
+import Link from "next/link";
 import { ReactNode, useState } from "react";
 import { Menu, X } from "lucide-react";
 
@@ -30,10 +31,10 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Mobile Header */}
           <header className="lg:hidden flex items-center justify-between p-6 border-b border-white/5 bg-admin-sidebar/50 backdrop-blur-xl sticky top-0 z-[80]">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <img src="https://i.imgur.com/2ex0N3R.png" alt="Logo" className="h-6 w-auto" />
               <h2 className="text-sm font-black text-brand-yellow tracking-tighter uppercase">SFL Admin</h2>
-            </div>
+            </Link>
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               className="p-2 rounded-xl bg-white/5 text-white"

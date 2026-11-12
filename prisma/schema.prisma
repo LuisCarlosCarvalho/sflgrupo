@@ -182,3 +182,27 @@ model SystemSetting {
   value       String   @db.Text
   updatedAt   DateTime @updatedAt
 }
+
+model HomePlatform {
+  id          String   @id @default(cuid())
+  name        String
+  logoUrl     String
+  description String   @db.Text
+  status      String   @default("COMING_SOON") // "AVAILABLE" (Baixar) | "COMING_SOON" (Breve)
+  fileUrl     String?
+  shortCode   String?  @unique
+  gradient    String   @default("from-emerald-400 via-teal-400 to-cyan-500")
+  order       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UploadedFile {
+  id        String   @id @default(cuid())
+  filename  String
+  mimeType  String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+}

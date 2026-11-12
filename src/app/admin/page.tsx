@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, CreditCard, AlertTriangle, Film, HelpCircle, ArrowUpRight } from "lucide-react";
+import { Users, CreditCard, AlertTriangle, Film, HelpCircle, ArrowUpRight, Layers } from "lucide-react";
 
 export const metadata = {
   title: "Admin – Dashboard SFL",
@@ -8,6 +8,7 @@ export const metadata = {
 
 const stats = [
   { label: "Usuários", href: "/admin/users", icon: Users, color: "text-brand-green", bg: "bg-brand-green/10" },
+  { label: "Carrossel Home", href: "/admin/platforms", icon: Layers, color: "text-brand-yellow", bg: "bg-brand-yellow/10" },
   { label: "Finanças", href: "/admin/finance", icon: CreditCard, color: "text-brand-yellow", bg: "bg-brand-yellow/10" },
   { label: "Alertas", href: "/admin/alerts", icon: AlertTriangle, color: "text-red-500", bg: "bg-red-500/10" },
   { label: "Conteúdo", href: "/admin/content", icon: Film, color: "text-brand-blue", bg: "bg-brand-blue/10" },

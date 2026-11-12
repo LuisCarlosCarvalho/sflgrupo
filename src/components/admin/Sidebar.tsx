@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Home, Users, CreditCard, Bell, Film, HelpCircle, LogOut, X, Tv, Menu, Trophy, Download } from "lucide-react";
+import { Home, Users, CreditCard, Bell, Film, HelpCircle, LogOut, X, Tv, Menu, Trophy, Download, Layers } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 interface SidebarProps {
@@ -7,8 +7,9 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { href: "/admin", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
+  { href: "/", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
   { href: "/admin/users", label: "Usuários", icon: <Users className="w-5 h-5" /> },
+  { href: "/admin/platforms", label: "Carrossel Home", icon: <Layers className="w-5 h-5" /> },
   { href: "/admin/apps", label: "Aplicativos", icon: <Download className="w-5 h-5" /> },
   { href: "/admin/finance", label: "Finanças", icon: <CreditCard className="w-5 h-5" /> },
   { href: "/admin/alerts", label: "Alertas", icon: <Bell className="w-5 h-5" /> },
@@ -21,7 +22,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
   return (
     <nav className="flex flex-col p-8 h-full bg-admin-sidebar">
       <div className="flex items-center justify-between mb-12">
-        <Link href="/admin" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <Link href="/" onClick={onClose} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <img src="https://i.imgur.com/2ex0N3R.png" alt="Logo" className="h-9 w-auto" />
           <h2 className="text-xl font-black text-brand-yellow tracking-tighter uppercase">SFL Admin</h2>
         </Link>

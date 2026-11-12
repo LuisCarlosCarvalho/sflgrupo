@@ -2,11 +2,24 @@
 
 import { motion } from "framer-motion";
 import { Play, Info } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LeadModal from "./LeadModal";
+import HomePlatformCarousel from "./HomePlatformCarousel";
+import { getHomePlatforms, type HomePlatformItem } from "@/app/actions/platforms";
 
 export default function Hero() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [platforms, setPlatforms] = useState<HomePlatformItem[]>([]);
+
+  useEffect(() => {
+    let mounted = true;
+    getHomePlatforms().then((data) => {
+      if (mounted && data) setPlatforms(data);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section className="relative h-[90vh] md:h-screen w-full flex items-center justify-start overflow-hidden">
@@ -69,29 +82,40 @@ export default function Hero() {
               VER CATÁLOGO
             </motion.a>
           </div>
+
+          {/* Mobile / Tablet Carousel */}
+          <div className="mt-8 lg:hidden max-w-md">
+            <HomePlatformCarousel platforms={platforms} />
+          </div>
         </motion.div>
       </div>
 
-      {/* Floating Logo on Right Side */}
-      <motion.div
-        animate={{ y: [0, -20, 0], rotate: [-2, 2, -2] }}
-        transition={{ 
-          repeat: Infinity, 
-          duration: 6, 
-          ease: "easeInOut" 
-        }}
-        className="hidden lg:block absolute right-10 xl:right-32 top-[40%] -translate-y-1/2 z-10 pointer-events-none"
-      >
-        <div className="relative">
-          {/* Outer glow effect */}
-          <div className="absolute inset-0 bg-brand-yellow/20 blur-[100px] rounded-full" />
-          <img 
-            src="https://i.imgur.com/Ax3LqvG.png" 
-            alt="SFL Stream Logo" 
-            className="w-[300px] xl:w-[450px] object-contain relative z-10 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] opacity-90"
-          />
+      {/* Floating Logo + Carousel on Right Side */}
+      <div className="hidden lg:flex flex-col items-center absolute right-8 xl:right-24 top-1/2 -translate-y-1/2 z-10 w-[400px] xl:w-[500px]">
+        <motion.div
+          animate={{ y: [0, -16, 0], rotate: [-2, 2, -2] }}
+          transition={{ 
+            repeat: Infinity, 
+            duration: 6, 
+            ease: "easeInOut" 
+          }}
+          className="pointer-events-none mb-4"
+        >
+          <div className="relative">
+            {/* Outer glow effect */}
+            <div className="absolute inset-0 bg-brand-yellow/20 blur-[100px] rounded-full" />
+            <img 
+              src="https://i.imgur.com/Ax3LqvG.png" 
+              alt="SFL Stream Logo" 
+              className="w-[280px] xl:w-[390px] object-contain relative z-10 drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] opacity-90"
+            />
+          </div>
+        </motion.div>
+
+        <div className="w-full">
+          <HomePlatformCarousel platforms={platforms} />
         </div>
-      </motion.div>
+      </div>
 
       {/* WhatsApp Lead Modal Integration */}
       <LeadModal 
