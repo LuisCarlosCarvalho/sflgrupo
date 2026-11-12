@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Download, Clock, X, ExternalLink, Copy, Check, BookOpen } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Download, Clock, X, ExternalLink, Copy, Check, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import type { HomePlatformItem } from "@/app/actions/platforms";
 
 interface HomePlatformCarouselProps {
@@ -12,11 +12,85 @@ export default function HomePlatformCarousel({ platforms }: HomePlatformCarousel
   const [selected, setSelected] = useState<HomePlatformItem | null>(null);
   const [copied, setCopied] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Duplicate items 3x for seamless infinite scrolling in both directions
+  const trackItems = platforms && platforms.length > 0 ? [...platforms, ...platforms, ...platforms] : [];
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || platforms.length === 0) return;
+
+    // Start at the middle set so user can immediately scroll left or right
+    const initTimer = setTimeout(() => {
+      if (el.scrollWidth > 0) {
+        el.scrollLeft = el.scrollWidth / 3;
+      }
+    }, 50);
+
+    return () => clearTimeout(initTimer);
+  }, [platforms.length]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || platforms.length === 0) return;
+
+    let animId: number;
+    let carry = 0;
+
+    const step = () => {
+      if (!isPaused && el) {
+        const oneSet = el.scrollWidth / 3;
+        if (oneSet > 0) {
+          carry += 0.45; // Slow, smooth auto-scroll
+          if (carry >= 1) {
+            const px = Math.floor(carry);
+            el.scrollLeft += px;
+            carry -= px;
+          }
+
+          if (el.scrollLeft >= oneSet * 2) {
+            el.scrollLeft -= oneSet;
+          } else if (el.scrollLeft <= 2) {
+            el.scrollLeft += oneSet;
+          }
+        }
+      }
+      animId = requestAnimationFrame(step);
+    };
+
+    animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [isPaused, platforms.length]);
 
   if (!platforms || platforms.length === 0) return null;
 
-  // Duplicate items for seamless infinite marquee
-  const trackItems = [...platforms, ...platforms, ...platforms];
+  const handleManualScroll = (direction: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    setIsPaused(true);
+    if (manualTimeoutRef.current) clearTimeout(manualTimeoutRef.current);
+
+    const oneSet = el.scrollWidth / 3;
+    if (oneSet > 0) {
+      if (direction === "left" && el.scrollLeft < 150) {
+        el.scrollLeft += oneSet;
+      } else if (direction === "right" && el.scrollLeft > oneSet * 2 - 150) {
+        el.scrollLeft -= oneSet;
+      }
+    }
+
+    el.scrollBy({
+      left: direction === "left" ? -140 : 140,
+      behavior: "smooth",
+    });
+
+    manualTimeoutRef.current = setTimeout(() => {
+      setIsPaused(false);
+    }, 1800);
+  };
 
   const getDownloadHref = (item: HomePlatformItem) => {
     if (item.shortCode) return `/d/${item.shortCode}`;
@@ -40,87 +114,102 @@ export default function HomePlatformCarousel({ platforms }: HomePlatformCarousel
   return (
     <>
       <div
-        className="relative w-full overflow-hidden py-3 select-none"
-        style={{
-          maskImage: "linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%)",
-        }}
+        className="relative w-full py-3 select-none group/carousel"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
+        {/* Left Arrow */}
+        <button
+          type="button"
+          onClick={() => handleManualScroll("left")}
+          aria-label="Anterior"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/70 hover:bg-brand-yellow text-white hover:text-black border border-white/15 backdrop-blur-md flex items-center justify-center shadow-lg transition-all cursor-pointer"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </button>
+
+        {/* Scrollable Track with Transparency Fade */}
         <div
-          className="flex gap-3 sm:gap-4 w-max animate-carousel-scroll"
+          ref={scrollRef}
+          className="w-full overflow-x-auto no-scrollbar px-2"
           style={{
-            animationPlayState: isPaused ? "paused" : "running",
+            maskImage: "linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%)",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
           }}
         >
-          {trackItems.map((item, idx) => {
-            const isAvailable = item.status === "AVAILABLE";
-            const isHowToInstall = item.status === "HOW_TO_INSTALL";
-            const statusLabel = isAvailable
-              ? "Baixar"
-              : isHowToInstall
-              ? "Como Instalar"
-              : "Breve";
+          <div className="flex gap-3 sm:gap-4 w-max py-1">
+            {trackItems.map((item, idx) => {
+              const isAvailable = item.status === "AVAILABLE";
+              const isHowToInstall = item.status === "HOW_TO_INSTALL";
+              const statusLabel = isAvailable
+                ? "Baixar"
+                : isHowToInstall
+                ? "Como Instalar"
+                : "Breve";
 
-            return (
-              <button
-                key={`${item.id}-${idx}`}
-                type="button"
-                onClick={() => setSelected(item)}
-                title={`${item.name} — ${statusLabel}`}
-                className={`group relative flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 xl:w-[118px] xl:h-[118px] rounded-2xl bg-gradient-to-br ${item.gradient} p-3 flex flex-col items-center justify-between shadow-lg hover:scale-105 active:scale-95 transition-transform duration-300 cursor-pointer border border-white/20`}
-              >
-                <div className="flex-1 flex items-center justify-center w-full overflow-hidden">
-                  <img
-                    src={item.logoUrl}
-                    alt={item.name}
-                    className="max-w-[78%] max-h-[54px] object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)] group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
-
-                <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider backdrop-blur-md whitespace-nowrap ${
-                    isAvailable
-                      ? "bg-black/45 text-emerald-300 border border-emerald-300/30"
-                      : isHowToInstall
-                      ? "bg-black/45 text-sky-300 border border-sky-300/30"
-                      : "bg-black/35 text-white/85 border border-white/20"
-                  }`}
+              return (
+                <button
+                  key={`${item.id}-${idx}`}
+                  type="button"
+                  onClick={() => setSelected(item)}
+                  title={`${item.name} — ${statusLabel}`}
+                  className={`group relative flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 xl:w-[118px] xl:h-[118px] rounded-2xl bg-gradient-to-br ${item.gradient} p-3 flex flex-col items-center justify-between shadow-lg hover:scale-105 active:scale-95 transition-transform duration-300 cursor-pointer border border-white/20`}
                 >
-                  {isAvailable ? (
-                    <>
-                      <Download className="w-2.5 h-2.5" />
-                      Baixar
-                    </>
-                  ) : isHowToInstall ? (
-                    <>
-                      <BookOpen className="w-2.5 h-2.5" />
-                      Como Instalar
-                    </>
-                  ) : (
-                    <>
-                      <Clock className="w-2.5 h-2.5" />
-                      Breve
-                    </>
-                  )}
-                </span>
-              </button>
-            );
-          })}
+                  <div className="flex-1 flex items-center justify-center w-full overflow-hidden">
+                    <img
+                      src={item.logoUrl}
+                      alt={item.name}
+                      className="max-w-[78%] max-h-[54px] object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)] group-hover:scale-110 transition-transform duration-300"
+                    />
+                  </div>
+
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8.5px] font-black uppercase tracking-wider backdrop-blur-md whitespace-nowrap ${
+                      isAvailable
+                        ? "bg-black/45 text-emerald-300 border border-emerald-300/30"
+                        : isHowToInstall
+                        ? "bg-black/45 text-sky-300 border border-sky-300/30"
+                        : "bg-black/35 text-white/85 border border-white/20"
+                    }`}
+                  >
+                    {isAvailable ? (
+                      <>
+                        <Download className="w-2.5 h-2.5" />
+                        Baixar
+                      </>
+                    ) : isHowToInstall ? (
+                      <>
+                        <BookOpen className="w-2.5 h-2.5" />
+                        Como Instalar
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-2.5 h-2.5" />
+                        Breve
+                      </>
+                    )}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
+        {/* Right Arrow */}
+        <button
+          type="button"
+          onClick={() => handleManualScroll("right")}
+          aria-label="Próximo"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/70 hover:bg-brand-yellow text-white hover:text-black border border-white/15 backdrop-blur-md flex items-center justify-center shadow-lg transition-all cursor-pointer"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
         <style jsx>{`
-          @keyframes carousel-scroll {
-            0% {
-              transform: translateX(0);
-            }
-            100% {
-              transform: translateX(-33.3333%);
-            }
-          }
-          .animate-carousel-scroll {
-            animation: carousel-scroll 45s linear infinite;
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
           }
         `}</style>
       </div>
@@ -244,4 +333,3 @@ export default function HomePlatformCarousel({ platforms }: HomePlatformCarousel
     </>
   );
 }
-
